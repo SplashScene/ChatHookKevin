@@ -159,12 +159,12 @@ class IntroViewController: UIViewController {
         let player = AVPlayer(url: path as URL)
         
         let newLayer = AVPlayerLayer(player: player)
-            newLayer.frame = self.videoView.frame
-        self.videoView.layer.addSublayer(newLayer)
-            newLayer.videoGravity = AVLayerVideoGravityResizeAspectFill
-            newLayer.masksToBounds = true
         
-        //self.logoTextCenter(self.videoView)
+        newLayer.videoGravity = AVLayerVideoGravityResizeAspectFill
+        newLayer.masksToBounds = true
+        self.videoView.layer.addSublayer(newLayer)
+        newLayer.frame = view.bounds
+        
         player.play()
         
         player.actionAtItemEnd = AVPlayerActionAtItemEnd.none

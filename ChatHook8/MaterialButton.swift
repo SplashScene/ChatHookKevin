@@ -18,7 +18,7 @@ class MaterialButton: UIButton {
     override init(frame: CGRect) {
         super.init(frame: frame)
         //backgroundColor = PLAYLIFE_COLOR
-        //backgroundColor = UIColor(r: 80, g: 101, b: 161)
+        backgroundColor = UIColor(r: 80, g: 101, b: 161)
         setTitleColor(UIColor.white, for: .normal)
         titleLabel?.font = UIFont(name: FONT_AVENIR_MEDIUM, size: 18.0)
 

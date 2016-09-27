@@ -32,5 +32,7 @@
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>The app needs to accesss your photo library for profile pictures and image sharing</string>
 </dict>
 </plist>

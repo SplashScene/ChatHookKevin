@@ -449,15 +449,16 @@ extension PostsVC:UITableViewDelegate, UITableViewDataSource{
         return cell
     }
     
-    private func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
+    
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return postsArray.count
     }
     
-    private func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         let post = postsArray[indexPath.row]
         if post.showcaseUrl == nil{
             return 175
@@ -518,7 +519,7 @@ extension PostsVC{
                             self.uploadToFirebaseStorageUsingSelectedMedia(image: thumbnailImage, video: nil, completion: { (imageUrl) in
                                 imageCache.setObject(thumbnailImage, forKey: videoUrl as NSString)
                                 self.enterIntoPostsAndPostsPerRoomDatabaseWithImageUrl(metadata: metadata!.contentType!, postText: self.postedText, thumbnailURL: imageUrl, fileURL: videoUrl)
-                                self.imageSelectorView.loadImageUsingCacheWithUrlString(urlString: imageUrl)
+                                //self.imageSelectorView.loadImageUsingCacheWithUrlString(urlString: imageUrl)
                             })
                         }
                     }
@@ -644,36 +645,7 @@ extension PostsVC: UITextFieldDelegate{
     }
 }
 
-extension PostsVC:UIImagePickerControllerDelegate, UINavigationControllerDelegate{
-    
-    private func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
-        var selectedImageFromPicker: UIImage?
-        
-        if let editedImage = info["UIImagePickerControllerEditedImage"] as? UIImage{
-            selectedImageFromPicker = editedImage
-        } else if let originalImage = info["UIImagePickerControllerOriginalImage"] as? UIImage{
-            selectedImageFromPicker = originalImage
-        }
-        
-        if let selectedImage = selectedImageFromPicker{
-            postedImage = selectedImage
-            imageSelectorView.image = postedImage
-        }
-        
-        if let video = info["UIImagePickerControllerMediaURL"] as? NSURL{
-            postedVideo = video
-            imageSelectorView.image = UIImage(named: "movieIcon")
-        }
-        self.postButton.isUserInteractionEnabled = true
-        self.postButton.alpha = 1.0
-        dismiss(animated: true, completion: nil)
-    }
-    
-    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        dismiss(animated: true, completion: nil)
-    }
-    
-}//end extension
+
 
 
 

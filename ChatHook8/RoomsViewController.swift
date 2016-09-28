@@ -24,7 +24,7 @@ class RoomsViewController: UITableViewController {
         tableView.estimatedRowHeight = 72
         tableView.delegate = self
         tableView.dataSource = self
-        
+
         tableView.register(PublicRoomCell.self, forCellReuseIdentifier: cellID)
         
         observeRooms()
@@ -37,22 +37,27 @@ class RoomsViewController: UITableViewController {
             
             self.roomsArray = []
     
-            if let snapshots = snapshot.children.allObjects as? [FIRDataSnapshot]{
-                for snap in snapshots{
-                    if let postDict = snap.value as? Dictionary<String, AnyObject>{
-                        let post = PublicRoom(key: snap.key)
-                            post.setValuesForKeys(postDict)
-                        self.roomsArray.insert(post, at: 0)
+                if let snapshots = snapshot.children.allObjects as? [FIRDataSnapshot]{
+                    for snap in snapshots{
+                        if let postDict = snap.value as? Dictionary<String, AnyObject>{
+                            let post = PublicRoom(key: snap.key)
+                                post.setValuesForKeys(postDict)
+                            self.roomsArray.insert(post, at: 0)
+                        }
                     }
                 }
-            }
-            DispatchQueue.main.async{
-                self.tableView.reloadData()
-            }
+            self.handleReloadData()
         })
+       
     }
     
     //MARK: - Handler Methods
+    
+    func handleReloadData(){
+        DispatchQueue.main.async{
+            self.tableView.reloadData()
+        }
+    }
 
     func promptForAddRoom(){
         let ac = UIAlertController(title: "Enter Room Name", message: "What is the name of your public room?", preferredStyle: .alert)
@@ -89,7 +94,7 @@ class RoomsViewController: UITableViewController {
             let firebasePost = DataService.ds.REF_CHATROOMS.childByAutoId()
                 firebasePost.setValue(post)
             
-            tableView.reloadData()
+            handleReloadData()
         }
     }
     
@@ -112,35 +117,33 @@ class RoomsViewController: UITableViewController {
     
     
     //MARK: - TableView Methods
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let post = roomsArray[indexPath.row]
         
         if let cell = tableView.dequeueReusableCell(withIdentifier: cellID) as? PublicRoomCell{
-               cell.publicRoom = post
+            cell.publicRoom = post
             return cell
         }else{
             return PublicRoomCell()
         }
     }
-    
-    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+
+    override func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
     
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return roomsArray.count
     }
     
-    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return tableView.estimatedRowHeight
     }
     
-    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let room = roomsArray[indexPath.row]
         showPostControllerForRoom(room: room)
     }
-    
-    
 }//end RoomsViewController
 
 

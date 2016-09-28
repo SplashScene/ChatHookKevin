@@ -38,16 +38,14 @@
 		84D3ACEF1D9AE5C400EE54CF /* IntroViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3ACEE1D9AE5C400EE54CF /* IntroViewController.swift */; };
 		84D3ACF11D9AE99400EE54CF /* MainTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3ACF01D9AE99400EE54CF /* MainTabBar.swift */; };
 		84D3ACF31D9AEA0F00EE54CF /* PostsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3ACF21D9AEA0F00EE54CF /* PostsVC.swift */; };
-		84D3AF191D9AF04200EE54CF /* FinishRegister+Image.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3AF171D9AF04200EE54CF /* FinishRegister+Image.swift */; };
 		84D3AF1A1D9AF04200EE54CF /* FinishRegisterController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3AF181D9AF04200EE54CF /* FinishRegisterController.swift */; };
 		84D3AF1C1D9AF23500EE54CF /* RoomsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3AF1B1D9AF23500EE54CF /* RoomsViewController.swift */; };
 		84D3AF1F1D9AF3E800EE54CF /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3AF1D1D9AF3E800EE54CF /* ProfileViewController.swift */; };
-		84D3AF201D9AF3E800EE54CF /* ProfileViewController+Image.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3AF1E1D9AF3E800EE54CF /* ProfileViewController+Image.swift */; };
 		84D3AF221D9AFCB400EE54CF /* GetLocation1.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3AF211D9AFCB400EE54CF /* GetLocation1.swift */; };
 		84D3AF251D9AFE8000EE54CF /* MessagesController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3AF231D9AFE8000EE54CF /* MessagesController.swift */; };
 		84D3AF261D9AFE8000EE54CF /* NewMessagesController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3AF241D9AFE8000EE54CF /* NewMessagesController.swift */; };
 		84D3AF281D9B01F600EE54CF /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3AF271D9B01F600EE54CF /* ChatViewController.swift */; };
-		84D3AF2A1D9B060F00EE54CF /* ChatViewController+Image.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3AF291D9B060F00EE54CF /* ChatViewController+Image.swift */; };
+		84D3AF2C1D9C01E200EE54CF /* ImageExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3AF2B1D9C01E200EE54CF /* ImageExtensions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -85,16 +83,14 @@
 		84D3ACEE1D9AE5C400EE54CF /* IntroViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IntroViewController.swift; sourceTree = "<group>"; };
 		84D3ACF01D9AE99400EE54CF /* MainTabBar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainTabBar.swift; sourceTree = "<group>"; };
 		84D3ACF21D9AEA0F00EE54CF /* PostsVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PostsVC.swift; sourceTree = "<group>"; };
-		84D3AF171D9AF04200EE54CF /* FinishRegister+Image.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "FinishRegister+Image.swift"; sourceTree = "<group>"; };
 		84D3AF181D9AF04200EE54CF /* FinishRegisterController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FinishRegisterController.swift; sourceTree = "<group>"; };
 		84D3AF1B1D9AF23500EE54CF /* RoomsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoomsViewController.swift; sourceTree = "<group>"; };
 		84D3AF1D1D9AF3E800EE54CF /* ProfileViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
-		84D3AF1E1D9AF3E800EE54CF /* ProfileViewController+Image.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ProfileViewController+Image.swift"; sourceTree = "<group>"; };
 		84D3AF211D9AFCB400EE54CF /* GetLocation1.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetLocation1.swift; sourceTree = "<group>"; };
 		84D3AF231D9AFE8000EE54CF /* MessagesController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagesController.swift; sourceTree = "<group>"; };
 		84D3AF241D9AFE8000EE54CF /* NewMessagesController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewMessagesController.swift; sourceTree = "<group>"; };
 		84D3AF271D9B01F600EE54CF /* ChatViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
-		84D3AF291D9B060F00EE54CF /* ChatViewController+Image.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ChatViewController+Image.swift"; sourceTree = "<group>"; };
+		84D3AF2B1D9C01E200EE54CF /* ImageExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageExtensions.swift; sourceTree = "<group>"; };
 		B2BBAD97D0114868FD6121E3 /* Pods-ChatHook8.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ChatHook8.release.xcconfig"; path = "Pods/Target Support Files/Pods-ChatHook8/Pods-ChatHook8.release.xcconfig"; sourceTree = "<group>"; };
 		C80371A829201E16C2475201 /* Pods_ChatHook8.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ChatHook8.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -160,15 +156,12 @@
 		84D3ACB81D9AD9BC00EE54CF /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				84D3AF291D9B060F00EE54CF /* ChatViewController+Image.swift */,
 				84D3AF271D9B01F600EE54CF /* ChatViewController.swift */,
 				84D3AF231D9AFE8000EE54CF /* MessagesController.swift */,
 				84D3AF241D9AFE8000EE54CF /* NewMessagesController.swift */,
 				84D3AF211D9AFCB400EE54CF /* GetLocation1.swift */,
 				84D3AF1D1D9AF3E800EE54CF /* ProfileViewController.swift */,
-				84D3AF1E1D9AF3E800EE54CF /* ProfileViewController+Image.swift */,
 				84D3AF1B1D9AF23500EE54CF /* RoomsViewController.swift */,
-				84D3AF171D9AF04200EE54CF /* FinishRegister+Image.swift */,
 				84D3AF181D9AF04200EE54CF /* FinishRegisterController.swift */,
 				84D3ACF21D9AEA0F00EE54CF /* PostsVC.swift */,
 				84D3ACF01D9AE99400EE54CF /* MainTabBar.swift */,
@@ -222,6 +215,7 @@
 				84D3ACC31D9ADE0300EE54CF /* Constants.swift */,
 				84D3ACC41D9ADE0300EE54CF /* Extensions.swift */,
 				84D3ACC51D9ADE0300EE54CF /* TipInCellAnimator.swift */,
+				84D3AF2B1D9C01E200EE54CF /* ImageExtensions.swift */,
 			);
 			name = Util;
 			sourceTree = "<group>";
@@ -385,10 +379,10 @@
 				84D3ACEC1D9AE08D00EE54CF /* testPostCell.swift in Sources */,
 				84D3AF1A1D9AF04200EE54CF /* FinishRegisterController.swift in Sources */,
 				84D3ACD21D9ADFC800EE54CF /* GalleryImage.swift in Sources */,
-				84D3AF201D9AF3E800EE54CF /* ProfileViewController+Image.swift in Sources */,
 				84D3ACC81D9ADE0300EE54CF /* TipInCellAnimator.swift in Sources */,
 				84D3ACEB1D9AE08D00EE54CF /* PublicRoomCell.swift in Sources */,
 				84D3ACC71D9ADE0300EE54CF /* Extensions.swift in Sources */,
+				84D3AF2C1D9C01E200EE54CF /* ImageExtensions.swift in Sources */,
 				84D3AF1F1D9AF3E800EE54CF /* ProfileViewController.swift in Sources */,
 				84D3AF251D9AFE8000EE54CF /* MessagesController.swift in Sources */,
 				84D3ACEA1D9AE08D00EE54CF /* PlayButton.swift in Sources */,
@@ -400,13 +394,11 @@
 				84D3ACC61D9ADE0300EE54CF /* Constants.swift in Sources */,
 				84D3ACF31D9AEA0F00EE54CF /* PostsVC.swift in Sources */,
 				84D3AF221D9AFCB400EE54CF /* GetLocation1.swift in Sources */,
-				84D3AF191D9AF04200EE54CF /* FinishRegister+Image.swift in Sources */,
 				84D3ACD61D9ADFC800EE54CF /* User.swift in Sources */,
 				84D3AF281D9B01F600EE54CF /* ChatViewController.swift in Sources */,
 				84D3ACE51D9AE08D00EE54CF /* GalleryCollectionCell.swift in Sources */,
 				84D3ACD51D9ADFC800EE54CF /* PublicRoom.swift in Sources */,
 				84D3ACE61D9AE08D00EE54CF /* MaterialButton.swift in Sources */,
-				84D3AF2A1D9B060F00EE54CF /* ChatViewController+Image.swift in Sources */,
 				84D3ACED1D9AE08D00EE54CF /* UserCell.swift in Sources */,
 				84D3ACE71D9AE08D00EE54CF /* MaterialImageView.swift in Sources */,
 			);

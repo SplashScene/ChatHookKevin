@@ -179,7 +179,7 @@ class FinishRegisterController: UIViewController {
         
         let imageName = NSUUID().uuidString
         
-        let storageRef = FIRStorage.storage().reference().child("profile_images").child("\(imageName).jpg")
+        let storageRef = FIRStorage.storage().reference().child("profile_images").child(userName).child("\(imageName).jpg")
         
         if let uploadData = UIImageJPEGRepresentation(self.profileImageView.image!, 0.2){
             storageRef.put(uploadData, metadata: nil, completion: { (metadata, error) in
@@ -194,7 +194,7 @@ class FinishRegisterController: UIViewController {
                          "FullName": fullName]
                     
                         self.postRegisteredUserToFirebase(values: values, progress: {[unowned self] percent in
-                        self.progressView.setProgress(percent, animated: true)
+                            self.progressView.setProgress(percent, animated: true)
                         })
                 }
             })

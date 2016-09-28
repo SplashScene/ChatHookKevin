@@ -68,6 +68,7 @@ class GetLocation1: UIViewController {
     //MARK: - View Methods
     override func viewDidLoad() {
         super.viewDidLoad()
+        print("In viewDidLoad")
         view.addSubview(topView)
         view.addSubview(mapView)
         
@@ -87,22 +88,28 @@ class GetLocation1: UIViewController {
     //MARK: - Setup Methods
     
     func checkAuthorizationStatus(){
+        print("In checkAuthorizationStatus")
         let authStatus = CLLocationManager.authorizationStatus()
         
         switch(authStatus){
+            
             case .notDetermined: locationManager?.requestWhenInUseAuthorization(); return
             case .denied: showLocationServicesDeniedAlert(); return
             case .restricted: showLocationServicesDeniedAlert(); return
             default:
                 if authStatus != .authorizedWhenInUse{
                     locationManager?.requestWhenInUseAuthorization()
+                    print("The AUTHORIZATION STATUS IS: whenInUseAuthorization")
                 }else{
+                    //locationManager?.startUpdatingLocation()
                     locationManager?.requestLocation()
+                    print("The AUTHORIZATION STATUS IS: requestLocation")
                 }
         }//end switch
     }//end checkAuthorizationStatus
     
     func setupUI(){
+        print("In setupUI")
         //need x, y, width and height constraints
         topView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         topView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
@@ -127,17 +134,21 @@ class GetLocation1: UIViewController {
     }
     
     func userIsOnline(){
+        print("In userIsOnline")
         userOnline = true
         onlineLabel.text = "Online"
         topView.backgroundColor = UIColor(r: 80, g: 101, b: 161)
         
         if let currentUserLocation = CurrentUser._location{
-            userLatInt = Int(currentUserLocation.coordinate.latitude)
-            userLngInt = Int(currentUserLocation.coordinate.longitude)
-            let usersOnlineRef = DataService.ds.REF_BASE.child("users_online").child("\(userLatInt)").child("\(userLngInt)").child(CurrentUser._postKey)
-            let userLocal = ["userLatitude":currentUserLocation.coordinate.latitude, "userLongitude": currentUserLocation.coordinate.longitude]
-            usersOnlineRef.setValue(userLocal)
-            observeOtherUsersLocations()
+             userLatInt = Int(currentUserLocation.coordinate.latitude)
+            print("The user lat is: \(userLatInt)")
+             userLngInt = Int(currentUserLocation.coordinate.longitude)
+            print("The user lng is: \(userLngInt)")
+                let usersOnlineRef = DataService.ds.REF_BASE.child("users_online").child("\(userLatInt!)").child("\(userLngInt!)").child(CurrentUser._postKey)
+                let userLocal = ["userLatitude":currentUserLocation.coordinate.latitude, "userLongitude": currentUserLocation.coordinate.longitude]
+                usersOnlineRef.setValue(userLocal)
+                observeOtherUsersLocations()
+        
         }
         centerMapOnLocation(location: CurrentUser._location!)
         self.mapView.showsUserLocation = true
@@ -147,6 +158,7 @@ class GetLocation1: UIViewController {
     //MARK: - Observe Methods
     
     func fetchCurrentUser(userLocation: CLLocation){
+        print("In fetchCurrentUser")
         currentUserRef.observeSingleEvent(of: .value, with: { (snapshot) in
             if let dictionary = snapshot.value as? [String: AnyObject]{
                 CurrentUser._postKey = snapshot.key
@@ -175,6 +187,7 @@ class GetLocation1: UIViewController {
     }
     
     func observeOtherUsersLocations(){
+        print("In observeOtherUsersLocations")
         let otherUsersLocationsRef = DataService.ds.REF_USERSONLINE.child("\(userLatInt)").child("\(userLngInt)")
         otherUsersLocationsRef.observe(.childAdded, with: { (snapshot) in
             if let dictionary = snapshot.value as? [String: AnyObject]{
@@ -202,10 +215,12 @@ class GetLocation1: UIViewController {
     //MARK: - Handlers
     
     func handleAnnotations(){
+        print("In handleAnnotations")
         self.mapView.addAnnotations(self.otherUsersLocations)
     }
     
     func handleLoadingBlockedUsers(){
+        print("In handleLoadingBlockedUsers")
         print("Inside handleLoadingBlockedUsers")
         CurrentUser._blockedUsersArray = blockedUsers
         print("Current User blocked array count is: \(CurrentUser._blockedUsersArray?.count)")
@@ -240,35 +255,56 @@ class GetLocation1: UIViewController {
 //MARK: - CLLocationManagerDelegate
 extension GetLocation1: CLLocationManagerDelegate{
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print("In locationDidFailWithError")
         print("Location did fail with error")
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        if userLocation == nil{
-            
-            //userLocation = locations.first
-            
-            userLocation = CLLocation(latitude: 41.92413, longitude: -88.161242)
-            if CurrentUser._location == nil {
-                print("I don't even have a user")
-            }
-            if userLocation != nil{
-                fetchCurrentUser(userLocation: userLocation!)
-            }else{
-                print("I got NO location")
-            }
-           centerMapOnLocation(location: userLocation!)
-           
-        }
+        print("In location didUpdateLocations")
+                if userLocation == nil{
+                    //userLocation = locations.first
+                    userLocation = CLLocation(latitude: 41.92413, longitude: -88.161242)
+                    if CurrentUser._location == nil {
+                        print("I don't even have a user")
+                    }
+                    if userLocation != nil{
+                        fetchCurrentUser(userLocation: userLocation!)
+                    }else{
+                        print("I got NO location")
+                    }
+                   centerMapOnLocation(location: userLocation!)
+                }
     }
     
+//    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+//        print("In location didUpdateLocations")
+//        if userLocation == nil{
+//            
+//            //userLocation = locations.first
+//            
+//            userLocation = CLLocation(latitude: 41.92413, longitude: -88.161242)
+//            if CurrentUser._location == nil {
+//                print("I don't even have a user")
+//            }
+//            if userLocation != nil{
+//                fetchCurrentUser(userLocation: userLocation!)
+//            }else{
+//                print("I got NO location")
+//            }
+//           centerMapOnLocation(location: userLocation!)
+//           
+//        }
+//    }
+    
     private func locationManager(manager: CLLocationManager, didChangeAuthorizationStatus status: CLAuthorizationStatus) {
+        print("In locationDidChangeAuthorizationStatus")
         if status == .authorizedAlways || status == .authorizedWhenInUse{
             locationManager?.requestLocation()
         }
     }
     
     func showLocationServicesDeniedAlert(){
+        print("In showLocationServicesDeniedAlert")
         let alert = UIAlertController(title: "Location Services Disabled", message: "Please enable location services for this app in Settings", preferredStyle: .alert)
         let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
         alert.addAction(okAction)

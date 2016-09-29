@@ -219,8 +219,7 @@ extension ChatViewController: UIImagePickerControllerDelegate, UINavigationContr
                     if let completedUnitCount = snapshot.progress?.completedUnitCount{
                         self.setupNavBarWithUserOrProgress(progress: String(completedUnitCount))
                     }
-                }
-                
+                }                
                 uploadTask.observe(.success) { (snapshot) in
                     self.setupNavBarWithUserOrProgress(progress: nil)
                 }
@@ -247,8 +246,6 @@ extension ChatViewController: UIImagePickerControllerDelegate, UINavigationContr
                                 
                             })
                         }
-                        
-                        
                     }
                 })
                 

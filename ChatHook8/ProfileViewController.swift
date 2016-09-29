@@ -20,7 +20,9 @@ class ProfileViewController: UIViewController {
     var galleryArray = [GalleryImage]()
     var timer: Timer?
     var selectedUser: User?
-    //var newMsgController = NewMessagesController()
+    var startingFrame: CGRect?
+    var blackBackgroundView: UIView?
+    var startingView: UIView?
     
     //MARK: - Properties
     let backgroundImageView: UIImageView = {
@@ -121,9 +123,8 @@ class ProfileViewController: UIViewController {
         }
         
         let layout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
-        layout.sectionInset = UIEdgeInsets(top: 10, left: 15, bottom: 10, right: 15)
-        //layout.itemSize = CGSize(width: 90, height: 120)
-        layout.itemSize = CGSize(width: screenWidth / 5, height: 120)
+            layout.sectionInset = UIEdgeInsets(top: 10, left: 15, bottom: 10, right: 15)
+            layout.itemSize = CGSize(width: screenWidth / 5, height: 120)
         
         let frame = CGRect(x: 0, y: view.center.y, width: view.frame.width, height: view.frame.height / 2)
         
@@ -146,7 +147,6 @@ class ProfileViewController: UIViewController {
         backgroundImageView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.5).isActive = true
         backgroundImageView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         
-        //backgroundImageView.addSubview(addPhotoButton)
         backgroundImageView.addSubview(profileImageView)
         backgroundImageView.addSubview(currentUserNameLabel)
         backgroundImageView.addSubview(distanceLabel)
@@ -211,7 +211,6 @@ class ProfileViewController: UIViewController {
     }
     
     func handleAddPhotoButtonTapped(){
-        
             let alertController = UIAlertController(title: "Edit/Add Photo", message: "Do you want to add to gallery or edit your profile picture", preferredStyle: .alert)
             let buttonOne = UIAlertAction(title: "Edit Profile Picture", style: .default) { (action) in
                 self.photoChoice = "Profile"
@@ -276,8 +275,11 @@ class ProfileViewController: UIViewController {
         alert.addAction(okAction)
         
         present(alert, animated: true, completion: nil)
-
-        
+    }
+    
+    private func attemptReloadOfTable(){
+        self.timer?.invalidate()
+        self.timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.handleReloadGallery), userInfo: nil, repeats: false)
     }
     
     func handleReloadGallery(){
@@ -297,22 +299,19 @@ class ProfileViewController: UIViewController {
             let galleryPostRef = DataService.ds.REF_GALLERYIMAGES.child(galleryId)
             
             galleryPostRef.observeSingleEvent(of: .value, with: { (snapshot) in
-                if let dictionary = snapshot.value as? [String: AnyObject]{
-                    let galleryPost = GalleryImage(key: snapshot.key)
-                    galleryPost.setValuesForKeys(dictionary)
-                    self.galleryArray.append(galleryPost)
-                    
-                    self.timer?.invalidate()
-                    self.timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.handleReloadGallery), userInfo: nil, repeats: false)
-                }
+                    if let dictionary = snapshot.value as? [String: AnyObject]{
+                        let galleryPost = GalleryImage(key: snapshot.key)
+                        galleryPost.setValuesForKeys(dictionary)
+                        self.galleryArray.append(galleryPost)
+                        
+                        self.attemptReloadOfTable()
+                    }
                 }, withCancel: nil)
             }, withCancel: nil)
     }
     
     //MARK: - Zoom In and Out
-    var startingFrame: CGRect?
-    var blackBackgroundView: UIView?
-    var startingView: UIView?
+    
     
     func performZoomInForStartingImageView(startingView: UIView, photoImage: UIImageView){
         self.startingView = startingView

@@ -120,7 +120,7 @@ class IntroViewController: UIViewController {
     let passwordTextField: MaterialTextField = {
         let ptf = MaterialTextField()
             ptf.placeholder = "Password"
-            //ptf.secureTextEntry = true
+            ptf.isSecureTextEntry = true
             ptf.autocapitalizationType = .none
             ptf.translatesAutoresizingMaskIntoConstraints = false
         return ptf
@@ -139,14 +139,14 @@ class IntroViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.setupView()
-        //NSUserDefaults.standardUserDefaults().setValue("q3KcxAnXh9SXAe9UshCKvPteXgq1", forKey: KEY_UID)
+        
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-//        if NSUserDefaults.standardUserDefaults().valueForKey(KEY_UID) != nil{
-//            self.performSegueWithIdentifier(SEGUE_LOGGED_IN, sender: nil)
-//        }
+        if UserDefaults.standard.value(forKey: KEY_UID) != nil{
+            self.handleReturningUser()
+        }
     }
 
     override var preferredStatusBarStyle: UIStatusBarStyle{

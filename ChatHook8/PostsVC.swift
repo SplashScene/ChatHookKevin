@@ -11,6 +11,7 @@ import Firebase
 import FirebaseStorage
 import MobileCoreServices
 import AVFoundation
+import Social
 
 
 class PostsVC: UIViewController{
@@ -250,6 +251,26 @@ class PostsVC: UIViewController{
         DispatchQueue.main.async{
             self.postTableView.reloadData()
         }
+    }
+    
+    func handleShare(shareView: UIView){
+        let sharePosition = shareView.convert(CGPoint(x: 0, y: 0), to: self.postTableView)
+        let indexPath = self.postTableView.indexPathForRow(at: sharePosition)
+        let cell = self.postTableView.cellForRow(at: indexPath!) as? testPostCell
+        
+        let vc = SLComposeViewController(forServiceType: SLServiceTypeFacebook)
+        if let postText = cell?.descriptionText.text{
+            vc?.setInitialText("Check out this great post from ChatHook: \n \(postText)")
+        }else{
+            vc?.setInitialText("Check out this great post from ChatHook:")
+        }
+        
+        if let image = cell?.showcaseImageView.image{
+            vc?.add(image)
+        }
+        
+        present(vc!, animated: true, completion: nil)
+        
     }
 
     //MARK: - Observe Methods

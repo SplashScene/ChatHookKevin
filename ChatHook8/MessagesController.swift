@@ -14,46 +14,24 @@ import CoreLocation
 class MessagesController: UITableViewController {
     
     var profileView = ProfileViewController()
-
-    let db = FIRDatabase.database().reference()
     var messagesArray = [Message]()
     var messagesDictionary = [String: Message]()
     let cellID = "cellID"
-    let currentUserRef = DataService.ds.REF_USER_CURRENT
-    var currentUser: User?
-    var uid: String?
     var timer: Timer?
     
     //MARK: - View Methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        let newMessageImage = UIImage(named: "newMessageIcon_25")
+        let newMessageImage = UIImage(named: "newmessage")
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: newMessageImage, style: .plain, target: self, action: #selector(handleNewMessage))
-        
+        setupNavBarWithUser()
         tableView.register(UserCell.self, forCellReuseIdentifier: "cellID")
-        
-        checkIfUserIsLoggedIn()
-        
         tableView.allowsMultipleSelectionDuringEditing = true
     }
     
     //MARK: - Setup UI
     
-    func fetchUserAndSetupNavBarTitle(){
-        guard let uid = FIRAuth.auth()?.currentUser?.uid else { return }
-        DataService.ds.REF_USERS.child(uid).observeSingleEvent(of: .value, with: {(snapshot) in
-            if let dictionary = snapshot.value as? [String: AnyObject]{
-                self.navigationItem.title = dictionary["name"] as? String
-                let userPostKey = snapshot.key
-                self.currentUser = User(postKey: userPostKey, dictionary: dictionary)
-                self.setupNavBarWithUser(user: self.currentUser!)
-            }
-            },
-                                                               withCancel: nil)
-    }
-    
-    func setupNavBarWithUser(user: User){
-        
+    func setupNavBarWithUser(){
         messagesArray.removeAll()
         messagesDictionary.removeAll()
         tableView.reloadData()
@@ -73,7 +51,7 @@ class MessagesController: UITableViewController {
             profileImageView.contentMode = .scaleAspectFill
             profileImageView.layer.cornerRadius = 20
             profileImageView.clipsToBounds = true
-        if let profileImageUrl = user.profileImageUrl{
+        if let profileImageUrl = CurrentUser._profileImageUrl{
             profileImageView.loadImageUsingCacheWithUrlString(urlString: profileImageUrl)
         }
         
@@ -85,7 +63,7 @@ class MessagesController: UITableViewController {
         profileImageView.heightAnchor.constraint(equalToConstant: 40).isActive = true
         
         let nameLabel = UILabel()
-            nameLabel.text = user.userName
+            nameLabel.text = CurrentUser._userName
             nameLabel.translatesAutoresizingMaskIntoConstraints = false
         containerView.addSubview(nameLabel)
         
@@ -104,13 +82,13 @@ class MessagesController: UITableViewController {
     //MARK: - Observe Methods
     func observeUserMessages(){
         messagesArray = []
-        let ref = db.child("user_messages").child(uid!)
+        let ref = DataService.ds.REF_USERMESSAGES.child(CurrentUser._postKey)
         
         ref.observe(.childAdded, with: { (snapshot) in
             let userID = snapshot.key
-            DataService.ds.REF_USERMESSAGES.child(self.uid!).child(userID).observe(.childAdded, with: { (snapshot) in
-                let messageID = snapshot.key
-                self.fetchMessageWithMessageId(messageID: messageID)
+            DataService.ds.REF_USERMESSAGES.child(CurrentUser._postKey!).child(userID).observe(.childAdded, with: { (snapshot) in
+                    let messageID = snapshot.key
+                    self.fetchMessageWithMessageId(messageID: messageID)
                 }, withCancel: nil)
             }, withCancel: nil)
         
@@ -124,29 +102,19 @@ class MessagesController: UITableViewController {
         let messagesRef = DataService.ds.REF_MESSAGES.child(messageID)
         
         messagesRef.observeSingleEvent(of: .value, with: { (snapshot) in
-            if let dictionary = snapshot.value as? [String: AnyObject]{
-                let message = Message()
-                message.setValuesForKeys(dictionary)
-                self.messagesArray.append(message)
-                
-                if let chatPartnerID = message.chatPartnerID(){
-                    self.messagesDictionary[chatPartnerID] = message
+                if let dictionary = snapshot.value as? [String: AnyObject]{
+                    let message = Message()
+                    message.setValuesForKeys(dictionary)
+                    self.messagesArray.append(message)
+                    
+                    if let chatPartnerID = message.chatPartnerID(){
+                        self.messagesDictionary[chatPartnerID] = message
+                    }
+                    self.attemptReloadOfTable()
                 }
-                
-                self.attemptReloadOfTable()
-            }
             }, withCancel: nil)
     }
     
-    func checkIfUserIsLoggedIn(){
-        if FIRAuth.auth()?.currentUser?.uid == nil{
-            // performSelector(#selector(handleLogout), withObject: nil, afterDelay: 0)
-        } else {
-            fetchUserAndSetupNavBarTitle()
-            uid = FIRAuth.auth()?.currentUser?.uid
-        }
-    }
-
     //MARK: - Handlers
     
     private func attemptReloadOfTable(){
@@ -166,7 +134,7 @@ class MessagesController: UITableViewController {
     
     func handleNewMessage(){
         let newMessageController = NewMessagesController()
-        newMessageController.messagesController = self
+            newMessageController.messagesController = self
         
         let navController = UINavigationController(rootViewController: newMessageController)
         present(navController, animated: true, completion: nil)
@@ -191,8 +159,8 @@ class MessagesController: UITableViewController {
     //MARK: - Show Controllers
     func showChatControllerForUser(user: User){
         let chatLogController = ChatViewController()
-            chatLogController.senderId = uid
-            chatLogController.senderDisplayName = user.userName
+            chatLogController.senderId = CurrentUser._postKey
+            chatLogController.senderDisplayName = CurrentUser._userName
             chatLogController.user = user
         
             var img: UIImage?
@@ -204,7 +172,7 @@ class MessagesController: UITableViewController {
         
         let navController = UINavigationController(rootViewController: chatLogController)
         present(navController, animated: true, completion: nil)
-            //navigationController?.pushViewController(chatLogController, animated: true)
+        
     }
     
     func showProfileControllerForUser(user: User){
@@ -213,7 +181,6 @@ class MessagesController: UITableViewController {
         
         let navController = UINavigationController(rootViewController: profileController)
         present(navController, animated: true, completion: nil)
-
     }
     
     //MARK: - TableView Methods

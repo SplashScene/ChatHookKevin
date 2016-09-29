@@ -23,11 +23,6 @@ extension UIImageView{
             return
         }
         
-//        if let cachedImage = imageCache.object(forKey: urlString as NSString)! as UIImage? {
-//            self.image = cachedImage
-//            return
-//        }
-        
         let url = NSURL(string: urlString)
         URLSession.shared.dataTask(with: url! as URL, completionHandler: { (data, response, error) in
             if error != nil {

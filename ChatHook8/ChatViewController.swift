@@ -165,22 +165,7 @@ class ChatViewController: JSQMessagesViewController {
         return cell
 
     }
-   
-//    func collectionView(collectionView: UICollectionView,cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
-//        let cell = super.collectionView(collectionView, cellForItemAt: indexPath as IndexPath) as! JSQMessagesCollectionViewCell
-//            cell.delegate = self
-//        message = messages[indexPath.item]
-//        let rawMessage = rawMessages[indexPath.item]
-// 
-//           if rawMessage.mediaType == "VIDEO"{
-//                self.setupVideoCell(cell: cell, rawMessage: rawMessage)
-//            }
-//        
-//        cell.textView?.textColor = message!.senderId == CurrentUser._postKey ? UIColor.white : UIColor.black
-//        
-//        return cell
-//    }
-    
+       
     func collectionView(collectionView: JSQMessagesCollectionView!, avatarImageDataForItemAtIndexPath indexPath: NSIndexPath!) -> JSQMessageAvatarImageDataSource! {
         return nil
     }

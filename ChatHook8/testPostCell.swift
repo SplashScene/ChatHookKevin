@@ -119,18 +119,6 @@ class testPostCell: UITableViewCell {
         return likeBtn
     }()
 
-    
-//    lazy var likeImageView: UIImageView = {
-//        let imageView = UIImageView()
-//            imageView.image = UIImage(named: "Like")
-//            imageView.translatesAutoresizingMaskIntoConstraints = false
-//            imageView.contentMode = .scaleAspectFill
-//            imageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(likeTapped)))
-//            imageView.isUserInteractionEnabled = true
-//        
-//        return imageView
-//    }()
-
     let timeLabel: UILabel = {
         let label = UILabel()
             label.text = "HH:MM:SS"
@@ -150,10 +138,8 @@ class testPostCell: UITableViewCell {
         return label
     }()
 
-    
     let likesLabel: UILabel = {
         let label = UILabel()
-//            label.text = "Likes"
             label.font = UIFont(name: "Avenir Medium", size:  12.0)
             label.textColor = UIColor.darkGray
             label.translatesAutoresizingMaskIntoConstraints = false
@@ -170,26 +156,6 @@ class testPostCell: UITableViewCell {
         return descripTextView
     }()
 
-    
-    /*
-    let descriptionText: UITextView = {
-        let descripTextView = UITextView()
-            descripTextView.translatesAutoresizingMaskIntoConstraints = false
-            descripTextView.text = "This is sample description text for the post"
-            descripTextView.font = UIFont(name: "Avenir Medium", size:  14.0)
-            descripTextView.textColor = UIColor.darkGrayColor()
-            descripTextView.editable = false
-            descripTextView.scrollEnabled = false
-//        let fixedWidth = descripTextView.frame.size.width
-//        descripTextView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.max))
-//        let newSize = descripTextView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.max))
-//        var newFrame = descripTextView.frame
-//        newFrame.size = CGSize(width: max(newSize.width, fixedWidth), height: newSize.height)
-//        descripTextView.frame = newFrame;
-            //descripTextView.sizeToFit()
-        return descripTextView
-    }()
-    */
     lazy var showcaseImageView: UIImageView = {
         let imageView = UIImageView()
             imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -211,27 +177,127 @@ class testPostCell: UITableViewCell {
             sepLineView.backgroundColor = UIColor.darkGray
         return sepLineView
     }()
+    
+    let commentContainerView: UIView = {
+        let commentContainerView = UIView()
+            commentContainerView.translatesAutoresizingMaskIntoConstraints = false
+            commentContainerView.backgroundColor = UIColor.white
+        return commentContainerView
+    }()
+    
+    var commentCount: UILabel = {
+        let label = UILabel()
+            label.text = "0"
+            label.font = UIFont(name: "Avenir Medium", size:  12.0)
+            label.textColor = UIColor.darkGray
+            label.translatesAutoresizingMaskIntoConstraints = false
+            label.sizeToFit()
+        return label
+    }()
+    
+    let commentLabel: UILabel = {
+        let label = UILabel()
+            label.text = "Comments"
+            label.font = UIFont(name: "Avenir Medium", size:  12.0)
+            label.textColor = UIColor.darkGray
+            label.translatesAutoresizingMaskIntoConstraints = false
+            label.sizeToFit()
+        return label
+    }()
+    
+    let commentButtonContainerView: UIView = {
+        let commentContainerView = UIView()
+            commentContainerView.translatesAutoresizingMaskIntoConstraints = false
+            commentContainerView.backgroundColor = UIColor.white
+        return commentContainerView
+    }()
+    
+    let commentImageView: UIImageView = {
+        let imageView = UIImageView()
+            imageView.image = UIImage(named: "commenticon_small")
+            imageView.translatesAutoresizingMaskIntoConstraints = false
+            imageView.layer.cornerRadius = 10
+            imageView.layer.masksToBounds = true
+            imageView.contentMode = .scaleAspectFill
+        return imageView
+    }()
+    
+    let makeCommentLabel: UILabel = {
+        let label = UILabel()
+            label.text = "Comment"
+            label.font = UIFont(name: "Avenir Medium", size:  12.0)
+            label.textColor = UIColor.darkGray
+            label.translatesAutoresizingMaskIntoConstraints = false
+            label.sizeToFit()
+        return label
+    }()
+
+    
+    lazy var shareButtonContainerView: UIView = {
+        let shareContainerView = UIView()
+            shareContainerView.translatesAutoresizingMaskIntoConstraints = false
+            shareContainerView.backgroundColor = UIColor.white
+            shareContainerView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleShare)))
+        return shareContainerView
+    }()
+    
+    let shareImageView: UIImageView = {
+        let imageView = UIImageView()
+            imageView.image = UIImage(named: "share_music_btn")
+            imageView.translatesAutoresizingMaskIntoConstraints = false
+            imageView.layer.cornerRadius = 10
+            imageView.layer.masksToBounds = true
+            imageView.contentMode = .scaleAspectFill
+        return imageView
+    }()
+    
+    let shareLabel: UILabel = {
+        let label = UILabel()
+            label.text = "Share"
+            label.font = UIFont(name: "Avenir Medium", size:  12.0)
+            label.textColor = UIColor.darkGray
+            label.translatesAutoresizingMaskIntoConstraints = false
+            label.sizeToFit()
+        return label
+    }()
+
+
 
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: .subtitle, reuseIdentifier: reuseIdentifier)
-        //self.layoutIfNeeded()
-        //descriptionText.delegate = self
-        
+        setupCellContainerView()
+        setupCommentContainerView()
+        //need x, y, width, height anchors
+        setupProfileImageUserNameLikes()
+        setupDescriptionTextShowcaseImage()
+        setupCommentSection()
+    }
+    
+    func setupCellContainerView(){
         cellContainerView.addSubview(profileImageView)
         cellContainerView.addSubview(userNameLabel)
         cellContainerView.addSubview(likeButton)
-        //cellContainerView.addSubview(likeImageView)
         cellContainerView.addSubview(likeCount)
         cellContainerView.addSubview(likesLabel)
         cellContainerView.addSubview(descriptionText)
         cellContainerView.addSubview(showcaseImageView)
         cellContainerView.addSubview(separatorLineView)
+        cellContainerView.addSubview(commentContainerView)
+        cellContainerView.addSubview(shareButtonContainerView)
+    }
+    
+    func setupCommentContainerView(){
+        commentContainerView.addSubview(commentCount)
+        commentContainerView.addSubview(commentLabel)
+        commentContainerView.addSubview(commentButtonContainerView)
+        commentContainerView.addSubview(shareButtonContainerView)
         
-        //need x, y, width, height anchors
-        setupProfileImageUserNameLikes()
-        setupDescriptionTextShowcaseImage()
+        commentButtonContainerView.addSubview(commentImageView)
+        commentButtonContainerView.addSubview(makeCommentLabel)
         
-            }
+        shareButtonContainerView.addSubview(shareImageView)
+        shareButtonContainerView.addSubview(shareLabel)
+    }
     
     func setupProfileImageUserNameLikes(){
         profileImageView.leftAnchor.constraint(equalTo: cellContainerView.leftAnchor, constant: 8).isActive = true
@@ -256,7 +322,6 @@ class testPostCell: UITableViewCell {
         likesLabel.rightAnchor.constraint(equalTo: cellContainerView.rightAnchor, constant: -16).isActive = true
         likesLabel.topAnchor.constraint(equalTo: likeButton.centerYAnchor).isActive = true
         
-        
         likeCount.centerXAnchor.constraint(equalTo: likesLabel.centerXAnchor).isActive = true
         likeCount.bottomAnchor.constraint(equalTo: likeButton.centerYAnchor).isActive = true
     }
@@ -272,21 +337,59 @@ class testPostCell: UITableViewCell {
         showcaseImageView.widthAnchor.constraint(equalTo: cellContainerView.widthAnchor, constant: -16).isActive = true
         showcaseImageView.bottomAnchor.constraint(equalTo: cellContainerView.bottomAnchor, constant: -28).isActive = true
         
-        separatorLineView.leftAnchor.constraint(equalTo: cellContainerView.leftAnchor).isActive = true
-        separatorLineView.bottomAnchor.constraint(equalTo: cellContainerView.bottomAnchor, constant: -24).isActive = true
-        separatorLineView.widthAnchor.constraint(equalTo: cellContainerView.widthAnchor).isActive = true
-        separatorLineView.heightAnchor.constraint(equalToConstant: 1).isActive = true
-
-        
         contentView.addSubview(cellContainerView)
         
         cellContainerView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor).isActive = true
         cellContainerView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor).isActive = true
         cellContainerView.widthAnchor.constraint(equalTo: contentView.widthAnchor, constant: -16).isActive = true
         cellContainerView.heightAnchor.constraint(equalTo: contentView.heightAnchor, constant: -16).isActive = true
-
     }
     
+    func setupCommentSection(){
+        separatorLineView.leftAnchor.constraint(equalTo: cellContainerView.leftAnchor).isActive = true
+        separatorLineView.bottomAnchor.constraint(equalTo: cellContainerView.bottomAnchor, constant: -24).isActive = true
+        separatorLineView.widthAnchor.constraint(equalTo: cellContainerView.widthAnchor).isActive = true
+        separatorLineView.heightAnchor.constraint(equalToConstant: 1).isActive = true
+        
+        commentContainerView.centerXAnchor.constraint(equalTo: cellContainerView.centerXAnchor).isActive = true
+        commentContainerView.bottomAnchor.constraint(equalTo: cellContainerView.bottomAnchor, constant: -4).isActive = true
+        commentContainerView.widthAnchor.constraint(equalTo: cellContainerView.widthAnchor, constant: -8).isActive = true
+        commentContainerView.heightAnchor.constraint(equalToConstant: 16).isActive = true
+        
+        commentCount.leftAnchor.constraint(equalTo: commentContainerView.leftAnchor, constant: 8).isActive = true
+        commentCount.centerYAnchor.constraint(equalTo: commentContainerView.centerYAnchor).isActive = true
+        
+        commentLabel.leftAnchor.constraint(equalTo: commentCount.rightAnchor, constant: 8).isActive = true
+        commentLabel.centerYAnchor.constraint(equalTo: commentContainerView.centerYAnchor).isActive = true
+        
+        commentButtonContainerView.centerXAnchor.constraint(equalTo: commentContainerView.centerXAnchor).isActive = true
+        commentButtonContainerView.centerYAnchor.constraint(equalTo: commentContainerView.centerYAnchor).isActive = true
+        commentButtonContainerView.widthAnchor.constraint(equalToConstant: 80).isActive = true
+        commentButtonContainerView.heightAnchor.constraint(equalTo: commentContainerView.heightAnchor).isActive = true
+        
+        commentImageView.leftAnchor.constraint(equalTo: commentButtonContainerView.leftAnchor, constant: 3).isActive = true
+        commentImageView.centerYAnchor.constraint(equalTo: commentButtonContainerView.centerYAnchor).isActive = true
+        commentImageView.widthAnchor.constraint(equalToConstant: 16).isActive = true
+        commentImageView.heightAnchor.constraint(equalToConstant: 16).isActive = true
+        
+        makeCommentLabel.rightAnchor.constraint(equalTo: commentButtonContainerView.rightAnchor, constant: -3).isActive = true
+        makeCommentLabel.centerYAnchor.constraint(equalTo: commentButtonContainerView.centerYAnchor).isActive = true
+        
+        shareButtonContainerView.rightAnchor.constraint(equalTo: cellContainerView.rightAnchor, constant: -8).isActive = true
+        shareButtonContainerView.bottomAnchor.constraint(equalTo: cellContainerView.bottomAnchor, constant: -4).isActive = true
+        shareButtonContainerView.widthAnchor.constraint(equalToConstant: 56).isActive = true
+        shareButtonContainerView.heightAnchor.constraint(equalToConstant: 16).isActive = true
+        
+        shareImageView.leftAnchor.constraint(equalTo: shareButtonContainerView.leftAnchor, constant: 3).isActive = true
+        shareImageView.centerYAnchor.constraint(equalTo: shareButtonContainerView.centerYAnchor).isActive = true
+        shareImageView.widthAnchor.constraint(equalToConstant: 16).isActive = true
+        shareImageView.heightAnchor.constraint(equalToConstant: 16).isActive = true
+        
+        shareLabel.rightAnchor.constraint(equalTo: shareButtonContainerView.rightAnchor, constant: -3).isActive = true
+        shareLabel.centerYAnchor.constraint(equalTo: shareButtonContainerView.centerYAnchor).isActive = true
+
+    }
+    //Kev+6@burning.com
     func handleLikeButtonTapped(sender: UIButton){
         likeRef.observeSingleEvent(of: .value, with: { snapshot in
             if let _ = snapshot.value as? NSNull{
@@ -340,6 +443,11 @@ class testPostCell: UITableViewCell {
         if let imageView = tapGesture.view as? UIImageView{
             postViewController?.performZoomInForStartingImageView(startingImageView: imageView)
         }
+        
+    }
+    
+    func handleShare(tapGesture: UITapGestureRecognizer){
+        postViewController?.handleShare(shareView: tapGesture.view!)
         
     }
     

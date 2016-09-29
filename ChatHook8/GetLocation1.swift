@@ -178,12 +178,11 @@ class GetLocation1: UIViewController {
                         }
                     }
                     },
-                                        
-                                        withCancel: nil)
+                    withCancel: nil)
                 
                 self.userIsOnline()
             }
-            }, withCancel: nil)
+        }, withCancel: nil)
     }
     
     func observeOtherUsersLocations(){

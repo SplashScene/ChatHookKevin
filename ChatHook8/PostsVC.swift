@@ -519,7 +519,7 @@ extension PostsVC{
                             self.uploadToFirebaseStorageUsingSelectedMedia(image: thumbnailImage, video: nil, completion: { (imageUrl) in
                                 imageCache.setObject(thumbnailImage, forKey: videoUrl as NSString)
                                 self.enterIntoPostsAndPostsPerRoomDatabaseWithImageUrl(metadata: metadata!.contentType!, postText: self.postedText, thumbnailURL: imageUrl, fileURL: videoUrl)
-                                //self.imageSelectorView.loadImageUsingCacheWithUrlString(urlString: imageUrl)
+                                
                             })
                         }
                     }

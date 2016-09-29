@@ -19,7 +19,6 @@ class NewMessagesController: UITableViewController {
     var usersArray1 = [User]()
     var usersArray2 = [User]()
     var usersArray3 = [User]()
-    //let uid = NSUserDefaults.standardUserDefaults().valueForKey(KEY_UID) as! String
     var userLat: Double?
     var userLong: Double?
     var timer: Timer?
@@ -36,21 +35,24 @@ class NewMessagesController: UITableViewController {
         observeUsersOnline()
         tableView.register(UserCell.self, forCellReuseIdentifier: "cellID")
         blockedUsersArray = []
-        
+   
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        tableView.reloadData()
+        super.viewWillAppear(animated)
+        //tableView.reloadData()
     }
     
     //MARK: - Observe Methods
     func observeUsersOnline(){
+        
         groupedUsersArray = []
 
         let searchLat = Int(CurrentUser._location.coordinate.latitude)
         let searchLong = Int(CurrentUser._location.coordinate.longitude)
 
         let ref = DataService.ds.REF_USERSONLINE.child("\(searchLat)").child("\(searchLong)")
+        
         
         ref.observe(.childAdded, with: { (snapshot) in
             let userID = snapshot.key
@@ -107,6 +109,7 @@ class NewMessagesController: UITableViewController {
         switch distanceDouble{
             case 0...1.099:
                 self.usersArray1.append(user)
+                print("Added to UsersArray1")
                 self.usersArray1.sort(by: { (user1, user2) -> Bool in
                     return user1.distance! < user2.distance!
                 })
@@ -124,8 +127,10 @@ class NewMessagesController: UITableViewController {
     }
     
     func loadSections(){
+        print("INSIDE LOAD SECTIONS")
         if usersArray1.count > 0 {
             self.groupedUsersArray.append(GroupedUsers(sectionName: "Within a mile", sectionUsers: self.usersArray1))
+            print("Grouped Users Array Count is: \(groupedUsersArray.count)")
         }
         if usersArray2.count > 0 {
             self.groupedUsersArray.append(GroupedUsers(sectionName: "Within 5 miles", sectionUsers: self.usersArray2))
@@ -154,58 +159,71 @@ class NewMessagesController: UITableViewController {
     
     //MARK: - TableView Methods
     
-    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    override func numberOfSections(in tableView: UITableView) -> Int {
         return groupedUsersArray.count
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        print("INSIDE NUMBER OF ROWS IN SECTION")
         return groupedUsersArray[section].sectionUsers.count
+        
     }
     
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: cellID, for: indexPath as IndexPath) as! UserCell
-        let user = groupedUsersArray[indexPath.section].sectionUsers[indexPath.row]
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        print("INSIDE CELL FOR ROW AT INDEXPATH")
         
-        if let stringDistance = user.distance {
-            let unwrappedString = String(format: "%.2f", (stringDistance))
-            let distanceString = "\(unwrappedString) miles away"
-            cell.detailTextLabel?.text = distanceString
-        }
+            let cell = tableView.dequeueReusableCell(withIdentifier: cellID, for: indexPath as IndexPath) as! UserCell
         
-        if user.isBlocked == true{
-            cell.backgroundColor = UIColor(r: 255, g: 99, b: 71)
-        }else{
-            cell.backgroundColor = UIColor.white
-        }
-        
-        cell.textLabel?.text = user.userName
-        cell.accessoryType = UITableViewCellAccessoryType.detailButton
-        
-        if let profileImageUrl = user.profileImageUrl{
-            cell.profileImageView.loadImageUsingCacheWithUrlString(urlString: profileImageUrl)
-        }
-        return cell
+            let user = groupedUsersArray[indexPath.section].sectionUsers[indexPath.row]
+            
+            if let stringDistance = user.distance {
+                let unwrappedString = String(format: "%.2f", (stringDistance))
+                let distanceString = "\(unwrappedString) miles away"
+                cell.detailTextLabel?.text = distanceString
+            }
+            
+                if user.isBlocked == true{
+                    cell.backgroundColor = UIColor(r: 255, g: 99, b: 71)
+                }else{
+                    cell.backgroundColor = UIColor.white
+                }
+            
+            cell.textLabel?.text = user.userName
+            cell.accessoryType = UITableViewCellAccessoryType.detailButton
+            
+            if let profileImageUrl = user.profileImageUrl{
+                cell.profileImageView.loadImageUsingCacheWithUrlString(urlString: profileImageUrl)
+            }
+            return cell
     }
     
-    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         dismiss(animated: true){
             let user = self.groupedUsersArray[indexPath.section].sectionUsers[indexPath.row]
             self.messagesController?.showChatControllerForUser(user: user)
         }
     }
     
-    func tableView(tableView: UITableView, accessoryButtonTappedForRowWithIndexPath indexPath: NSIndexPath) {
-            let user = self.groupedUsersArray[indexPath.section].sectionUsers[indexPath.row]
-            self.showProfileControllerForUser(user: user)
+//    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+//        dismiss(animated: true){
+//            let user = self.groupedUsersArray[indexPath.section].sectionUsers[indexPath.row]
+//            self.messagesController?.showChatControllerForUser(user: user)
+//        }
+//    }
+    
+    override func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
+        let user = self.groupedUsersArray[indexPath.section].sectionUsers[indexPath.row]
+        self.showProfileControllerForUser(user: user)
     }
     
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         return groupedUsersArray[section].sectionName
     }
     
-    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 72
     }
+    
 }
 
 

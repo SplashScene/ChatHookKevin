@@ -62,6 +62,7 @@ class ChatViewController: JSQMessagesViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.inputToolbar.barTintColor = UIColor.white
+        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(ChatViewController.handleCancel))
     }
     
     func setupNavBarWithUserOrProgress(progress:String?){
@@ -128,38 +129,57 @@ class ChatViewController: JSQMessagesViewController {
 
     
 //MARK: Collection Views
-    func collectionView(collectionView: JSQMessagesCollectionView!, messageDataForItemAtIndexPath indexPath: NSIndexPath!) -> JSQMessageData! {
+    //[JSQMessagesViewController collectionView:messageDataForItemAtIndexPath:]
+    override func collectionView(_ collectionView: JSQMessagesCollectionView!, messageDataForItemAt indexPath: IndexPath!) -> JSQMessageData! {
         return messages[indexPath.item]
     }
+    
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return messages.count
     }
     
-    func collectionView(collectionView: JSQMessagesCollectionView!,messageBubbleImageDataForItemAtIndexPath indexPath: NSIndexPath!) -> JSQMessageBubbleImageDataSource! {
+    override func collectionView(_ collectionView: JSQMessagesCollectionView!, messageBubbleImageDataForItemAt indexPath: IndexPath!) -> JSQMessageBubbleImageDataSource! {
         let message = messages[indexPath.item]
-        
-       return message.senderId == CurrentUser._postKey ? outgoingBubbleImageView : incomingBubbleImageView
-
+        return message.senderId == CurrentUser._postKey ? outgoingBubbleImageView : incomingBubbleImageView
     }
     
-    //var cell:JSQMessagesCollectionViewCell?
+    func handleCancel(){
+        dismiss(animated: true, completion: nil)
+    }
     
-   
-    func collectionView(collectionView: UICollectionView,cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
+    
+    //var cell:JSQMessagesCollectionViewCell?
+    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = super.collectionView(collectionView, cellForItemAt: indexPath as IndexPath) as! JSQMessagesCollectionViewCell
-            cell.delegate = self
+        cell.delegate = self
         message = messages[indexPath.item]
         let rawMessage = rawMessages[indexPath.item]
- 
-           if rawMessage.mediaType == "VIDEO"{
-                self.setupVideoCell(cell: cell, rawMessage: rawMessage)
-            }
+        
+        if rawMessage.mediaType == "VIDEO"{
+            self.setupVideoCell(cell: cell, rawMessage: rawMessage)
+        }
         
         cell.textView?.textColor = message!.senderId == CurrentUser._postKey ? UIColor.white : UIColor.black
         
         return cell
+
     }
+   
+//    func collectionView(collectionView: UICollectionView,cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
+//        let cell = super.collectionView(collectionView, cellForItemAt: indexPath as IndexPath) as! JSQMessagesCollectionViewCell
+//            cell.delegate = self
+//        message = messages[indexPath.item]
+//        let rawMessage = rawMessages[indexPath.item]
+// 
+//           if rawMessage.mediaType == "VIDEO"{
+//                self.setupVideoCell(cell: cell, rawMessage: rawMessage)
+//            }
+//        
+//        cell.textView?.textColor = message!.senderId == CurrentUser._postKey ? UIColor.white : UIColor.black
+//        
+//        return cell
+//    }
     
     func collectionView(collectionView: JSQMessagesCollectionView!, avatarImageDataForItemAtIndexPath indexPath: NSIndexPath!) -> JSQMessageAvatarImageDataSource! {
         return nil
@@ -205,8 +225,7 @@ class ChatViewController: JSQMessagesViewController {
         activityIndicatorView.heightAnchor.constraint(equalToConstant: 50).isActive = true
     }
     
-    func didPressSendButton(button: UIButton!, withMessageText text: String!, senderId: String!,
-                                     senderDisplayName: String!, date: NSDate!) {
+    override func didPressSend(_ button: UIButton!, withMessageText text: String!, senderId: String!, senderDisplayName: String!, date: Date!) {
         let toId = user?.postKey
         let itemRef = DataService.ds.REF_MESSAGES.childByAutoId()
         let timestamp: Int = Int(NSDate().timeIntervalSince1970)
@@ -227,10 +246,10 @@ class ChatViewController: JSQMessagesViewController {
             
             let userMessagesRef = DataService.ds.REF_BASE.child("user_messages").child(senderId).child(toId!)
             let messageID = itemRef.key
-                userMessagesRef.updateChildValues([messageID: 1])
+            userMessagesRef.updateChildValues([messageID: 1])
             
             let recipientUserMessagesRef = DataService.ds.REF_BASE.child("user_messages").child(toId!).child(senderId)
-                recipientUserMessagesRef.updateChildValues([messageID: 1])
+            recipientUserMessagesRef.updateChildValues([messageID: 1])
         }
         
         JSQSystemSoundPlayer.jsq_playMessageSentSound()
@@ -263,7 +282,6 @@ class ChatViewController: JSQMessagesViewController {
         let mediaPicker = UIImagePickerController()
             mediaPicker.delegate = self
             mediaPicker.mediaTypes = [type as String]
-        
         present(mediaPicker, animated: true, completion: nil)
     }
     

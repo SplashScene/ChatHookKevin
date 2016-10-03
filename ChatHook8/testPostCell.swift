@@ -88,6 +88,14 @@ class testPostCell: UITableViewCell {
         return containerView
     }()
     
+    lazy var profilePictureUserNameContainerView: UIView = {
+        let profileNameView = UIView()
+            profileNameView.translatesAutoresizingMaskIntoConstraints = false
+            profileNameView.backgroundColor = UIColor.white
+        profileNameView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(testPostCell.handleProfileViewTapped)))
+        return profileNameView
+    }()
+    
     
     let profileImageView: MaterialImageView = {
         let imageView = MaterialImageView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
@@ -274,8 +282,9 @@ class testPostCell: UITableViewCell {
     }
     
     func setupCellContainerView(){
-        cellContainerView.addSubview(profileImageView)
-        cellContainerView.addSubview(userNameLabel)
+        cellContainerView.addSubview(profilePictureUserNameContainerView)
+            profilePictureUserNameContainerView.addSubview(profileImageView)
+            profilePictureUserNameContainerView.addSubview(userNameLabel)
         cellContainerView.addSubview(likeButton)
         cellContainerView.addSubview(likeCount)
         cellContainerView.addSubview(likesLabel)
@@ -300,13 +309,17 @@ class testPostCell: UITableViewCell {
     }
     
     func setupProfileImageUserNameLikes(){
-        profileImageView.leftAnchor.constraint(equalTo: cellContainerView.leftAnchor, constant: 8).isActive = true
-        profileImageView.topAnchor.constraint(equalTo: cellContainerView.topAnchor, constant: 8).isActive = true
+        profilePictureUserNameContainerView.leftAnchor.constraint(equalTo: cellContainerView.leftAnchor, constant: 8).isActive = true
+        profilePictureUserNameContainerView.topAnchor.constraint(equalTo: cellContainerView.topAnchor, constant: 8).isActive = true
+        profilePictureUserNameContainerView.widthAnchor.constraint(equalToConstant: 235).isActive = true
+        profilePictureUserNameContainerView.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        profileImageView.leftAnchor.constraint(equalTo: profilePictureUserNameContainerView.leftAnchor).isActive = true
+        profileImageView.topAnchor.constraint(equalTo: profilePictureUserNameContainerView.topAnchor).isActive = true
         profileImageView.widthAnchor.constraint(equalToConstant: 48).isActive = true
         profileImageView.heightAnchor.constraint(equalToConstant: 48).isActive = true
         
         userNameLabel.leftAnchor.constraint(equalTo: profileImageView.rightAnchor, constant: 8).isActive = true
-        userNameLabel.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor).isActive = true
+        userNameLabel.centerYAnchor.constraint(equalTo: profilePictureUserNameContainerView.centerYAnchor).isActive = true
         
         
         //        timeLabel.rightAnchor.constraint(equalTo: self.rightAnchor).isActive = true
@@ -328,7 +341,7 @@ class testPostCell: UITableViewCell {
     
     func setupDescriptionTextShowcaseImage(){
         descriptionText.centerXAnchor.constraint(equalTo: cellContainerView.centerXAnchor).isActive = true
-        descriptionText.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 8).isActive = true
+        descriptionText.topAnchor.constraint(equalTo: profilePictureUserNameContainerView.bottomAnchor, constant: 8).isActive = true
         descriptionText.widthAnchor.constraint(equalTo: cellContainerView.widthAnchor, constant: -16).isActive = true
         descriptionText.heightAnchor.constraint(greaterThanOrEqualToConstant: 40).isActive = true
         
@@ -449,6 +462,10 @@ class testPostCell: UITableViewCell {
     func handleShare(tapGesture: UITapGestureRecognizer){
         postViewController?.handleShare(shareView: tapGesture.view!)
         
+    }
+    
+    func handleProfileViewTapped(tapGesture: UITapGestureRecognizer){
+        postViewController?.handleProfile(profileView: tapGesture.view!)
     }
     
     func handlePostVideoPlay(sender: UIButton) {

@@ -15,7 +15,7 @@ import Social
 
 
 class PostsVC: UIViewController{
-    
+    var profileView: ProfileViewController?
     var roomsController: RoomsViewController?
     var cellID = "cellID"
     var postedImage: UIImage?
@@ -274,6 +274,21 @@ class PostsVC: UIViewController{
       
         present(vc!, animated: true, completion: nil)
     }
+    
+    func handleProfile(profileView: UIView){
+        print("Tapped the profile view and get ready to show profile somehow")
+        let sharePosition = profileView.convert(CGPoint(x: 0, y: 0), to: self.postTableView)
+        if let indexPath = self.postTableView.indexPathForRow(at: sharePosition){
+            let userPost = postsArray[indexPath.row]
+            let ref = DataService.ds.REF_USERS.child(userPost.fromId!)
+                
+                ref.observeSingleEvent(of: .value, with: { (snapshot) in
+                    guard let dictionary = snapshot.value as? [String : AnyObject] else { return }
+                    let user = User(postKey: snapshot.key, dictionary: dictionary)
+                    self.showProfileControllerForUser(user: user)
+                    }, withCancel: nil)  
+        }
+    }
 
     //MARK: - Observe Methods
     func observePosts(){
@@ -318,7 +333,14 @@ class PostsVC: UIViewController{
             cell?.likeCount.text = "\(Int(post.likes))"
             cell?.likesLabel.text = intLikes == 1 ? "Like" : "Likes"
         }
+    }
+    
+    func showProfileControllerForUser(user: User){
+        let profileController = ProfileViewController()
+            profileController.selectedUser = user
         
+        let navController = UINavigationController(rootViewController: profileController)
+        present(navController, animated: true, completion: nil)
     }
     
    //MARK: - Zoom In and Out Methods

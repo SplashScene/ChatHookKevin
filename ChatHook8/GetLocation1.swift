@@ -39,7 +39,7 @@ class GetLocation1: UIViewController {
     let topView: UIView = {
         let view = UIView()
             view.translatesAutoresizingMaskIntoConstraints = false
-            view.backgroundColor = UIColor.darkGray
+            view.backgroundColor = UIColor.red
         return view
     }()
     
@@ -59,7 +59,7 @@ class GetLocation1: UIViewController {
             msgLabel.font = UIFont(name: "Avenir Medium", size:  18.0)
             msgLabel.backgroundColor = UIColor.clear
             msgLabel.textColor = UIColor.white
-            msgLabel.text = "Offline"
+            msgLabel.text = "Getting Location..."
             msgLabel.sizeToFit()
 
         return msgLabel
@@ -92,11 +92,11 @@ class GetLocation1: UIViewController {
         let authStatus = CLLocationManager.authorizationStatus()
         
         switch(authStatus){
-            
-            case .notDetermined: locationManager?.requestWhenInUseAuthorization(); return
-            case .denied: showLocationServicesDeniedAlert(); return
-            case .restricted: showLocationServicesDeniedAlert(); return
+        case .notDetermined: locationManager?.requestWhenInUseAuthorization(); print("In Auth switch statement1");return
+            case .denied: showLocationServicesDeniedAlert(); print("In Auth switch statement2");return
+            case .restricted: showLocationServicesDeniedAlert(); print("In Auth switch statement3"); return
             default:
+                print("In Auth switch default");
                 if authStatus != .authorizedWhenInUse{
                     locationManager?.requestWhenInUseAuthorization()
                     print("The AUTHORIZATION STATUS IS: whenInUseAuthorization")
@@ -152,7 +152,7 @@ class GetLocation1: UIViewController {
         }
         centerMapOnLocation(location: CurrentUser._location!)
         self.mapView.showsUserLocation = true
-        addRadiusCircle(location: CurrentUser._location!)
+        //addRadiusCircle(location: CurrentUser._location!)
     }
 
     //MARK: - Observe Methods
@@ -161,6 +161,7 @@ class GetLocation1: UIViewController {
         print("In fetchCurrentUser")
         currentUserRef.observeSingleEvent(of: .value, with: { (snapshot) in
             if let dictionary = snapshot.value as? [String: AnyObject]{
+                print("Current User post key is: \(snapshot.key)")
                 CurrentUser._postKey = snapshot.key
                 CurrentUser._userName = dictionary["UserName"] as! String
                 CurrentUser._location = userLocation
@@ -187,7 +188,7 @@ class GetLocation1: UIViewController {
     
     func observeOtherUsersLocations(){
         print("In observeOtherUsersLocations")
-        let otherUsersLocationsRef = DataService.ds.REF_USERSONLINE.child("\(userLatInt)").child("\(userLngInt)")
+        let otherUsersLocationsRef = DataService.ds.REF_USERSONLINE.child("\(userLatInt!)").child("\(userLngInt!)")
         otherUsersLocationsRef.observe(.childAdded, with: { (snapshot) in
             if let dictionary = snapshot.value as? [String: AnyObject]{
                 let otherUserId = snapshot.key
@@ -202,6 +203,7 @@ class GetLocation1: UIViewController {
                         
                         let otherUserLocation = UserLocation(latitude: otherUserLat, longitude: otherUserLong, name: otherUserName, imageName: otherUserImageUrl)
                         self.otherUsersLocations.append(otherUserLocation)
+                        print("I added to other users location array")
                         
                         self.timer?.invalidate()
                         self.timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.handleAnnotations), userInfo: nil, repeats: false)
@@ -254,19 +256,19 @@ class GetLocation1: UIViewController {
 //MARK: - CLLocationManagerDelegate
 extension GetLocation1: CLLocationManagerDelegate{
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print("In locationDidFailWithError")
         print("Location did fail with error")
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         print("In location didUpdateLocations")
                 if userLocation == nil{
-                    //userLocation = locations.first
-                    userLocation = CLLocation(latitude: 41.92413, longitude: -88.161242)
+                    userLocation = locations.first
+                    //userLocation = CLLocation(latitude: 41.92413, longitude: -88.161242)
                     if CurrentUser._location == nil {
                         print("I don't even have a user")
                     }
                     if userLocation != nil{
+                        print("Fetching current user")
                         fetchCurrentUser(userLocation: userLocation!)
                     }else{
                         print("I got NO location")
@@ -275,33 +277,13 @@ extension GetLocation1: CLLocationManagerDelegate{
                 }
     }
     
-//    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-//        print("In location didUpdateLocations")
-//        if userLocation == nil{
-//            
-//            //userLocation = locations.first
-//            
-//            userLocation = CLLocation(latitude: 41.92413, longitude: -88.161242)
-//            if CurrentUser._location == nil {
-//                print("I don't even have a user")
-//            }
-//            if userLocation != nil{
-//                fetchCurrentUser(userLocation: userLocation!)
-//            }else{
-//                print("I got NO location")
-//            }
-//           centerMapOnLocation(location: userLocation!)
-//           
-//        }
-//    }
-    
-    private func locationManager(manager: CLLocationManager, didChangeAuthorizationStatus status: CLAuthorizationStatus) {
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         print("In locationDidChangeAuthorizationStatus")
         if status == .authorizedAlways || status == .authorizedWhenInUse{
             locationManager?.requestLocation()
         }
     }
-    
+   
     func showLocationServicesDeniedAlert(){
         print("In showLocationServicesDeniedAlert")
         let alert = UIAlertController(title: "Location Services Disabled", message: "Please enable location services for this app in Settings", preferredStyle: .alert)
@@ -321,6 +303,7 @@ extension GetLocation1: MKMapViewDelegate{
     }
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        print("Inside annotations")
         if (annotation is MKUserLocation){
             return nil
         }

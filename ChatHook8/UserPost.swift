@@ -26,7 +26,7 @@ class UserPost: NSObject {
     init(key: String){
         postKey = key
         self.postRef = DataService.ds.REF_POSTS.child(self.postKey!)
-        print(self.postRef)
+        
     }
     
     func adjustLikes(addLike: Bool){

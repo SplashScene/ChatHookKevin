@@ -40,7 +40,6 @@ class PublicRoomCell: UITableViewCell {
     
     let profileImageView: UIImageView = {
         let imageView = UIImageView()
-            imageView.image = UIImage(named: "profileToon.jpg")
             imageView.translatesAutoresizingMaskIntoConstraints = false
             imageView.layer.cornerRadius = 24
             imageView.layer.masksToBounds = true

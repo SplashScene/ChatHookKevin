@@ -16,6 +16,7 @@ import Firebase
 
 class IntroViewController: UIViewController {
     @IBOutlet weak var videoView: UIView!
+    var loginContainerViewBottomAnchor: NSLayoutConstraint?
     
     let chatHookLogo: UILabel = {
         let logoLabel = UILabel()
@@ -134,12 +135,11 @@ class IntroViewController: UIViewController {
         return button
     }()
 
-    
-
+    //MARK: - View Methods
     override func viewDidLoad() {
         super.viewDidLoad()
         self.setupView()
-        
+        setupKeyboardObservers()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -148,11 +148,22 @@ class IntroViewController: UIViewController {
             self.handleReturningUser()
         }
     }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        NotificationCenter.default.removeObserver(self)
+    }
 
     override var preferredStatusBarStyle: UIStatusBarStyle{
         return .lightContent
     }
-
+    
+    //MARK: - Setup Methods
+    func setupKeyboardObservers(){
+        NotificationCenter.default.addObserver(self, selector: #selector(IntroViewController.handleKeyboardWillShow), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(IntroViewController.handleKeyboardWillHide), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+    }
     
     func setupView(){
         let path = NSURL(fileURLWithPath: Bundle.main.path(forResource: "introVideo", ofType: "mov")!)
@@ -178,15 +189,7 @@ class IntroViewController: UIViewController {
         setupChatHookLogoView()
         setupFacebookContainerView()
         setupLoginContainerView()
-        
-        //self.createViews(self.videoView)
-        
     }//end func setupView
-    
-    func videoDidPlayToEnd(notification: NSNotification){
-        let player: AVPlayerItem = notification.object as! AVPlayerItem
-            player.seek(to: kCMTimeZero)
-    }//end func videoDidPlayToEnd
     
     func setupChatHookLogoView(){
         //need x, y, width and height constraints
@@ -223,7 +226,8 @@ class IntroViewController: UIViewController {
     func setupLoginContainerView(){
         //need x, y, width and height constraints
         loginContainerView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        loginContainerView.topAnchor.constraint(equalTo: facebookContainerView.bottomAnchor, constant: 15).isActive = true
+        loginContainerViewBottomAnchor = loginContainerView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -40)
+        loginContainerViewBottomAnchor?.isActive = true
         loginContainerView.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -24).isActive = true
         loginContainerView.heightAnchor.constraint(equalToConstant: 180).isActive = true
         
@@ -269,15 +273,15 @@ class IntroViewController: UIViewController {
         registerButton.widthAnchor.constraint(equalToConstant: 125).isActive = true
         registerButton.heightAnchor.constraint(equalToConstant: 35).isActive = true
 
-
-        
         UIView.animate(withDuration: 0.5,
                                    delay: 1.5,
                                    options: [],
-                                   animations: { self.facebookContainerView.alpha = 0.75;
-                                                 self.loginContainerView.alpha = 0.75},
+                                   animations: { self.facebookContainerView.alpha = 1.0;
+                                                 self.loginContainerView.alpha = 1.0},
                                    completion: nil)
     }
+    
+    //MARK: - Login Methods
     /*
     func fbButtonPressed(){
         let facebookLogin = FBSDKLoginManager()
@@ -353,18 +357,11 @@ class IntroViewController: UIViewController {
                 //set only to allow different signins
                 UserDefaults.standard.setValue(user!.uid, forKey: KEY_UID)
                 self.handleReturningUser()
-                
             }
         })
     }
     
-    func showErrorAlert(title: String, msg: String){
-        let alert = UIAlertController(title: title, message: msg, preferredStyle: .alert)
-        let action = UIAlertAction(title: "OK", style: .default, handler: nil)
-            alert.addAction(action)
-        present(alert, animated: true, completion: nil)
-    }
-    
+    //MARK: - Handler Methods
     func handleRegisterSegue(){
         let loginController = FinishRegisterController()
         loginController.introViewController = self
@@ -376,6 +373,46 @@ class IntroViewController: UIViewController {
         tabController.introViewController = self
         present(tabController, animated: true, completion: nil)
     }
+    
+    func handleKeyboardWillShow(notification: Notification){
+        let userInfo:NSDictionary = notification.userInfo! as NSDictionary
+        let keyboardFrame:NSValue = userInfo.value(forKey: UIKeyboardFrameEndUserInfoKey) as! NSValue
+        let keyboardRectangle = keyboardFrame.cgRectValue
+        let keyboardHeight = keyboardRectangle.height
+        let keyboardDuration = userInfo.value(forKey: UIKeyboardAnimationDurationUserInfoKey) as! Double
+        
+        loginContainerViewBottomAnchor?.constant = -keyboardHeight
+        UIView.animate(withDuration: keyboardDuration){
+            self.view.layoutIfNeeded()
+        }
+       
+        print("The height of the keyboard is: \(keyboardHeight)")
+    }
+    
+    func handleKeyboardWillHide(notification: Notification){
+        loginContainerViewBottomAnchor?.constant = 0
+        let userInfo:NSDictionary = notification.userInfo! as NSDictionary
+        let keyboardDuration = userInfo.value(forKey: UIKeyboardAnimationDurationUserInfoKey) as! Double
+        
+        UIView.animate(withDuration: keyboardDuration){
+            self.view.layoutIfNeeded()
+        }
+    }
+    
+    //MARK: - Error Alert
+    func showErrorAlert(title: String, msg: String){
+        let alert = UIAlertController(title: title, message: msg, preferredStyle: .alert)
+        let action = UIAlertAction(title: "OK", style: .default, handler: nil)
+        alert.addAction(action)
+        present(alert, animated: true, completion: nil)
+    }
+
+    //MARK: - Video Played To End
+    func videoDidPlayToEnd(notification: NSNotification){
+        let player: AVPlayerItem = notification.object as! AVPlayerItem
+        player.seek(to: kCMTimeZero)
+    }//end func videoDidPlayToEnd
+
     
 }//end class
 

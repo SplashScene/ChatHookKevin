@@ -36,7 +36,6 @@ class PostsVC: UIViewController{
     var postsArray = [UserPost]()
     var preventAnimation = Set<NSIndexPath>()
     
-    
     let topView: MaterialView = {
         let view = MaterialView()
             view.translatesAutoresizingMaskIntoConstraints = false
@@ -76,7 +75,7 @@ class PostsVC: UIViewController{
             ptv.translatesAutoresizingMaskIntoConstraints = false
             ptv.backgroundColor = UIColor(r: 220, g: 220, b: 220)
             ptv.allowsSelection = false
-                    return ptv
+        return ptv
     }()
     
     //MARK: - View Methods
@@ -86,20 +85,17 @@ class PostsVC: UIViewController{
         view.backgroundColor = UIColor(r: 220, g: 220, b: 220)
         view.addSubview(topView)
         view.addSubview(postTableView)
+        
         postTableView.delegate = self
         postTableView.dataSource = self
         postTableView.register(testPostCell.self, forCellReuseIdentifier: "cellID")
         postTableView.estimatedRowHeight = 375
-
         postTextField.delegate = self
-        
         
         setupTopView()
         setupPostTableView()
         setupNavBarWithUserOrProgress(progress: nil)
         observePosts()
-        
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -135,13 +131,13 @@ class PostsVC: UIViewController{
             nameLabel.translatesAutoresizingMaskIntoConstraints = false
             nameLabel.font = UIFont(name: "Avenir-Medium", size: 14.0)
         
-        if let progressText = progress{
-            nameLabel.text = progressText
-            nameLabel.textColor = UIColor.red
-        }else{
-            nameLabel.text = parentRoom?.RoomName
-            nameLabel.textColor = UIColor.darkGray
-        }
+                if let progressText = progress{
+                    nameLabel.text = progressText
+                    nameLabel.textColor = UIColor.red
+                }else{
+                    nameLabel.text = parentRoom?.RoomName
+                    nameLabel.textColor = UIColor.darkGray
+                }
         
         containerView.addSubview(nameLabel)
         
@@ -259,18 +255,18 @@ class PostsVC: UIViewController{
         let cell = self.postTableView.cellForRow(at: indexPath!) as? testPostCell
         
         let vc = SLComposeViewController(forServiceType: SLServiceTypeFacebook)
-        if let postText = cell?.descriptionText.text{
-            vc?.setInitialText("Check out this great post from ChatHook: \n \(postText)")
-        }else{
-            vc?.setInitialText("Check out this great post from ChatHook:")
-        }
         
-        if let image = cell?.showcaseImageView.image{
-            vc?.add(image)
-        }
-        
+            if let postText = cell?.descriptionText.text{
+                vc?.setInitialText("Check out this great post from ChatHook: \n \(postText)")
+            }else{
+                vc?.setInitialText("Check out this great post from ChatHook:")
+            }
+            
+            if let image = cell?.showcaseImageView.image{
+                vc?.add(image)
+            }
+      
         present(vc!, animated: true, completion: nil)
-        
     }
 
     //MARK: - Observe Methods
@@ -293,7 +289,7 @@ class PostsVC: UIViewController{
                 self.timer?.invalidate()
                 self.timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.handleReloadPosts), userInfo: nil, repeats: false)
                 },
-                                        withCancel: nil)
+                withCancel: nil)
             }, withCancel: nil)
     }
     
@@ -319,8 +315,6 @@ class PostsVC: UIViewController{
         
     }
     
-    
-     
    //MARK: - Zoom In and Out Methods
     
     func performZoomInForStartingImageView(startingImageView: UIImageView){
@@ -344,24 +338,24 @@ class PostsVC: UIViewController{
             
             keyWindow.addSubview(zoomingView)
                 
-                UIView.animate(withDuration: 0.5,
-                                           delay: 0,
-                                           usingSpringWithDamping: 1,
-                                           initialSpringVelocity: 1,
-                                           options: .curveEaseOut,
-                                           animations: {
-                                                self.blackBackgroundView!.alpha = 1
-                                                self.startingView?.isHidden = true
+            UIView.animate(withDuration: 0.5,
+                           delay: 0,
+                           usingSpringWithDamping: 1,
+                           initialSpringVelocity: 1,
+                           options: .curveEaseOut,
+                           animations: {
+                                self.blackBackgroundView!.alpha = 1
+                                self.startingView?.isHidden = true
 
-                                                let height = self.startingFrame!.height / self.startingFrame!.width * keyWindow.frame.width
-                        
-                                                zoomingView.frame = CGRect(x: 0,
-                                                                           y: 0,
-                                                                           width: keyWindow.frame.width,
-                                                                           height: height)
-                                                zoomingView.center = keyWindow.center
-                                            },
-                                           completion: nil)
+                                let height = self.startingFrame!.height / self.startingFrame!.width * keyWindow.frame.width
+        
+                                zoomingView.frame = CGRect(x: 0,
+                                                           y: 0,
+                                                           width: keyWindow.frame.width,
+                                                           height: height)
+                                zoomingView.center = keyWindow.center
+                            },
+                           completion: nil)
         }
   
     }
@@ -371,13 +365,19 @@ class PostsVC: UIViewController{
             zoomOutImageView.layer.cornerRadius = 16
             zoomOutImageView.clipsToBounds = true
             
-            UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
-                    zoomOutImageView.frame = self.startingFrame!
-                    self.blackBackgroundView?.alpha = 0
-                }, completion: { (completed) in
-                    zoomOutImageView.removeFromSuperview()
-                    self.startingView?.isHidden = false
-            })
+            UIView.animate(withDuration: 0.5,
+                           delay: 0,
+                           usingSpringWithDamping: 1,
+                           initialSpringVelocity: 1,
+                           options: .curveEaseOut,
+                           animations: {
+                                zoomOutImageView.frame = self.startingFrame!
+                                self.blackBackgroundView?.alpha = 0
+                            },
+                           completion: { (completed) in
+                                zoomOutImageView.removeFromSuperview()
+                                self.startingView?.isHidden = false
+                            })
         }
     }
     

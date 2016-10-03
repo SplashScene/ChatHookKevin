@@ -36,5 +36,7 @@
 	<string>The app needs to accesss your photo library for profile pictures and image sharing</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>ChatHook needs your location to function properly and find nearby connections</string>
+	<key>NSCameraUsageDescription</key>
+	<string>ChatHook needs to access your camera for profile pictures and image sharing</string>
 </dict>
 </plist>

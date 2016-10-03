@@ -166,6 +166,15 @@ extension ProfileViewController: UIImagePickerControllerDelegate, UINavigationCo
 }
 
 extension ChatViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate{
+    func takePhotoWithCamera(){
+        let imagePicker = UIImagePickerController()
+            imagePicker.sourceType = .camera
+            imagePicker.delegate = self
+            imagePicker.allowsEditing = true
+        present(imagePicker, animated: true, completion: nil)
+    }
+
+    
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         var selectedImageFromPicker: UIImage?
         
@@ -387,6 +396,14 @@ extension FinishRegisterController:UIImagePickerControllerDelegate, UINavigation
 }
 
 extension PostsVC:UIImagePickerControllerDelegate, UINavigationControllerDelegate{
+    func takePhotoWithCamera(){
+        let imagePicker = UIImagePickerController()
+            imagePicker.sourceType = .camera
+            imagePicker.delegate = self
+            imagePicker.allowsEditing = true
+        present(imagePicker, animated: true, completion: nil)
+    }
+    
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         var selectedImageFromPicker: UIImage?

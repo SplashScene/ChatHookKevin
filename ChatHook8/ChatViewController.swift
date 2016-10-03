@@ -249,6 +249,11 @@ class ChatViewController: JSQMessagesViewController {
         let cancel = UIAlertAction(title: "Cancel", style: .cancel) { (alert:UIAlertAction) in
             sheet.dismiss(animated: true, completion: nil)
         }
+        
+        let takePhoto = UIAlertAction(title: "Take Photo", style: .default) { (alert: UIAlertAction) in
+            self.takePhotoWithCamera()
+        }
+        
         let photoLibary = UIAlertAction(title: "Photo Library", style: .default) { (alert: UIAlertAction) in
             self.getMediaFrom(type: kUTTypeImage)
         }
@@ -256,7 +261,7 @@ class ChatViewController: JSQMessagesViewController {
         let videoLibrary = UIAlertAction(title: "Video Library", style: .default) { (alert: UIAlertAction) in
             self.getMediaFrom(type: kUTTypeMovie)
         }
-        
+            sheet.addAction(takePhoto)
             sheet.addAction(photoLibary)
             sheet.addAction(videoLibrary)
             sheet.addAction(cancel)
@@ -413,7 +418,6 @@ class ChatViewController: JSQMessagesViewController {
             })
         }
     }
-
 }
 
 extension ChatViewController: JSQMessagesCollectionViewCellDelegate{

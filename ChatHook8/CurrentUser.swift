@@ -11,7 +11,6 @@ import Firebase
 import CoreLocation
 
 struct CurrentUser{
-        
     static var _userName: String!
     static var _profileImageUrl: String!
     static var _postKey: String!
@@ -19,5 +18,4 @@ struct CurrentUser{
     static var _email: String!
     static var _location: CLLocation!
     static var _blockedUsersArray: [String]?
-
 }

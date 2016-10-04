@@ -213,10 +213,11 @@ class testPostCell: UITableViewCell {
         return label
     }()
     
-    let commentButtonContainerView: UIView = {
+    lazy var commentButtonContainerView: UIView = {
         let commentContainerView = UIView()
             commentContainerView.translatesAutoresizingMaskIntoConstraints = false
             commentContainerView.backgroundColor = UIColor.white
+        commentContainerView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleCommentTapped)))
         return commentContainerView
     }()
     
@@ -426,8 +427,6 @@ class testPostCell: UITableViewCell {
                 //self.postViewController!.handleReloadPosts()
             }
         })
-
-        
     }
     
     func likeTapped(tapGesture: UITapGestureRecognizer){
@@ -452,16 +451,13 @@ class testPostCell: UITableViewCell {
     }
     
     func handleZoom(tapGesture: UITapGestureRecognizer){
-        
         if let imageView = tapGesture.view as? UIImageView{
             postViewController?.performZoomInForStartingImageView(startingImageView: imageView)
         }
-        
     }
     
     func handleShare(tapGesture: UITapGestureRecognizer){
-        postViewController?.handleShare(shareView: tapGesture.view!)
-        
+            postViewController?.handleShare(shareView: tapGesture.view!)
     }
     
     func handleProfileViewTapped(tapGesture: UITapGestureRecognizer){
@@ -470,6 +466,10 @@ class testPostCell: UITableViewCell {
     
     func handlePostVideoPlay(sender: UIButton) {
         postViewController?.handlePlayPostVideo(sender: sender)
+    }
+    
+    func handleCommentTapped(tapGesture: UITapGestureRecognizer){
+        postViewController?.handleCommentTapped(commentView: tapGesture.view!)
     }
     
     func setupVideoPostCell(cell: testPostCell){
@@ -496,7 +496,6 @@ class testPostCell: UITableViewCell {
         activityIndicatorView.widthAnchor.constraint(equalToConstant: 50).isActive = true
         activityIndicatorView.heightAnchor.constraint(equalToConstant: 50).isActive = true
     }
-    
 }
 
 //extension testPostCell: UITextViewDelegate{

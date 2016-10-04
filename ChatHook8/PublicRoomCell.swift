@@ -58,7 +58,6 @@ class PublicRoomCell: UITableViewCell {
     
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: .subtitle, reuseIdentifier: reuseIdentifier)
-        print("I am in the cell for the post")
         addSubview(profileImageView)
         //addSubview(timeLabel)
         //need x, y, width, height anchors

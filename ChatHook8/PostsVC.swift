@@ -17,6 +17,7 @@ import Social
 class PostsVC: UIViewController{
     var profileView: ProfileViewController?
     var roomsController: RoomsViewController?
+    var commentViewController: CommentViewController?
     var cellID = "cellID"
     var postedImage: UIImage?
     var postedVideo: NSURL?
@@ -186,7 +187,6 @@ class PostsVC: UIViewController{
         postTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
     }
 
-
     //MARK: - Handler Methods
     func handleBack(){
         dismiss(animated: true, completion: nil)
@@ -276,9 +276,8 @@ class PostsVC: UIViewController{
     }
     
     func handleProfile(profileView: UIView){
-        print("Tapped the profile view and get ready to show profile somehow")
-        let sharePosition = profileView.convert(CGPoint(x: 0, y: 0), to: self.postTableView)
-        if let indexPath = self.postTableView.indexPathForRow(at: sharePosition){
+        let profileViewPosition = profileView.convert(CGPoint(x: 0, y: 0), to: self.postTableView)
+        if let indexPath = self.postTableView.indexPathForRow(at: profileViewPosition){
             let userPost = postsArray[indexPath.row]
             let ref = DataService.ds.REF_USERS.child(userPost.fromId!)
                 
@@ -286,7 +285,18 @@ class PostsVC: UIViewController{
                     guard let dictionary = snapshot.value as? [String : AnyObject] else { return }
                     let user = User(postKey: snapshot.key, dictionary: dictionary)
                     self.showProfileControllerForUser(user: user)
-                    }, withCancel: nil)  
+                    }, withCancel: nil)
+        }
+    }
+    
+    func handleCommentTapped(commentView: UIView){
+        let commentViewPosition = commentView.convert(CGPoint(x: 0, y: 0), to: self.postTableView)
+        if let indexPath = self.postTableView.indexPathForRow(at: commentViewPosition){
+            let userPost = postsArray[indexPath.row]
+            let commentViewController = CommentViewController()
+                commentViewController.postForComment = userPost
+            let navController = UINavigationController(rootViewController: commentViewController)
+            present(navController, animated: true, completion: nil)
         }
     }
 
@@ -467,10 +477,6 @@ extension PostsVC:UITableViewDelegate, UITableViewDataSource{
             cell.userPost = post
             cell.postViewController = self
         
-        for views in cell.showcaseImageView.subviews{
-            print("For index path \(indexPath.row) the subviews are: \(views) for media type: \(post.mediaType)")
-        }
-        
         if let mediaType = post.mediaType{
             switch mediaType{
                 case "VIDEO":
@@ -484,14 +490,12 @@ extension PostsVC:UITableViewDelegate, UITableViewDataSource{
                             view.removeFromSuperview()
                         }
                     }
-
                 default:
                     if cell.showcaseImageView.subviews.count > 0{
                         for view in (cell.showcaseImageView.subviews){
                             view.removeFromSuperview()
                         }
-                }
-                
+                }                
             }
         }
         
@@ -603,6 +607,7 @@ extension PostsVC{
                            "mediaType": "VIDEO" as AnyObject,
                            "thumbnailUrl": thumbnailURL! as AnyObject,
                            "likes": 0 as AnyObject,
+                           "comments": 0 as AnyObject,
                            "showcaseUrl": fileURL! as AnyObject,
                            "authorName": CurrentUser._userName as AnyObject,
                            "authorPic": CurrentUser._profileImageUrl as AnyObject
@@ -613,6 +618,7 @@ extension PostsVC{
                            "toRoom": toRoom! as AnyObject,
                            "mediaType": "PHOTO" as AnyObject,
                            "likes": 0 as AnyObject,
+                           "comments": 0 as AnyObject,
                            "showcaseUrl": fileURL! as AnyObject,
                            "authorName": CurrentUser._userName as AnyObject,
                            "authorPic": CurrentUser._profileImageUrl as AnyObject
@@ -623,6 +629,7 @@ extension PostsVC{
                            "toRoom": toRoom! as AnyObject,
                            "mediaType": "TEXT" as AnyObject,
                            "likes": 0 as AnyObject,
+                           "comments": 0 as AnyObject,
                            "authorName": CurrentUser._userName as AnyObject,
                            "authorPic": CurrentUser._profileImageUrl as AnyObject
             ]

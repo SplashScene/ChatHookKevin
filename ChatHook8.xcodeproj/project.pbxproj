@@ -46,6 +46,9 @@
 		84D3AF261D9AFE8000EE54CF /* NewMessagesController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3AF241D9AFE8000EE54CF /* NewMessagesController.swift */; };
 		84D3AF281D9B01F600EE54CF /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3AF271D9B01F600EE54CF /* ChatViewController.swift */; };
 		84D3AF2C1D9C01E200EE54CF /* ImageExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3AF2B1D9C01E200EE54CF /* ImageExtensions.swift */; };
+		84FB04741DA2D3F70061D5C2 /* CommentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FB04731DA2D3F70061D5C2 /* CommentViewController.swift */; };
+		84FB04761DA2D5D30061D5C2 /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FB04751DA2D5D30061D5C2 /* Comment.swift */; };
+		84FB047A1DA2F35E0061D5C2 /* CommentPostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FB04791DA2F35E0061D5C2 /* CommentPostView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -91,6 +94,9 @@
 		84D3AF241D9AFE8000EE54CF /* NewMessagesController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewMessagesController.swift; sourceTree = "<group>"; };
 		84D3AF271D9B01F600EE54CF /* ChatViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
 		84D3AF2B1D9C01E200EE54CF /* ImageExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageExtensions.swift; sourceTree = "<group>"; };
+		84FB04731DA2D3F70061D5C2 /* CommentViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentViewController.swift; sourceTree = "<group>"; };
+		84FB04751DA2D5D30061D5C2 /* Comment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
+		84FB04791DA2F35E0061D5C2 /* CommentPostView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentPostView.swift; sourceTree = "<group>"; };
 		B2BBAD97D0114868FD6121E3 /* Pods-ChatHook8.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ChatHook8.release.xcconfig"; path = "Pods/Target Support Files/Pods-ChatHook8/Pods-ChatHook8.release.xcconfig"; sourceTree = "<group>"; };
 		C80371A829201E16C2475201 /* Pods_ChatHook8.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ChatHook8.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -166,6 +172,7 @@
 				84D3ACF21D9AEA0F00EE54CF /* PostsVC.swift */,
 				84D3ACF01D9AE99400EE54CF /* MainTabBar.swift */,
 				84D3ACEE1D9AE5C400EE54CF /* IntroViewController.swift */,
+				84FB04731DA2D3F70061D5C2 /* CommentViewController.swift */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -182,6 +189,7 @@
 				84D3ACE21D9AE08D00EE54CF /* PublicRoomCell.swift */,
 				84D3ACE31D9AE08D00EE54CF /* testPostCell.swift */,
 				84D3ACE41D9AE08D00EE54CF /* UserCell.swift */,
+				84FB04791DA2F35E0061D5C2 /* CommentPostView.swift */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -197,6 +205,7 @@
 				84D3ACCE1D9ADFC800EE54CF /* User.swift */,
 				84D3ACCF1D9ADFC800EE54CF /* UserLocation.swift */,
 				84D3ACD01D9ADFC800EE54CF /* UserPost.swift */,
+				84FB04751DA2D5D30061D5C2 /* Comment.swift */,
 			);
 			name = Models;
 			sourceTree = "<group>";
@@ -378,6 +387,7 @@
 				84D3ACD81D9ADFC800EE54CF /* UserPost.swift in Sources */,
 				84D3ACEC1D9AE08D00EE54CF /* testPostCell.swift in Sources */,
 				84D3AF1A1D9AF04200EE54CF /* FinishRegisterController.swift in Sources */,
+				84FB04761DA2D5D30061D5C2 /* Comment.swift in Sources */,
 				84D3ACD21D9ADFC800EE54CF /* GalleryImage.swift in Sources */,
 				84D3ACC81D9ADE0300EE54CF /* TipInCellAnimator.swift in Sources */,
 				84D3ACEB1D9AE08D00EE54CF /* PublicRoomCell.swift in Sources */,
@@ -390,10 +400,12 @@
 				84D3ACD41D9ADFC800EE54CF /* Message.swift in Sources */,
 				84D3ACD71D9ADFC800EE54CF /* UserLocation.swift in Sources */,
 				84D3ACE81D9AE08D00EE54CF /* MaterialTextField.swift in Sources */,
+				84FB04741DA2D3F70061D5C2 /* CommentViewController.swift in Sources */,
 				84D3ACD31D9ADFC800EE54CF /* GroupedUsers.swift in Sources */,
 				84D3ACC61D9ADE0300EE54CF /* Constants.swift in Sources */,
 				84D3ACF31D9AEA0F00EE54CF /* PostsVC.swift in Sources */,
 				84D3AF221D9AFCB400EE54CF /* GetLocation1.swift in Sources */,
+				84FB047A1DA2F35E0061D5C2 /* CommentPostView.swift in Sources */,
 				84D3ACD61D9ADFC800EE54CF /* User.swift in Sources */,
 				84D3AF281D9B01F600EE54CF /* ChatViewController.swift in Sources */,
 				84D3ACE51D9AE08D00EE54CF /* GalleryCollectionCell.swift in Sources */,

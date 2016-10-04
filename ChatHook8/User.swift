@@ -46,16 +46,11 @@ class User{
             self._userName = "AnonymousPoster"
         }
         
-//        if let lat = dictionary["UserLatitude"], long = dictionary["UserLongitude"]{
-//            self.location = CLLocation(latitude: (lat as? Double)!, longitude: (long as? Double)!)
-//        }
-        
         if let userEmail = dictionary["email"] as? String{
             self._email = userEmail
         }
         
         self._postRef = DataService.ds.REF_USERS.child(self._postKey)
-        
     }
     
     func setLocationWithLatitude(lat: Double, long: Double){

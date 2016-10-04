@@ -29,7 +29,7 @@ class NewMessagesController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleCancel))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(handleCancel))
         
         navigationItem.title = "People Near You"
         observeUsersOnline()
@@ -127,7 +127,6 @@ class NewMessagesController: UITableViewController {
     }
     
     func loadSections(){
-        print("INSIDE LOAD SECTIONS")
         if usersArray1.count > 0 {
             self.groupedUsersArray.append(GroupedUsers(sectionName: "Within a mile", sectionUsers: self.usersArray1))
             print("Grouped Users Array Count is: \(groupedUsersArray.count)")
@@ -164,14 +163,11 @@ class NewMessagesController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        print("INSIDE NUMBER OF ROWS IN SECTION")
         return groupedUsersArray[section].sectionUsers.count
         
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        print("INSIDE CELL FOR ROW AT INDEXPATH")
-        
             let cell = tableView.dequeueReusableCell(withIdentifier: cellID, for: indexPath as IndexPath) as! UserCell
         
             let user = groupedUsersArray[indexPath.section].sectionUsers[indexPath.row]

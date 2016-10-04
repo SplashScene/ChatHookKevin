@@ -1,5 +1,5 @@
 //
-//  UserPost.swift
+//  Comment.swift
 //  ChatHook
 //
 //  Created by Kevin Farm on 8/24/16.
@@ -9,24 +9,18 @@
 import UIKit
 import Firebase
 
-class UserPost: NSObject {
-    var postKey: String?
+class Comment: NSObject {
+    var commentKey: String?
     var fromId: String?
-    var postText: String?
+    var commentText: String?
     var timestamp: NSNumber?
-    var toRoom: String?
+    var toPost: String?
     var likes: NSNumber!
-    var comments: NSNumber!
-    var thumbnailUrl: String?
-    var showcaseUrl: String?
-    var mediaType: String?
-    var authorPic: String?
-    var authorName: String?
-    var postRef: FIRDatabaseReference!
+    var commentRef: FIRDatabaseReference!
     
     init(key: String){
-        postKey = key
-        self.postRef = DataService.ds.REF_POSTS.child(self.postKey!)
+        commentKey = key
+        self.commentRef = DataService.ds.REF_USERS_COMMENTS.child(self.commentKey!)
     }
     
     func adjustLikes(addLike: Bool){
@@ -37,6 +31,7 @@ class UserPost: NSObject {
             intLikes = addLike ? intLikes + 1 :  intLikes - 1
         }
         let adjustedLikes = NSNumber(value: Int32(intLikes))
-        postRef.child("likes").setValue(adjustedLikes)
+        commentRef.child("likes").setValue(adjustedLikes)
     }
 }
+

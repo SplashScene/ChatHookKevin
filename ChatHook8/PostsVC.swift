@@ -667,6 +667,7 @@ extension PostsVC{
     func adjustPostsNumberOfParentRoom(){
         let intComments = Int((parentRoom?.posts)!) + 1
         let adjustedComments = NSNumber(value: Int32(intComments))
+        parentRoom!.posts = adjustedComments
         parentRoom!.roomRef.child("posts").setValue(adjustedComments)
     }
     

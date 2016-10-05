@@ -199,13 +199,13 @@ class CommentViewController: UIViewController{
         if let image = cell?.showcaseImageView.image{
             vc?.add(image)
         }
-        
         present(vc!, animated: true, completion: nil)
     }
     
     func adjustComments(){
         let intComments = Int((postForComment?.comments)!) + 1
         let adjustedComments = NSNumber(value: Int32(intComments))
+        postForComment!.comments = adjustedComments
         postForComment!.postRef.child("comments").setValue(adjustedComments)
     }
     

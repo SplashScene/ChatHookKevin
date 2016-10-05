@@ -30,6 +30,11 @@ class RoomsViewController: UITableViewController {
         observeRooms()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        handleReloadData()
+    }
+    
     //MARK: - Observe Methods
     func observeRooms(){
         DataService.ds.REF_CHATROOMS.observe(.value, with: {
@@ -48,7 +53,6 @@ class RoomsViewController: UITableViewController {
                 }
             self.handleReloadData()
         })
-       
     }
     
     //MARK: - Handler Methods
@@ -79,8 +83,8 @@ class RoomsViewController: UITableViewController {
     func postToFirebase(roomName: String?){
         let timestamp: Int = Int(NSDate().timeIntervalSince1970)
         let authorID = UserDefaults.standard.value(forKey: KEY_UID) as! String
-        //let authorID = FIRAuth.auth()!.currentUser!.uid
-
+        let firebasePost = DataService.ds.REF_CHATROOMS.childByAutoId()
+        
         if let unwrappedRoomName = roomName{
             let post: Dictionary<String, AnyObject> =
         
@@ -88,11 +92,10 @@ class RoomsViewController: UITableViewController {
                  "Author": CurrentUser._userName as AnyObject,
                  "AuthorPic": CurrentUser._profileImageUrl as AnyObject,
                  "timestamp": timestamp as AnyObject,
-                 "AuthorID" : authorID as AnyObject
-            ]
-            
-            let firebasePost = DataService.ds.REF_CHATROOMS.childByAutoId()
-                firebasePost.setValue(post)
+                 "posts": 0 as AnyObject,
+                 "AuthorID" : authorID as AnyObject]
+
+            firebasePost.setValue(post)
             
             handleReloadData()
         }

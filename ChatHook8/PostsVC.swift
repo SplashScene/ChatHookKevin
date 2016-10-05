@@ -101,6 +101,7 @@ class PostsVC: UIViewController{
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        handleReloadPosts()
     }
     
     //MARK: - Setup Methods
@@ -468,7 +469,6 @@ extension PostsVC:UITableViewDelegate, UITableViewDataSource{
             preventAnimation.insert(indexPath as NSIndexPath)
             TipInCellAnimator.animate(cell: customCell)
         }
-        
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -498,7 +498,6 @@ extension PostsVC:UITableViewDelegate, UITableViewDataSource{
                 }                
             }
         }
-        
         return cell
     }
     
@@ -653,15 +652,22 @@ extension PostsVC{
         }
         
         self.postTextField.text = ""
+        self.postTextField.endEditing(true)
         self.imageSelectorView.image = UIImage(named: "cameraIcon")
         self.postedImage = nil
         self.postedVideo = nil
         self.postedText = nil
         self.postButton.isUserInteractionEnabled = false
         self.postButton.alpha = 0.5
-        
+        adjustPostsNumberOfParentRoom()
         handleReloadPosts()
         
+    }
+    
+    func adjustPostsNumberOfParentRoom(){
+        let intComments = Int((parentRoom?.posts)!) + 1
+        let adjustedComments = NSNumber(value: Int32(intComments))
+        parentRoom!.roomRef.child("posts").setValue(adjustedComments)
     }
     
     private func thumbnailImageForVideoUrl(videoUrl: NSURL) -> UIImage?{

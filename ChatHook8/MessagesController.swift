@@ -18,6 +18,8 @@ class MessagesController: UITableViewController {
     var messagesDictionary = [String: Message]()
     let cellID = "cellID"
     var timer: Timer?
+    var userLat: Double?
+    var userLong: Double?
     
     //MARK: - View Methods
     override func viewDidLoad() {
@@ -114,7 +116,7 @@ class MessagesController: UITableViewController {
                 }
             }, withCancel: nil)
     }
-    
+        
     //MARK: - Handlers
     
     private func attemptReloadOfTable(){

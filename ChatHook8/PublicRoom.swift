@@ -16,9 +16,12 @@ class PublicRoom: NSObject{
     var AuthorPic: String?
     var RoomName: String?
     var timestamp: NSNumber?
+    var posts: NSNumber?
+    var roomRef: FIRDatabaseReference
     
     init(key: String){
         postKey = key
+        roomRef = DataService.ds.REF_CHATROOMS.child(postKey!)
     }
 }
 

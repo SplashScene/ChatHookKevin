@@ -17,6 +17,8 @@ class Comment: NSObject {
     var toPost: String?
     var likes: NSNumber!
     var commentRef: FIRDatabaseReference!
+    var authorPic: String?
+    var authorName: String?
     
     init(key: String){
         commentKey = key
@@ -33,5 +35,6 @@ class Comment: NSObject {
         let adjustedLikes = NSNumber(value: Int32(intLikes))
         commentRef.child("likes").setValue(adjustedLikes)
     }
+    
 }
 

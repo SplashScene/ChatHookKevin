@@ -39,4 +39,11 @@ class UserPost: NSObject {
         let adjustedLikes = NSNumber(value: Int32(intLikes))
         postRef.child("likes").setValue(adjustedLikes)
     }
+    
+    func adjustComments(){
+        let intComments = Int(comments) + 1
+        let adjustedComments = NSNumber(value: Int32(intComments))
+        postRef.child("comments").setValue(adjustedComments)
+    }
+
 }

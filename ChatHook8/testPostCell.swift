@@ -28,6 +28,11 @@ class testPostCell: UITableViewCell {
                             self.likesLabel.text = numberOfLikes == 1 ? "Like" : "Likes"
                         }
                         
+                        if let numberOfComments = dictionary["comments"] as? Int{
+                            self.commentCount.text = String(numberOfComments)
+                            self.commentLabel.text = numberOfComments == 1 ? "Comment" : "Comments"
+                        }
+                        
                         if let profileImageUrl = dictionary["authorPic"] as? String {
                             self.profileImageView.loadImageUsingCacheWithUrlString(urlString: profileImageUrl)
                         }
@@ -403,7 +408,7 @@ class testPostCell: UITableViewCell {
         shareLabel.centerYAnchor.constraint(equalTo: shareButtonContainerView.centerYAnchor).isActive = true
 
     }
-    //Kev+6@burning.com
+    
     func handleLikeButtonTapped(sender: UIButton){
         likeRef.observeSingleEvent(of: .value, with: { snapshot in
             if let _ = snapshot.value as? NSNull{
@@ -429,26 +434,26 @@ class testPostCell: UITableViewCell {
         })
     }
     
-    func likeTapped(tapGesture: UITapGestureRecognizer){
-        likeRef.observeSingleEvent(of: .value, with: { snapshot in
-            if let _ = snapshot.value as? NSNull{
-                //This means that we have not liked this specific post
-                let image = UIImage(named: "iLike")
-                self.likeButton.setImage(image, for: .normal)
-                //self.likeImageView.image = UIImage(named: "iLike")
-                self.userPost!.adjustLikes(addLike: true)
-                self.likeRef.setValue(true)
-                self.postViewController!.handleReloadPosts()
-            }else{
-                let image = UIImage(named: "Like")
-                self.likeButton.setImage(image, for: .normal)
-                //self.likeImageView.image = UIImage(named: "Like")
-                self.userPost!.adjustLikes(addLike: false)
-                self.likeRef.removeValue()
-                self.postViewController!.handleReloadPosts()
-            }
-        })
-    }
+//    func likeTapped(tapGesture: UITapGestureRecognizer){
+//        likeRef.observeSingleEvent(of: .value, with: { snapshot in
+//            if let _ = snapshot.value as? NSNull{
+//                //This means that we have not liked this specific post
+//                let image = UIImage(named: "iLike")
+//                self.likeButton.setImage(image, for: .normal)
+//                //self.likeImageView.image = UIImage(named: "iLike")
+//                self.userPost!.adjustLikes(addLike: true)
+//                self.likeRef.setValue(true)
+//                self.postViewController!.handleReloadPosts()
+//            }else{
+//                let image = UIImage(named: "Like")
+//                self.likeButton.setImage(image, for: .normal)
+//                //self.likeImageView.image = UIImage(named: "Like")
+//                self.userPost!.adjustLikes(addLike: false)
+//                self.likeRef.removeValue()
+//                self.postViewController!.handleReloadPosts()
+//            }
+//        })
+//    }
     
     func handleZoom(tapGesture: UITapGestureRecognizer){
         if let imageView = tapGesture.view as? UIImageView{

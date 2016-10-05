@@ -22,7 +22,7 @@ class CommentViewController: UIViewController{
     var postedText: String?
     var timer: Timer?
     var navBar: UINavigationBar = UINavigationBar()
-    var postsArray = [Comment]()
+    var commentsArray = [Comment]()
     var postViewBottomAnchor: NSLayoutConstraint?
     
     let topView: MaterialView = {
@@ -82,7 +82,7 @@ class CommentViewController: UIViewController{
         
         postTableView.delegate = self
         postTableView.dataSource = self
-//        postTableView.register(testPostCell.self, forCellReuseIdentifier: "cellID")
+        postTableView.register(CommentViewCell.self, forCellReuseIdentifier: "cellID")
 
 //        postTextField.delegate = self
         
@@ -90,7 +90,8 @@ class CommentViewController: UIViewController{
         setupPostView()
         setupPostTableView()
 //        setupNavBarWithUserOrProgress(progress: nil)
-//        observePosts()
+        observeComments()
+        print("The post ref for this bad boy is: \(postForComment?.postRef)")
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -146,26 +147,30 @@ class CommentViewController: UIViewController{
     func handleCommentButtonTapped(){
         let commentRef = DataService.ds.REF_USERS_COMMENTS.childByAutoId()
         let timestamp: Int = Int(NSDate().timeIntervalSince1970)
-            if let toPost = postForComment?.postKey{
-                if let postedComment = self.postTextField.text{
-                    
+            if let toPost = postForComment?.postKey,
+               let postedComment = self.postTextField.text, postedComment != "" {
+        
                     let commentItem:[String:AnyObject] =
                             ["fromId": CurrentUser._postKey as AnyObject,
                              "commentText": postedComment as AnyObject,
                              "timestamp": timestamp as AnyObject,
                              "toPost": toPost as AnyObject,
-                             "likes": 0 as AnyObject
-                            ]
+                             "likes": 0 as AnyObject,
+                             "authorPic": CurrentUser._profileImageUrl as AnyObject,
+                             "authorName": CurrentUser._userName as AnyObject]
                     
                     commentRef.updateChildValues(commentItem) { (error, ref) in
                         if error != nil { print(error?.localizedDescription); return }
                         
-                        let postCommentRef = DataService.ds.REF_BASE.child("post_comments").child((self.postForComment?.postKey)!)
+                        let postCommentRef = DataService.ds.REF_BASE.child("post_comments").child(toPost)
                         let commentID = commentRef.key
                         postCommentRef.updateChildValues([commentID: 1])
                     }
-                }
             }
+        self.postTextField.text = ""
+        self.postTextField.endEditing(true)
+        adjustComments()
+        handleReloadPosts()
     }
     
     func handleBack(){
@@ -198,45 +203,53 @@ class CommentViewController: UIViewController{
         present(vc!, animated: true, completion: nil)
     }
     
-    func handleProfile(profileView: UIView){
-        let profileViewPosition = profileView.convert(CGPoint(x: 0, y: 0), to: self.postTableView)
-        if let indexPath = self.postTableView.indexPathForRow(at: profileViewPosition){
-            let userPost = postsArray[indexPath.row]
-            let ref = DataService.ds.REF_USERS.child(userPost.fromId!)
-            
-            ref.observeSingleEvent(of: .value, with: { (snapshot) in
-                guard let dictionary = snapshot.value as? [String : AnyObject] else { return }
-                let user = User(postKey: snapshot.key, dictionary: dictionary)
-                self.showProfileControllerForUser(user: user)
-                }, withCancel: nil)
-        }
+    func adjustComments(){
+        let intComments = Int((postForComment?.comments)!) + 1
+        let adjustedComments = NSNumber(value: Int32(intComments))
+        postForComment!.postRef.child("comments").setValue(adjustedComments)
     }
     
+//    func handleProfile(profileView: UIView){
+//        let profileViewPosition = profileView.convert(CGPoint(x: 0, y: 0), to: self.postTableView)
+//        if let indexPath = self.postTableView.indexPathForRow(at: profileViewPosition){
+//            let userPost = commeArray[indexPath.row]
+//            let ref = DataService.ds.REF_USERS.child(userPost.fromId!)
+//            
+//            ref.observeSingleEvent(of: .value, with: { (snapshot) in
+//                guard let dictionary = snapshot.value as? [String : AnyObject] else { return }
+//                let user = User(postKey: snapshot.key, dictionary: dictionary)
+//                self.showProfileControllerForUser(user: user)
+//                }, withCancel: nil)
+//        }
+//    }
     
     //MARK: - Observe Methods
-//    func observePosts(){
-//        guard let roomID = parentRoom?.postKey else { return }
-//        let roomPostsRef = DataService.ds.REF_POSTSPERROOM.child(roomID)
-//
-//        roomPostsRef.observe(.childAdded, with: { (snapshot) in
-//            let postID = snapshot.key
-//            let postsRef = DataService.ds.REF_POSTS.child(postID)
-//            
-//            postsRef.observeSingleEvent(of: .value, with: { (snapshot) in
-//                guard let dictionary = snapshot.value as? [String: AnyObject] else { return }
-//                
-//                let post = UserPost(key: snapshot.key)
-//                post.setValuesForKeys(dictionary)
-//                
-//                self.postsArray.insert(post, at: 0)
-//                
-//                self.timer?.invalidate()
-//                self.timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.handleReloadPosts), userInfo: nil, repeats: false)
-//                },
-//                withCancel: nil)
-//            }, withCancel: nil)
-//    }
-
+    
+    func observeComments(){
+        guard let postID = postForComment?.postKey else { return }
+        let commentPostsRef = DataService.ds.REF_POST_COMMENTS.child(postID)
+        
+        commentPostsRef.observe(.value, with: {snapshot in
+            self.commentsArray = []
+                if let snapshots = snapshot.children.allObjects as? [FIRDataSnapshot]{
+                    for snap in snapshots{
+                        let commentKey = snap.key
+                        let userCommentRef = DataService.ds.REF_USERS_COMMENTS.child(commentKey)
+                        userCommentRef.observeSingleEvent(of: .value, with: { (snapshot) in
+                                if let commentDict = snapshot.value as? [String: AnyObject]{
+                                    let comment = Comment(key: snapshot.key)
+                                        comment.setValuesForKeys(commentDict)
+                                    self.commentsArray.append(comment)
+                                    
+                                    self.timer?.invalidate()
+                                    self.timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.handleReloadPosts), userInfo: nil, repeats: false)
+                                }
+                            }, withCancel: nil)
+                    }
+                }       
+        })
+    }
+    
     func showProfileControllerForUser(user: User){
         let profileController = ProfileViewController()
         profileController.selectedUser = user
@@ -248,10 +261,18 @@ class CommentViewController: UIViewController{
 }//end class
 
 extension CommentViewController:UITableViewDelegate, UITableViewDataSource{
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        let customCell:CommentViewCell = cell as! CommentViewCell
+            customCell.backgroundColor = UIColor.clear
+        
+    }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell(style: .default, reuseIdentifier: cellID)
-            cell.textLabel?.text = "Sample Cell"
+        let cell = tableView.dequeueReusableCell(withIdentifier: cellID, for: indexPath as IndexPath) as! CommentViewCell
+        let comment = commentsArray[indexPath.row]
+            cell.userComment = comment
+//        let cell = UITableViewCell(style: .default, reuseIdentifier: cellID)
+//            cell.textLabel?.text = "Sample Cell"
         return cell
     }
     
@@ -260,7 +281,7 @@ extension CommentViewController:UITableViewDelegate, UITableViewDataSource{
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 5
+        return self.commentsArray.count
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {

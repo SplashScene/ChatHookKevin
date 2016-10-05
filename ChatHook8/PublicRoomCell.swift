@@ -21,6 +21,14 @@ class PublicRoomCell: UITableViewCell {
             if let profileImageUrl = publicRoom?.AuthorPic{
                 self.profileImageView.loadImageUsingCacheWithUrlString(urlString: profileImageUrl)
             }
+            if let numberOfPosts = publicRoom?.posts{
+                if numberOfPosts == 1{
+                    self.numberOfPostsLabel.text = "\(numberOfPosts) post"
+                }else{
+                    self.numberOfPostsLabel.text = "\(numberOfPosts) posts"
+                }
+            }
+            
             
 //            if let seconds = message?.timestamp?.doubleValue{
 //                let timestampDate = NSDate(timeIntervalSince1970: seconds)
@@ -56,15 +64,32 @@ class PublicRoomCell: UITableViewCell {
         return label
     }()
     
+    let numberOfPostsLabel: UILabel = {
+        let label = UILabel()
+            label.font = UIFont.systemFont(ofSize: 16)
+            label.textColor = UIColor.lightGray
+            label.translatesAutoresizingMaskIntoConstraints = false
+            label.textAlignment = .right
+        return label
+    }()
+
+    
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: .subtitle, reuseIdentifier: reuseIdentifier)
         addSubview(profileImageView)
+        addSubview(numberOfPostsLabel)
         //addSubview(timeLabel)
         //need x, y, width, height anchors
         profileImageView.leftAnchor.constraint(equalTo: self.leftAnchor, constant: 8).isActive = true
         profileImageView.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
         profileImageView.widthAnchor.constraint(equalToConstant: 48).isActive = true
         profileImageView.heightAnchor.constraint(equalToConstant: 48).isActive = true
+        
+        numberOfPostsLabel.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -8).isActive = true
+        numberOfPostsLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -4).isActive = true
+        numberOfPostsLabel.widthAnchor.constraint(equalToConstant: 100).isActive = true
+        numberOfPostsLabel.heightAnchor.constraint(equalTo: (textLabel?.heightAnchor)!).isActive = true
+
         
 //        timeLabel.rightAnchor.constraint(equalTo: self.rightAnchor).isActive = true
 //        timeLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 17).isActive = true

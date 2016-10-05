@@ -25,6 +25,7 @@ class DataService {
     private var _REF_GALLERYIMAGES = URL_BASE.child("gallery_images")
     private var _REF_USERS_GALLERY = URL_BASE.child("users_gallery")
     private var _REF_USERS_COMMENTS = URL_BASE.child("users_comments")
+    private var _REF_POST_COMMENTS = URL_BASE.child("post_comments")
     
     var REF_BASE: FIRDatabaseReference{ return _REF_BASE }
     var REF_POSTS: FIRDatabaseReference{ return _REF_POSTS }
@@ -37,6 +38,7 @@ class DataService {
     var REF_GALLERYIMAGES: FIRDatabaseReference { return _REF_GALLERYIMAGES }
     var REF_USERS_GALLERY: FIRDatabaseReference { return _REF_USERS_GALLERY }
     var REF_USERS_COMMENTS: FIRDatabaseReference { return _REF_USERS_COMMENTS}
+    var REF_POST_COMMENTS: FIRDatabaseReference { return _REF_POST_COMMENTS}
 
     var REF_USER_CURRENT: FIRDatabaseReference{
         let uid = UserDefaults.standard.value(forKey: KEY_UID) as! String

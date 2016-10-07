@@ -15,7 +15,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>1.2</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>LSRequiresIPhoneOS</key>
@@ -38,5 +38,9 @@
 	<string>ChatHook needs your location to function properly and find nearby connections</string>
 	<key>NSCameraUsageDescription</key>
 	<string>ChatHook needs to access your camera for profile pictures and image sharing</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>Pushwoosh_APPID</key>
+	<string>CD25A-569B1</string>
 </dict>
 </plist>

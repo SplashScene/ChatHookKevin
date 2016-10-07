@@ -270,6 +270,11 @@ extension GetLocation1: CLLocationManagerDelegate{
                     if userLocation != nil{
                         print("Fetching current user")
                         fetchCurrentUser(userLocation: userLocation!)
+                        if let items = self.tabBarController!.tabBar.items as [UITabBarItem]!{
+                            for barTabItem in items{
+                                barTabItem.isEnabled = true
+                            }
+                        }
                     }else{
                         print("I got NO location")
                     }

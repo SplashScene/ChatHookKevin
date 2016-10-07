@@ -364,13 +364,13 @@ class IntroViewController: UIViewController {
     //MARK: - Handler Methods
     func handleRegisterSegue(){
         let loginController = FinishRegisterController()
-        loginController.introViewController = self
+            loginController.introViewController = self
         present(loginController, animated: true, completion: nil)
     }
     
     func handleReturningUser(){
         let tabController = MainTabBar()
-        tabController.introViewController = self
+            tabController.introViewController = self
         present(tabController, animated: true, completion: nil)
     }
     

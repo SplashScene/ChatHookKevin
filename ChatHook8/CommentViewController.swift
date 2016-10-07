@@ -91,7 +91,7 @@ class CommentViewController: UIViewController{
         setupPostTableView()
 //        setupNavBarWithUserOrProgress(progress: nil)
         observeComments()
-        print("The post ref for this bad boy is: \(postForComment?.postRef)")
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {

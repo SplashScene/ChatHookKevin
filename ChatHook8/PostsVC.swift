@@ -185,7 +185,7 @@ class PostsVC: UIViewController{
         postTableView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         postTableView.topAnchor.constraint(equalTo: topView.bottomAnchor, constant: 8).isActive = true
         postTableView.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -16).isActive = true
-        postTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+        postTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -40).isActive = true
     }
 
     //MARK: - Handler Methods

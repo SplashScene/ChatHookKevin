@@ -10,8 +10,9 @@ import UIKit
 import Firebase
 
 
+
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, PushNotificationDelegate {
 
     var window: UIWindow?
 
@@ -19,6 +20,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         FIRApp.configure()
+        PushNotificationManager.push().delegate = self
+        PushNotificationManager.push().handlePushReceived(launchOptions)
+        PushNotificationManager.push().sendAppOpen()
+        PushNotificationManager.push().registerForPushNotifications()
         return true
     }
 
@@ -43,6 +48,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
+    
+    
+     private func application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData) {
+     PushNotificationManager.push().handlePushRegistration(deviceToken as Data!)
+     }
+     
+     private func application(application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: NSError) {
+     PushNotificationManager.push().handlePushRegistrationFailure(error)
+     }
+     
+     private func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject]) {
+     PushNotificationManager.push().handlePushReceived(userInfo)
+     }
+     
+     private func onPushAccepted(pushManager: PushNotificationManager!, withNotification pushNotification: [NSObject : AnyObject]!, onStart: Bool) {
+     print("Push notification accepted: \(pushNotification)");
+     }
+ 
 
 
 }

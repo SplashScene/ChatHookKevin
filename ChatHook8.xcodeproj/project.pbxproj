@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		5DAB8CAC41D9568BD31D51D3 /* Pods_ChatHook8.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C80371A829201E16C2475201 /* Pods_ChatHook8.framework */; };
+		84A64F371DA819760076C95E /* GradientView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A64F361DA819760076C95E /* GradientView.swift */; };
 		84D3ACA11D9AD5A100EE54CF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3ACA01D9AD5A100EE54CF /* AppDelegate.swift */; };
 		84D3ACA61D9AD5A100EE54CF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 84D3ACA41D9AD5A100EE54CF /* Main.storyboard */; };
 		84D3ACA81D9AD5A100EE54CF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 84D3ACA71D9AD5A100EE54CF /* Assets.xcassets */; };
@@ -54,6 +55,8 @@
 
 /* Begin PBXFileReference section */
 		528C9B2D1B4A074D383E8622 /* Pods-ChatHook8.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ChatHook8.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ChatHook8/Pods-ChatHook8.debug.xcconfig"; sourceTree = "<group>"; };
+		84A64F331DA6B0870076C95E /* ChatHook8-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ChatHook8-Bridging-Header.h"; sourceTree = "<group>"; };
+		84A64F361DA819760076C95E /* GradientView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GradientView.swift; sourceTree = "<group>"; };
 		84D3AC9D1D9AD5A100EE54CF /* ChatHook8.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChatHook8.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		84D3ACA01D9AD5A100EE54CF /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		84D3ACA51D9AD5A100EE54CF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -193,6 +196,7 @@
 				84D3ACE41D9AE08D00EE54CF /* UserCell.swift */,
 				84FB04791DA2F35E0061D5C2 /* CommentPostView.swift */,
 				84FB047B1DA53FCA0061D5C2 /* CommentViewCell.swift */,
+				84A64F361DA819760076C95E /* GradientView.swift */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -228,6 +232,7 @@
 				84D3ACC41D9ADE0300EE54CF /* Extensions.swift */,
 				84D3ACC51D9ADE0300EE54CF /* TipInCellAnimator.swift */,
 				84D3AF2B1D9C01E200EE54CF /* ImageExtensions.swift */,
+				84A64F331DA6B0870076C95E /* ChatHook8-Bridging-Header.h */,
 			);
 			name = Util;
 			sourceTree = "<group>";
@@ -285,6 +290,7 @@
 					84D3AC9C1D9AD5A100EE54CF = {
 						CreatedOnToolsVersion = 8.0;
 						DevelopmentTeam = L3Q2WJ3QZL;
+						LastSwiftMigration = 0800;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.Keychain = {
@@ -380,6 +386,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84A64F371DA819760076C95E /* GradientView.swift in Sources */,
 				84D3AF261D9AFE8000EE54CF /* NewMessagesController.swift in Sources */,
 				84D3ACEF1D9AE5C400EE54CF /* IntroViewController.swift in Sources */,
 				84D3ACD11D9ADFC800EE54CF /* CurrentUser.swift in Sources */,
@@ -540,6 +547,7 @@
 			baseConfigurationReference = 528C9B2D1B4A074D383E8622 /* Pods-ChatHook8.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = ChatHook8/ChatHook8.entitlements;
 				DEVELOPMENT_TEAM = L3Q2WJ3QZL;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -554,11 +562,14 @@
 					"$(PROJECT_DIR)/ChatHook8/NewGitHub/download927/Pods/GoogleNetworkingUtilities/Frameworks",
 					"$(PROJECT_DIR)/ChatHook8/NewGitHub/download927/Pods/GoogleSymbolUtilities/Frameworks",
 					"$(PROJECT_DIR)/ChatHook8/NewGitHub/download927/Pods/GoogleUtilities/Frameworks",
+					"$(PROJECT_DIR)",
 				);
 				INFOPLIST_FILE = ChatHook8/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.splashscene.ChatHook8;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "ChatHook8/ChatHook8-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
@@ -568,6 +579,7 @@
 			baseConfigurationReference = B2BBAD97D0114868FD6121E3 /* Pods-ChatHook8.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = ChatHook8/ChatHook8.entitlements;
 				DEVELOPMENT_TEAM = L3Q2WJ3QZL;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -582,11 +594,13 @@
 					"$(PROJECT_DIR)/ChatHook8/NewGitHub/download927/Pods/GoogleNetworkingUtilities/Frameworks",
 					"$(PROJECT_DIR)/ChatHook8/NewGitHub/download927/Pods/GoogleSymbolUtilities/Frameworks",
 					"$(PROJECT_DIR)/ChatHook8/NewGitHub/download927/Pods/GoogleUtilities/Frameworks",
+					"$(PROJECT_DIR)",
 				);
 				INFOPLIST_FILE = ChatHook8/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.splashscene.ChatHook8;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "ChatHook8/ChatHook8-Bridging-Header.h";
 				SWIFT_VERSION = 3.0;
 			};
 			name = Release;

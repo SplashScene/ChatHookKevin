@@ -84,27 +84,45 @@ class ProfileViewController: UIViewController {
         return galleryLabel
     }()
     
+    
+    
     //MARK: - View Methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        navigationItem.rightBarButtonItem = nil
         setupMainView()
         
         collectionView!.register(GalleryCollectionCell.self, forCellWithReuseIdentifier: "Cell")
-
+        
         checkUserAndSetupUI()
         setupBackgroundImageView()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-    
     }
     
     override var preferredStatusBarStyle: UIStatusBarStyle{
         return .lightContent
     }
     //MARK: - Setup Views
+    
+    override func setEditing(_ editing: Bool, animated: Bool) {
+        super.setEditing(editing, animated: animated)
+        collectionView!.allowsMultipleSelection = editing
+        
+        let indexPaths = collectionView!.indexPathsForVisibleItems as [NSIndexPath]
+        
+            for indexPath in indexPaths{
+                collectionView!.deselectItem(at: indexPath as IndexPath, animated: false)
+                let cell = collectionView!.cellForItem(at: indexPath as IndexPath) as! GalleryCollectionCell
+                    cell.editing = editing
+            }
+        
+        if !editing{
+            navigationItem.rightBarButtonItem = nil
+        }
+    }
     
     func setupCollectionView(){
         collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
@@ -118,8 +136,11 @@ class ProfileViewController: UIViewController {
         view.addSubview(backgroundImageView)
         view.addSubview(addPhotoBlockUserButton)
         
+        
         if selectedUser != nil{
-            navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleCancel))
+            navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(handleCancel))
+        }else{
+             navigationItem.leftBarButtonItem = editButtonItem
         }
         
         let layout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
@@ -136,10 +157,12 @@ class ProfileViewController: UIViewController {
         
         collectionView.addSubview(addPhotosToGalleryLabel)
         
+        
         addPhotosToGalleryLabel.centerXAnchor.constraint(equalTo: collectionView.centerXAnchor).isActive = true
         addPhotosToGalleryLabel.centerYAnchor.constraint(equalTo: collectionView.centerYAnchor).isActive = true
-        
+
         self.view.addSubview(collectionView)
+        
     }
     
     func setupBackgroundImageView(){
@@ -208,6 +231,16 @@ class ProfileViewController: UIViewController {
     
     func handleCancel(){
         dismiss(animated: true, completion: nil)
+    }
+    
+    func handleDelete(){
+        let indexPaths = collectionView!.indexPathsForSelectedItems! as [NSIndexPath]
+        for indexPath in indexPaths{
+            let indexPosition = indexPath.item
+            galleryArray.remove(at: indexPosition)
+        }
+        collectionView!.deleteItems(at: indexPaths as [IndexPath])
+        //let indexPaths = collectionView!.indexPathsForVisibleItems as [NSIndexPath]
     }
     
     func handleAddPhotoButtonTapped(){
@@ -383,16 +416,28 @@ extension ProfileViewController: UICollectionViewDelegateFlowLayout, UICollectio
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath as IndexPath) as! GalleryCollectionCell
         cell.gallery = galleryImage
+        cell.editing = isEditing
         
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if let cell = collectionView.cellForItem(at: indexPath as IndexPath),
-           let cellImageView = cell.contentView.subviews[0] as? UIImageView{
-            
-            performZoomInForStartingImageView(startingView: cell.contentView, photoImage: cellImageView)
-            
+        if !isEditing{
+            if let cell = collectionView.cellForItem(at: indexPath as IndexPath),
+                let cellImageView = cell.contentView.subviews[0] as? UIImageView{
+                performZoomInForStartingImageView(startingView: cell.contentView, photoImage: cellImageView)
+                navigationItem.rightBarButtonItem = nil
+            }
+        }else{
+            navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Delete", style: .plain, target: self, action: #selector(handleDelete))
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        if isEditing{
+            if collectionView.indexPathsForSelectedItems!.count == 0{
+                navigationItem.rightBarButtonItem = nil
+            }
         }
     }
 }//end extension

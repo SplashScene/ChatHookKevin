@@ -29,19 +29,20 @@ class MainTabBar: UITabBarController {
         
         mapViewController.title = "Home"
         mapViewController.tabBarItem.image = UIImage(named: "GlobeIcon25")
+        mapViewController.tabBarItem.isEnabled = true
         
         messagesViewController.title = "Chat"
         messagesViewController.tabBarItem.image = UIImage(named: "ChatIcon25")
+        messagesViewController.tabBarItem.isEnabled = false
         
         postsViewController.title = "Posts"
         postsViewController.tabBarItem.image = UIImage(named: "peeps")
+        postsViewController.tabBarItem.isEnabled = false
         
         profileViewController.title = "Profile"
         profileViewController.tabBarItem.image = UIImage(named: "ProfileIcon25")
-        
-        
+        profileViewController.tabBarItem.isEnabled = false
         viewControllers = [mapViewController, chatNavController, postsNavController, profileNavController]
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {

@@ -166,9 +166,10 @@ class FinishRegisterController: UIViewController {
     
     func registerButtonTapped() {
         
-        guard let userName = userNameTextField.text, userName != "",
-            let fullName = fullNameTextField.text, fullName != ""
-             else { return }
+        guard   let userName = userNameTextField.text, userName != "",
+                let fullName = fullNameTextField.text, fullName != "",
+                let uid = FIRAuth.auth()?.currentUser?.uid
+            else { return }
         
         
         progressView.progress = 0.0
@@ -176,13 +177,14 @@ class FinishRegisterController: UIViewController {
         activityIndicator.isHidden = false
         activityIndicator.startAnimating()
         
-        
         let imageName = NSUUID().uuidString
         
-        let storageRef = FIRStorage.storage().reference().child("profile_images").child(userName).child("\(imageName).jpg")
+        let storageRef = FIRStorage.storage().reference().child("profile_images").child(uid).child("\(imageName).jpg")
         
         if let uploadData = UIImageJPEGRepresentation(self.profileImageView.image!, 0.2){
-            storageRef.put(uploadData, metadata: nil, completion: { (metadata, error) in
+            let metadata = FIRStorageMetadata()
+                metadata.contentType = "image/jpg"
+            storageRef.put(uploadData, metadata: metadata, completion: { (metadata, error) in
                 if error != nil{
                     print(error.debugDescription)
                     return

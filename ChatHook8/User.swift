@@ -20,11 +20,6 @@ class User{
     var userName: String { return _userName }
     var profileImageUrl: String? { return _profileImageUrl }
     var postKey: String { return _postKey }
-//    var location: CLLocation {
-//        get{ return _location! }
-//        set{ _location = CLLocation(latitude: CLLocationDegrees, longitude: <#T##CLLocationDegrees#>) }
-//    }
-    
     var email: String { return _email }
     var location: CLLocation!
     var distance: Double?

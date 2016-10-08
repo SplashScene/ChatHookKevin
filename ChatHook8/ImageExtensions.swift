@@ -186,19 +186,14 @@ extension ChatViewController: UIImagePickerControllerDelegate, UINavigationContr
         
         if let selectedImage = selectedImageFromPicker{
             uploadToFirebaseStorageUsingSelectedMedia(image: selectedImage, video: nil, completion: { (imageUrl) in
-                
                 self.enterIntoMessagesAndUserMessagesDatabaseWithImageUrl(metadata: "image/jpg", thumbnailURL: nil, fileURL:imageUrl)
             })
-            //uploadToFirebaseStorageUsingSelectedMedia(selectedImage, video: nil)
         }
         
         if let video = info["UIImagePickerControllerMediaURL"] as? NSURL{
-            print("INSIDE VIDEO MEDIA COMPLETION")
             uploadToFirebaseStorageUsingSelectedMedia(image: nil, video: video, completion: { (imageUrl) in
-                
                 self.enterIntoMessagesAndUserMessagesDatabaseWithImageUrl(metadata: "video/mp4",thumbnailURL: nil, fileURL:imageUrl)
             })
-            //uploadToFirebaseStorageUsingSelectedMedia(nil, video: video)
         }
         
         self.finishSendingMessage()
@@ -213,7 +208,7 @@ extension ChatViewController: UIImagePickerControllerDelegate, UINavigationContr
             let ref = FIRStorage.storage().reference().child("message_images").child(senderId).child("photos").child(imageName)
             if let uploadData = UIImageJPEGRepresentation(picture, 0.2){
                 let metadata = FIRStorageMetadata()
-                metadata.contentType = "image/jpg"
+                    metadata.contentType = "image/jpg"
                 let uploadTask = ref.put(uploadData, metadata: metadata, completion: { (metadata, error) in
                     if error != nil{
                         print(error.debugDescription)
@@ -239,7 +234,7 @@ extension ChatViewController: UIImagePickerControllerDelegate, UINavigationContr
             let ref = FIRStorage.storage().reference().child("message_images").child(senderId).child("videos").child(imageName)
             if let uploadData = NSData(contentsOf: movie as URL){
                 let metadata = FIRStorageMetadata()
-                metadata.contentType = "video/mp4"
+                    metadata.contentType = "video/mp4"
                 let uploadTask = ref.put(uploadData as Data, metadata: metadata, completion: { (metadata, error) in
                     if error != nil{
                         print(error.debugDescription)
@@ -284,8 +279,7 @@ extension ChatViewController: UIImagePickerControllerDelegate, UINavigationContr
                            "timestamp" : timestamp as AnyObject,
                            "toId": toId! as AnyObject,
                            "mediaType": "VIDEO" as AnyObject,
-                           "thumbnailUrl": thumbnailURL! as AnyObject
-            ]
+                           "thumbnailUrl": thumbnailURL! as AnyObject]
         }else{
             messageItem = ["fromId": senderId as AnyObject,
                            "imageUrl": fileURL as AnyObject,

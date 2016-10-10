@@ -13,9 +13,13 @@ import FirebaseStorage
 
 class FinishRegisterController: UIViewController {
 
+    //MARK: - Properties
     var dbRef: FIRDatabaseReference!
     var introViewController: IntroViewController?
     let currentUser = DataService.ds.REF_USER_CURRENT
+    var userEmail: String?
+    var userProvider: String?
+    var profileImageChanged: Bool = false
     
     let inputsContainerView: UIView = {
         let view = UIView()
@@ -64,7 +68,7 @@ class FinishRegisterController: UIViewController {
         let imageView = MaterialImageView(frame: CGRect(x: 0, y: 0, width: 150, height: 150))
             imageView.image = UIImage(named: "genericProfile")
             imageView.translatesAutoresizingMaskIntoConstraints = false
-            imageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(pickPhoto)))
+            //imageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(pickPhoto)))
             imageView.isUserInteractionEnabled = true
         return imageView
     }()
@@ -83,9 +87,14 @@ class FinishRegisterController: UIViewController {
         return actInd
     }()
     
+    override var preferredStatusBarStyle: UIStatusBarStyle{
+        return .lightContent
+    }
+    
+    //MARK: - View Methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        print("Finish Registration: Email is: \(self.userEmail) and Provider is: \(self.userProvider)")
         view.backgroundColor = UIColor(r: 61, g: 91, b: 151)
         
         view.addSubview(inputsContainerView)
@@ -94,14 +103,13 @@ class FinishRegisterController: UIViewController {
         view.addSubview(progressView)
         view.addSubview(activityIndicator)
         
-        
         setupInputsContainerView()
         setupLoginRegisterButton()
         setupProfileImageView()
         setupActivity()
-        
     }
     
+    //MARK: - Setup Methods
     func setupProfileImageView(){
         //need x, y, width, height constraints
         profileImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
@@ -120,7 +128,6 @@ class FinishRegisterController: UIViewController {
         inputsContainerView.addSubview(userNameTextField)
         inputsContainerView.addSubview(nameSeparatorView)
         inputsContainerView.addSubview(fullNameTextField)
-        
         
         //need x, y, width, height constraints for name text field
         userNameTextField.leftAnchor.constraint(equalTo: inputsContainerView.leftAnchor).isActive = true
@@ -159,58 +166,70 @@ class FinishRegisterController: UIViewController {
         activityIndicator.bottomAnchor.constraint(equalTo: progressView.topAnchor, constant: 16).isActive = true
     }
     
-    
-    override var preferredStatusBarStyle: UIStatusBarStyle{
-        return .lightContent
+    //MARK: - Handler Methods
+    func registerButtonTapped() {
+        if profileImageChanged {
+            uploadPictureAndSetupCurrentUser()
+        }else{
+            showErrorAlert(title: "Profile Image Missing", msg: "Tap on profile image to choose your personal look")
+        }
     }
     
-    func registerButtonTapped() {
-        
+    func handleRegisterSegue(){
+        let tabController = MainTabBar()
+        tabController.registerViewController = self
+        present(tabController, animated: true, completion: nil)
+    }
+//    @IBAction func cancelButtonTapped(sender: UIBarButtonItem) {
+//        dismiss(animated: true, completion: nil)
+//    }
+    
+    func uploadPictureAndSetupCurrentUser(){
         guard   let userName = userNameTextField.text, userName != "",
                 let fullName = fullNameTextField.text, fullName != "",
-                let uid = FIRAuth.auth()?.currentUser?.uid
-            else { return }
-        
+                let uEmail = self.userEmail,
+                let uProvider = self.userProvider,
+                let uid = FIRAuth.auth()?.currentUser?.uid else { return }
         
         progressView.progress = 0.0
         progressView.isHidden = false
         activityIndicator.isHidden = false
         activityIndicator.startAnimating()
-        
+
         let imageName = NSUUID().uuidString
-        
         let storageRef = FIRStorage.storage().reference().child("profile_images").child(uid).child("\(imageName).jpg")
         
         if let uploadData = UIImageJPEGRepresentation(self.profileImageView.image!, 0.2){
             let metadata = FIRStorageMetadata()
-                metadata.contentType = "image/jpg"
+            metadata.contentType = "image/jpg"
             storageRef.put(uploadData, metadata: metadata, completion: { (metadata, error) in
                 if error != nil{
                     print(error.debugDescription)
                     return
                 }
                 if let profileImageUrl = metadata?.downloadURL()?.absoluteString{
+                    print("The user EMAIL is: \(uEmail) and userPROVIDER IS: \(uProvider)")
                     let values =
-                        ["UserName": userName,
+                        ["provider": uProvider,
+                         "Email": uEmail,
+                         "UserName": userName,
                          "ProfileImage": profileImageUrl,
                          "FullName": fullName]
                     
-                        self.postRegisteredUserToFirebase(values: values, progress: {[unowned self] percent in
-                            self.progressView.setProgress(percent, animated: true)
+                    self.postRegisteredUserToFirebase(values: values, progress: {[unowned self] percent in
+                        self.progressView.setProgress(percent, animated: true)
                         })
                 }
             })
         }
-    }
-    
-    @IBAction func cancelButtonTapped(sender: UIBarButtonItem) {
-        dismiss(animated: true, completion: nil)
+
     }
     
     func postRegisteredUserToFirebase(values:[String: String], progress: (_ percent: Float) -> Void){
-        currentUser.child("UserName").setValue(values["UserName"])
-        currentUser.child("FullName").setValue(values["FullName"])
-        currentUser.child("ProfileImage").setValue(values["ProfileImage"])
+        for (key, value) in values{
+            currentUser.child(key).setValue(value)
+        }
+
         self.progressView.isHidden = true
         self.activityIndicator.stopAnimating()
         self.activityIndicator.isHidden = true
@@ -224,13 +243,6 @@ class FinishRegisterController: UIViewController {
         present(alert, animated: true, completion: nil)
     }
 
-    
-    func handleRegisterSegue(){
-        let tabController = MainTabBar()
-            tabController.registerViewController = self
-        present(tabController, animated: true, completion: nil)
-    }
-    
 }//end view controller
 
 

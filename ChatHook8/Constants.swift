@@ -85,6 +85,7 @@ let MARGIN: CGFloat = 15.0
 //ImageShack
 
 let KEY_UID = "uid"
+let USER_EMAIL = "userEmail"
 let IMAGESHACK_URL = "https://post.imageshack.us/upload_api.php"
 let IMAGESHACK_API_KEY = "79DFGHIQadc4d7cdf7cc6bb81f0bc1cbac0b7237"
 

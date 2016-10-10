@@ -160,28 +160,31 @@ class GetLocation1: UIViewController {
     func fetchCurrentUser(userLocation: CLLocation){
         print("In fetchCurrentUser")
         currentUserRef.observeSingleEvent(of: .value, with: { (snapshot) in
+            print("The current user ref is: \(self.currentUserRef)")
             if let dictionary = snapshot.value as? [String: AnyObject]{
-                print("Current User post key is: \(snapshot.key)")
+                print("Inside Fetch Dictionary")
                 CurrentUser._postKey = snapshot.key
                 CurrentUser._userName = dictionary["UserName"] as! String
                 CurrentUser._location = userLocation
-                CurrentUser._email = dictionary["email"] as! String
+                CurrentUser._email = dictionary["Email"] as! String
                 CurrentUser._profileImageUrl = dictionary["ProfileImage"] as? String
+                print("Current user profile is: \(CurrentUser._profileImageUrl)")
                 
                 let blockedUsersRef = self.currentUserRef.child("blocked_users")
-                blockedUsersRef.observe(.value, with: { (snapshot) in
-                    if let snapshots = snapshot.children.allObjects as? [FIRDataSnapshot]{
-                        for snap in snapshots{
-                            let blockedUserID = snap.key
-                            self.blockedUsers.append(blockedUserID)
-                            
-                            self.handleLoadingBlockedUsers()
+                    blockedUsersRef.observe(.value, with: { (snapshot) in
+                        if let snapshots = snapshot.children.allObjects as? [FIRDataSnapshot]{
+                            for snap in snapshots{
+                                let blockedUserID = snap.key
+                                self.blockedUsers.append(blockedUserID)
+                                self.handleLoadingBlockedUsers()
+                            }
                         }
-                    }
                     },
                     withCancel: nil)
                 
                 self.userIsOnline()
+            }else{
+                print("I aint got no dictionary dickhead")
             }
         }, withCancel: nil)
     }
@@ -189,27 +192,26 @@ class GetLocation1: UIViewController {
     func observeOtherUsersLocations(){
         print("In observeOtherUsersLocations")
         let otherUsersLocationsRef = DataService.ds.REF_USERSONLINE.child("\(userLatInt!)").child("\(userLngInt!)")
-        otherUsersLocationsRef.observe(.childAdded, with: { (snapshot) in
-            if let dictionary = snapshot.value as? [String: AnyObject]{
-                let otherUserId = snapshot.key
-                let otherUserLat = dictionary["userLatitude"] as! Double
-                let otherUserLong = dictionary["userLongitude"] as! Double
-                
-                let otherUsersRef = DataService.ds.REF_USERS.child(otherUserId)
-                otherUsersRef.observeSingleEvent(of: .value, with: { (snapshot) in
-                    if let userDict = snapshot.value as? [String: AnyObject]{
-                        let otherUserName = userDict["UserName"] as! String
-                        let otherUserImageUrl = userDict["ProfileImage"] as! String
-                        
-                        let otherUserLocation = UserLocation(latitude: otherUserLat, longitude: otherUserLong, name: otherUserName, imageName: otherUserImageUrl)
-                        self.otherUsersLocations.append(otherUserLocation)
-                        print("I added to other users location array")
-                        
-                        self.timer?.invalidate()
-                        self.timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.handleAnnotations), userInfo: nil, repeats: false)
-                    }
-                    }, withCancel: nil)
-            }
+            otherUsersLocationsRef.observe(.childAdded, with: { (snapshot) in
+                if let dictionary = snapshot.value as? [String: AnyObject]{
+                    let otherUserId = snapshot.key
+                    let otherUserLat = dictionary["userLatitude"] as! Double
+                    let otherUserLong = dictionary["userLongitude"] as! Double
+                    
+                    let otherUsersRef = DataService.ds.REF_USERS.child(otherUserId)
+                    otherUsersRef.observeSingleEvent(of: .value, with: { (snapshot) in
+                        if let userDict = snapshot.value as? [String: AnyObject]{
+                            let otherUserName = userDict["UserName"] as! String
+                            let otherUserImageUrl = userDict["ProfileImage"] as! String
+                            
+                            let otherUserLocation = UserLocation(latitude: otherUserLat, longitude: otherUserLong, name: otherUserName, imageName: otherUserImageUrl)
+                            self.otherUsersLocations.append(otherUserLocation)
+                            
+                            self.timer?.invalidate()
+                            self.timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.handleAnnotations), userInfo: nil, repeats: false)
+                        }
+                        }, withCancel: nil)
+                }
             }, withCancel: nil)
     }
     
@@ -231,17 +233,15 @@ class GetLocation1: UIViewController {
         do{
             let usersOnlineRef = DataService.ds.REF_BASE.child("users_online").child("\(userLatInt)").child("\(userLngInt)").child(CurrentUser._postKey)
             usersOnlineRef.removeValue()
+            UserDefaults.standard.removeObject(forKey: KEY_UID)
             
             try FIRAuth.auth()?.signOut()
-            
         }catch let logoutError{
             print(logoutError)
         }
         dismiss(animated: true, completion: nil)
+        
     }
-    
-    
-    
     
 //    func startTimerForLocationUpdate(){
 //        if timer != nil{
@@ -268,7 +268,6 @@ extension GetLocation1: CLLocationManagerDelegate{
                         print("I don't even have a user")
                     }
                     if userLocation != nil{
-                        print("Fetching current user")
                         fetchCurrentUser(userLocation: userLocation!)
                         if let items = self.tabBarController!.tabBar.items as [UITabBarItem]!{
                             for barTabItem in items{
@@ -309,15 +308,14 @@ extension GetLocation1: MKMapViewDelegate{
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         print("Inside annotations")
-        if (annotation is MKUserLocation){
-            return nil
-        }
-        var annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: "otherLocation") as? MKPinAnnotationView
-        if annotationView == nil{
-            annotationView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: "otherLocation")
-        }else{
-            annotationView?.annotation = annotation
-        }
+            if (annotation is MKUserLocation){ return nil }
+        
+            var annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: "otherLocation") as? MKPinAnnotationView
+            if annotationView == nil{
+                annotationView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: "otherLocation")
+            }else{
+                annotationView?.annotation = annotation
+            }
         
         //if let user = annotation as? User, let image = user.profile
         

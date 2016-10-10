@@ -41,7 +41,7 @@ class User{
             self._userName = "AnonymousPoster"
         }
         
-        if let userEmail = dictionary["email"] as? String{
+        if let userEmail = dictionary["Email"] as? String{
             self._email = userEmail
         }
         

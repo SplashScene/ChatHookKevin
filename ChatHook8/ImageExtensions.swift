@@ -325,7 +325,7 @@ extension ChatViewController: UIImagePickerControllerDelegate, UINavigationContr
     }
 }
 
-extension FinishRegisterController:UIImagePickerControllerDelegate, UINavigationControllerDelegate{
+extension IntroViewController:UIImagePickerControllerDelegate, UINavigationControllerDelegate{
     func takePhotoWithCamera(){
         let imagePicker = UIImagePickerController()
             imagePicker.sourceType = .camera
@@ -372,14 +372,15 @@ extension FinishRegisterController:UIImagePickerControllerDelegate, UINavigation
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
-        print("First part of method")
+        
         guard let image = info[UIImagePickerControllerEditedImage] as? UIImage else {
             print("Info did not have the required UIImage for the Original Image")
             dismiss(animated: true, completion: nil)
             return
         }
-        print("Second part of method")
+        
         profileImageView.image = image
+        profileImageChanged = true
         dismiss(animated: true, completion: nil)
     }
     

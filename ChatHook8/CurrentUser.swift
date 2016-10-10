@@ -18,4 +18,5 @@ struct CurrentUser{
     static var _email: String!
     static var _location: CLLocation!
     static var _blockedUsersArray: [String]?
+    
 }

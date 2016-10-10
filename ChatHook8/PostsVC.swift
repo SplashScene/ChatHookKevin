@@ -314,7 +314,7 @@ class PostsVC: UIViewController{
                 guard let dictionary = snapshot.value as? [String: AnyObject] else { return }
                 
                 let post = UserPost(key: snapshot.key)
-                post.setValuesForKeys(dictionary)
+                    post.setValuesForKeys(dictionary)
                 
                 self.postsArray.insert(post, at: 0)
                 

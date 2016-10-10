@@ -206,6 +206,11 @@ class IntroViewController: UIViewController {
         setupKeyboardObservers()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+    }
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         if UserDefaults.standard.value(forKey: KEY_UID) != nil{
@@ -259,6 +264,10 @@ class IntroViewController: UIViewController {
         setupLoginContainerView()
         setupProfileImageView()
     }//end func setupView
+    
+    func hideViews(){
+        self.registerButton.isHidden = true
+    }
     
     func setupChatHookLogoView(){
         //need x, y, width and height constraints
@@ -420,7 +429,8 @@ class IntroViewController: UIViewController {
     }
     */
     func attemptLogin(){
-        
+        if !profileImageChanged { showErrorAlert(title: "Profile Image Required", msg: "You must provide a profile picture.")
+            return }
         guard let email = emailTextField.text,
               let password = passwordTextField.text,
               let userName = userNameTextField.text else {
@@ -456,6 +466,7 @@ class IntroViewController: UIViewController {
                     })
                 } else if error!._code == STATUS_ACCOUNT_WRONGPASSWORD{
                     self.showErrorAlert(title: "Incorrect Password", msg: "The password that you entered does not match the one we have for your email address")
+                    return
                 }
             } else {
                 //set only to allow different signins
@@ -466,37 +477,18 @@ class IntroViewController: UIViewController {
     }
     
     //MARK: - Handler Methods
-//    func handleRegisterSegue(){
-//        let loginController = FinishRegisterController()
-//            loginController.introViewController = self
-//            loginController.userEmail = self.userEmail!
-//            loginController.userProvider = self.userProvider!
-//        //navigationController?.pushViewController(loginController, animated: true)
-//        present(loginController, animated: true, completion: nil)
-//    }
-//    
     func handleReturningUser(){
         let tabController = MainTabBar()
             tabController.introViewController = self
         present(tabController, animated: true, completion: nil)
     }
     
-//    func registerButtonTapped() {
-//        if profileImageChanged {
-//            uploadPictureAndSetupCurrentUser()
-//        }else{
-//            showErrorAlert(title: "Profile Image Missing", msg: "Tap on profile image to choose your personal look")
-//        }
-//    }
-    
     func uploadPictureAndSetupCurrentUser(userName: String){
-        print("INSIDE UPLOAD PIC")
         guard   let userName = userNameTextField.text, userName != "",
                 let uEmail = self.userEmail,
                 let uProvider = self.userProvider,
                 let uid = FIRAuth.auth()?.currentUser?.uid else { return }
-        if profileImageChanged{
-            print("INSIDE PROFILE IMAGE CHANGED")
+        
             let imageName = NSUUID().uuidString
             let storageRef = FIRStorage.storage().reference().child("profile_images").child(uid).child("\(imageName).jpg")
             
@@ -509,7 +501,6 @@ class IntroViewController: UIViewController {
                         return
                     }
                     if let profileImageUrl = metadata?.downloadURL()?.absoluteString{
-                        print("The user EMAIL is: \(uEmail) and userPROVIDER IS: \(uProvider)")
                         let values =
                             ["provider": uProvider,
                              "Email": uEmail,
@@ -520,9 +511,7 @@ class IntroViewController: UIViewController {
                     }
                 })
             }
-        } else {
-            showErrorAlert(title: "Profile Image Missing", msg: "Tap on profile image to choose your personal look")
-        }
+        
     }
     
     func postRegisteredUserToFirebase(values:[String: String]){

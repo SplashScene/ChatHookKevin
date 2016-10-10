@@ -9,24 +9,12 @@
 import UIKit
 import Firebase
 
-
-
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, PushNotificationDelegate {
 
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        // get your storyboard
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        
-        // instantiate your desired ViewController
-        let rootController = storyboard.instantiateViewController(withIdentifier: "IntroViewController") 
-        
-        // Because self.window is an optional you should check it's value first and assign your rootViewController
-        if let window = self.window {
-            window.rootViewController = rootController
-        }
         FIRApp.configure()
         PushNotificationManager.push().delegate = self
         PushNotificationManager.push().handlePushReceived(launchOptions)

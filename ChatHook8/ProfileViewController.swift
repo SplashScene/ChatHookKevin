@@ -84,8 +84,6 @@ class ProfileViewController: UIViewController {
         return galleryLabel
     }()
     
-    
-    
     //MARK: - View Methods
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -147,7 +145,7 @@ class ProfileViewController: UIViewController {
             layout.sectionInset = UIEdgeInsets(top: 10, left: 15, bottom: 10, right: 15)
             layout.itemSize = CGSize(width: screenWidth / 5, height: 120)
         
-        let frame = CGRect(x: 0, y: view.center.y, width: view.frame.width, height: view.frame.height / 2)
+        let frame = CGRect(x: 0, y: view.center.y, width: view.frame.width, height: view.frame.height / 2 - 44)
         
         collectionView = UICollectionView(frame: frame, collectionViewLayout: layout)
         collectionView.dataSource = self
@@ -156,7 +154,6 @@ class ProfileViewController: UIViewController {
         collectionView.backgroundColor = UIColor(r: 61, g: 91, b: 151)
         
         collectionView.addSubview(addPhotosToGalleryLabel)
-        
         
         addPhotosToGalleryLabel.centerXAnchor.constraint(equalTo: collectionView.centerXAnchor).isActive = true
         addPhotosToGalleryLabel.centerYAnchor.constraint(equalTo: collectionView.centerYAnchor).isActive = true
@@ -237,10 +234,15 @@ class ProfileViewController: UIViewController {
         let indexPaths = collectionView!.indexPathsForSelectedItems! as [NSIndexPath]
         for indexPath in indexPaths{
             let indexPosition = indexPath.item
-            galleryArray.remove(at: indexPosition)
-        }
+                let galleryItem = galleryArray[indexPosition]
+                    if let cellID = galleryItem.postKey{
+                        DataService.ds.REF_USERS_GALLERY.child(CurrentUser._postKey).child(cellID).removeValue()
+                        DataService.ds.REF_GALLERYIMAGES.child(cellID).removeValue()
+                        galleryArray.remove(at: indexPosition)
+                        attemptReloadOfTable()
+                    }
+            }
         collectionView!.deleteItems(at: indexPaths as [IndexPath])
-        //let indexPaths = collectionView!.indexPathsForVisibleItems as [NSIndexPath]
     }
     
     func handleAddPhotoButtonTapped(){
@@ -321,8 +323,7 @@ class ProfileViewController: UIViewController {
         }
     }
     
-    //MARK: - Observe Methods
-
+    //MARK: - Observe Method
     func observeGallery(uid: String){
         //guard let uid = FIRAuth.auth()?.currentUser!.uid else { return }
         let userGalleryPostRef = DataService.ds.REF_USERS_GALLERY.child(uid)
@@ -344,8 +345,6 @@ class ProfileViewController: UIViewController {
     }
     
     //MARK: - Zoom In and Out
-    
-    
     func performZoomInForStartingImageView(startingView: UIView, photoImage: UIImageView){
         self.startingView = startingView
         
@@ -376,7 +375,6 @@ class ProfileViewController: UIViewController {
                 zoomingView.center = keyWindow.center
                 }, completion: nil)
         }
-        
     }
     
     func handleZoomOut(tapGesture: UITapGestureRecognizer){
@@ -415,8 +413,8 @@ extension ProfileViewController: UICollectionViewDelegateFlowLayout, UICollectio
         let galleryImage = galleryArray[indexPath.item]
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath as IndexPath) as! GalleryCollectionCell
-        cell.gallery = galleryImage
-        cell.editing = isEditing
+            cell.gallery = galleryImage
+            cell.editing = isEditing
         
         return cell
     }

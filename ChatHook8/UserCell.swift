@@ -13,12 +13,22 @@ class UserCell: UITableViewCell {
     var message: Message?{
         didSet{
             setupNameAndProfileImage()
-            detailTextLabel?.text = message?.text
+            if message?.text != nil{
+               detailTextLabel?.text = message?.text
+            }else{
+                if message?.mediaType == "PHOTO"{
+                    detailTextLabel?.text = "Photo sent"
+                }else if message?.mediaType == "VIDEO"{
+                    detailTextLabel?.text = "Video sent"
+                }
+            }
+            
             
                 if let seconds = message?.timestamp?.doubleValue{
                     let timestampDate = NSDate(timeIntervalSince1970: seconds)
                     let dateFormatter = DateFormatter()
-                        dateFormatter.dateFormat = "hh:mm:ss a"
+                        dateFormatter.dateFormat = "MMM d, hh:mm a"
+                        //dateFormatter.dateFormat = "hh:mm:ss a"
                     timeLabel.text = dateFormatter.string(from: timestampDate as Date)
                 }
         }
@@ -37,11 +47,11 @@ class UserCell: UITableViewCell {
     
     let timeLabel: UILabel = {
         let label = UILabel()
-            //label.text = "HH:MM:SS"
             label.font = UIFont.systemFont(ofSize: 12)
             label.textColor = UIColor.lightGray
             label.translatesAutoresizingMaskIntoConstraints = false
             label.textAlignment = .right
+            label.sizeToFit()
         return label
     }()
     
@@ -51,6 +61,7 @@ class UserCell: UITableViewCell {
             label.textColor = UIColor.lightGray
             label.translatesAutoresizingMaskIntoConstraints = false
             label.textAlignment = .right
+            label.sizeToFit()
         return label
     }()
     
@@ -69,7 +80,8 @@ class UserCell: UITableViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
         textLabel?.frame = CGRect(x: 64, y: textLabel!.frame.origin.y - 2, width: textLabel!.frame.width, height: textLabel!.frame.height)
-        detailTextLabel?.frame = CGRect(x: 64, y: detailTextLabel!.frame.origin.y + 2, width: detailTextLabel!.frame.width - 48, height: detailTextLabel!.frame.height)
+        detailTextLabel?.frame = CGRect(x: 72, y: detailTextLabel!.frame.origin.y + 2, width: detailTextLabel!.frame.width, height: detailTextLabel!.frame.height)
+        detailTextLabel?.textColor = UIColor.lightGray
     }
 
     func layoutUserCell(){
@@ -80,13 +92,9 @@ class UserCell: UITableViewCell {
         
         timeLabel.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -8).isActive = true
         timeLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 4).isActive = true
-        timeLabel.widthAnchor.constraint(equalToConstant: 100).isActive = true
-        timeLabel.heightAnchor.constraint(equalTo: (textLabel?.heightAnchor)!).isActive = true
         
         onlineLabel.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -8).isActive = true
         onlineLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -4).isActive = true
-        onlineLabel.widthAnchor.constraint(equalToConstant: 100).isActive = true
-        onlineLabel.heightAnchor.constraint(equalTo: (textLabel?.heightAnchor)!).isActive = true
     }
     
     private func setupNameAndProfileImage(){
@@ -100,7 +108,7 @@ class UserCell: UITableViewCell {
                         self.profileImageView.loadImageUsingCacheWithUrlString(urlString: profileImageUrl)
                     }
                 }
-                }, withCancel: nil)
+            }, withCancel: nil)
         }
     }
     

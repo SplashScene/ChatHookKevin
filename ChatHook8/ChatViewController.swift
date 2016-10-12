@@ -27,8 +27,8 @@ class ChatViewController: JSQMessagesViewController {
     var pButton: UIButton?
     var cellAIV: UIActivityIndicatorView?
 
-    
     var userIsTypingRef: FIRDatabaseReference!
+    
     private var localTyping = false
     var isTyping: Bool {
         get {
@@ -66,7 +66,6 @@ class ChatViewController: JSQMessagesViewController {
     }
     
     func setupNavBarWithUserOrProgress(progress:String?){
-        
         let titleView = UIView()
             titleView.frame = CGRect(x: 0, y: 0, width: 100, height: 40)
         
@@ -93,7 +92,7 @@ class ChatViewController: JSQMessagesViewController {
             nameLabel.translatesAutoresizingMaskIntoConstraints = false
         
             if let progressText = progress{
-                nameLabel.text = progressText
+                nameLabel.text = "Upload: \(progressText)"
                 nameLabel.textColor = UIColor.red
             }else{
                 nameLabel.text = user?.userName
@@ -134,7 +133,6 @@ class ChatViewController: JSQMessagesViewController {
         return messages[indexPath.item]
     }
     
-    
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return messages.count
     }
@@ -148,7 +146,6 @@ class ChatViewController: JSQMessagesViewController {
         dismiss(animated: true, completion: nil)
     }
     
-    
     //var cell:JSQMessagesCollectionViewCell?
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = super.collectionView(collectionView, cellForItemAt: indexPath as IndexPath) as! JSQMessagesCollectionViewCell
@@ -161,9 +158,7 @@ class ChatViewController: JSQMessagesViewController {
         }
         
         cell.textView?.textColor = message!.senderId == CurrentUser._postKey ? UIColor.white : UIColor.black
-        
         return cell
-
     }
        
     func collectionView(collectionView: JSQMessagesCollectionView!, avatarImageDataForItemAtIndexPath indexPath: NSIndexPath!) -> JSQMessageAvatarImageDataSource! {
@@ -201,7 +196,6 @@ class ChatViewController: JSQMessagesViewController {
             activityIndicatorView.translatesAutoresizingMaskIntoConstraints = false
             activityIndicatorView.hidesWhenStopped = true
         
-        
         cell.mediaView.addSubview(activityIndicatorView)
         
         activityIndicatorView.centerXAnchor.constraint(equalTo: cell.mediaView.centerXAnchor).isActive = true
@@ -218,28 +212,23 @@ class ChatViewController: JSQMessagesViewController {
                                                  "text": text as AnyObject,
                                                  "timestamp" : timestamp as AnyObject,
                                                  "toId": toId! as AnyObject,
-                                                 "mediaType": "TEXT" as AnyObject
-        ]
+                                                 "mediaType": "TEXT" as AnyObject]
         
-        //itemRef.setValue(messageItem)
-        
-        itemRef.updateChildValues(messageItem) { (error, ref) in
-            if error != nil {
-                print(error?.localizedDescription)
-                return
+            itemRef.updateChildValues(messageItem) { (error, ref) in
+                if error != nil {
+                    print(error?.localizedDescription)
+                    return
+                }
+                let userMessagesRef = DataService.ds.REF_BASE.child("user_messages").child(senderId).child(toId!)
+                let messageID = itemRef.key
+                userMessagesRef.updateChildValues([messageID: 1])
+                
+                let recipientUserMessagesRef = DataService.ds.REF_BASE.child("user_messages").child(toId!).child(senderId)
+                recipientUserMessagesRef.updateChildValues([messageID: 1])
             }
-            
-            let userMessagesRef = DataService.ds.REF_BASE.child("user_messages").child(senderId).child(toId!)
-            let messageID = itemRef.key
-            userMessagesRef.updateChildValues([messageID: 1])
-            
-            let recipientUserMessagesRef = DataService.ds.REF_BASE.child("user_messages").child(toId!).child(senderId)
-            recipientUserMessagesRef.updateChildValues([messageID: 1])
-        }
         
         JSQSystemSoundPlayer.jsq_playMessageSentSound()
         finishSendingMessage(animated: true)
-        //finishSendingMessage()
         
         isTyping = false
     }
@@ -295,31 +284,30 @@ class ChatViewController: JSQMessagesViewController {
                 //let senderName = self.observeUser(message.fromId!)
                 
                 switch (message.mediaType!){
-                case "PHOTO":
-                    let url = NSURL(string: message.imageUrl!)
-                    let picData = NSData(contentsOf: url! as URL)
-                    let picture = UIImage(data: picData! as Data)
-                    let photo = JSQPhotoMediaItem(image: picture)
-                    self.messages.append(JSQMessage(senderId: message.fromId, displayName: self.senderDisplayName, media: photo))
-                    photo?.appliesMediaViewMaskAsOutgoing = message.fromId == CurrentUser._postKey ? true : false
-                    
-                case "VIDEO":
-                    let video = NSURL(string: message.imageUrl!)
-                    let videoItem = JSQVideoMediaItem(fileURL: video as URL!, isReadyToPlay: true)
-                    self.messages.append(JSQMessage(senderId: message.fromId, displayName: self.senderDisplayName, media: videoItem))
-                    videoItem?.appliesMediaViewMaskAsOutgoing = message.fromId == CurrentUser._postKey ? true : false
-                    
-                case "TEXT":
-                    self.messages.append(JSQMessage(senderId: message.fromId, displayName: self.senderDisplayName, text: message.text!))
-                    
-                default:
-                    print("unknown data type")
-                }
+                    case "PHOTO":
+                        let url = NSURL(string: message.imageUrl!)
+                        let picData = NSData(contentsOf: url! as URL)
+                        let picture = UIImage(data: picData! as Data)
+                        let photo = JSQPhotoMediaItem(image: picture)
+                        self.messages.append(JSQMessage(senderId: message.fromId, displayName: self.senderDisplayName, media: photo))
+                        photo?.appliesMediaViewMaskAsOutgoing = message.fromId == CurrentUser._postKey ? true : false
+                        
+                    case "VIDEO":
+                        let video = NSURL(string: message.imageUrl!)
+                        let videoItem = JSQVideoMediaItem(fileURL: video as URL!, isReadyToPlay: true)
+                        self.messages.append(JSQMessage(senderId: message.fromId, displayName: self.senderDisplayName, media: videoItem))
+                        videoItem?.appliesMediaViewMaskAsOutgoing = message.fromId == CurrentUser._postKey ? true : false
+                        
+                    case "TEXT":
+                        self.messages.append(JSQMessage(senderId: message.fromId, displayName: self.senderDisplayName, text: message.text!))
+                        
+                    default:
+                        print("unknown data type")
+                    }
                 
-                self.finishReceivingMessage(animated: true)
-                //self.finishReceivingMessage()
+                    self.finishReceivingMessage(animated: true)
                 },
-                                           withCancel: nil)
+                withCancel: nil)
             }, withCancel: nil)
         }
     /*

@@ -12,12 +12,15 @@ import FirebaseStorage
 import MobileCoreServices
 import AVFoundation
 import Social
+import CoreLocation
 
 
 class PostsVC: UIViewController{
     var profileView: ProfileViewController?
     var roomsController: RoomsViewController?
     var commentViewController: CommentViewController?
+    var geocoder: CLGeocoder?
+    var postCityAndState: String?
     var cellID = "cellID"
     var postedImage: UIImage?
     var postedVideo: NSURL?
@@ -97,6 +100,7 @@ class PostsVC: UIViewController{
         setupPostTableView()
         setupNavBarWithUserOrProgress(progress: nil)
         observePosts()
+        handleCityAndState()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -288,6 +292,27 @@ class PostsVC: UIViewController{
                     self.showProfileControllerForUser(user: user)
                     }, withCancel: nil)
         }
+    }
+    
+    func handleCityAndState(){
+        if geocoder == nil { geocoder = CLGeocoder() }
+        
+        geocoder?.reverseGeocodeLocation(CurrentUser._location!){ placemarks, error in
+            print("Inside GeoCoding")
+            if error != nil{
+                print("Error get geoLocation: \(error?.localizedDescription)")
+            }else{
+                print("Inside geo else")
+                let placemark = placemarks?.first
+                let city = placemark?.locality!
+                let state = placemark?.administrativeArea!
+                print("The city is \(city) and the state is \(state)")
+                if let postCity = city, let postState = state{
+                    self.postCityAndState = "\(postCity), \(postState)"
+                }
+            }
+        }
+
     }
     
     func handleCommentTapped(commentView: UIView){
@@ -609,8 +634,8 @@ extension PostsVC{
                            "comments": 0 as AnyObject,
                            "showcaseUrl": fileURL! as AnyObject,
                            "authorName": CurrentUser._userName as AnyObject,
-                           "authorPic": CurrentUser._profileImageUrl as AnyObject
-            ]
+                           "authorPic": CurrentUser._profileImageUrl as AnyObject,
+                           "cityAndState": postCityAndState! as AnyObject]
         }else if metadata == "image/jpg"{
             messageItem = ["fromId": uid as AnyObject,
                            "timestamp" : timestamp as AnyObject,
@@ -620,8 +645,8 @@ extension PostsVC{
                            "comments": 0 as AnyObject,
                            "showcaseUrl": fileURL! as AnyObject,
                            "authorName": CurrentUser._userName as AnyObject,
-                           "authorPic": CurrentUser._profileImageUrl as AnyObject
-            ]
+                           "authorPic": CurrentUser._profileImageUrl as AnyObject,
+                           "cityAndState": postCityAndState! as AnyObject]
         }else{
             messageItem = ["fromId": uid as AnyObject,
                            "timestamp" : timestamp as AnyObject,
@@ -630,8 +655,8 @@ extension PostsVC{
                            "likes": 0 as AnyObject,
                            "comments": 0 as AnyObject,
                            "authorName": CurrentUser._userName as AnyObject,
-                           "authorPic": CurrentUser._profileImageUrl as AnyObject
-            ]
+                           "authorPic": CurrentUser._profileImageUrl as AnyObject,
+                           "cityAndState": postCityAndState! as AnyObject]
         }
         
         if let unwrappedText = postText{

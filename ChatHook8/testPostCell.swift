@@ -18,37 +18,39 @@ class testPostCell: UITableViewCell {
                 likeRef = DataService.ds.REF_USER_CURRENT.child("Likes").child(userPost!.postKey!)
                 let postRef = DataService.ds.REF_POSTS.child(userPost!.postKey!)
                     postRef.observeSingleEvent(of: .value, with: { (snapshot) in
-                    if let dictionary = snapshot.value as? [String: AnyObject]{
-                        
-                        self.userNameLabel.text = dictionary["authorName"] as? String
-                        self.descriptionText.text = dictionary["postText"] as? String
-                        
-                        if let numberOfLikes = dictionary["likes"] as? Int{
-                            self.likeCount.text = String(numberOfLikes)
-                            self.likesLabel.text = numberOfLikes == 1 ? "Like" : "Likes"
-                        }
-                        
-                        if let numberOfComments = dictionary["comments"] as? Int{
-                            self.commentCount.text = String(numberOfComments)
-                            self.commentLabel.text = numberOfComments == 1 ? "Comment" : "Comments"
-                        }
-                        
-                        if let profileImageUrl = dictionary["authorPic"] as? String {
-                            self.profileImageView.loadImageUsingCacheWithUrlString(urlString: profileImageUrl)
-                        }
-                        if let postType = dictionary["mediaType"] as? String{
-                            switch postType{
-                            case "VIDEO":
-                                guard let videoThumbnail = dictionary["thumbnailUrl"] as? String else { return }
-                                self.showcaseImageView.loadImageUsingCacheWithUrlString(urlString: videoThumbnail)
-                            case "PHOTO":
-                                guard let picImage = dictionary["showcaseUrl"] as? String else { return }
-                                self.showcaseImageView.loadImageUsingCacheWithUrlString(urlString: picImage)
-                            default:
-                                self.showcaseImageView.image = nil
+                        if let dictionary = snapshot.value as? [String: AnyObject]{
+                            
+                            self.userNameLabel.text = dictionary["authorName"] as? String
+                            self.cityAndStateLabel.text = dictionary["cityAndState"] as? String
+                            self.descriptionText.text = dictionary["postText"] as? String
+                            
+                            
+                            if let numberOfLikes = dictionary["likes"] as? Int{
+                                self.likeCount.text = String(numberOfLikes)
+                                self.likesLabel.text = numberOfLikes == 1 ? "Like" : "Likes"
+                            }
+                            
+                            if let numberOfComments = dictionary["comments"] as? Int{
+                                self.commentCount.text = String(numberOfComments)
+                                self.commentLabel.text = numberOfComments == 1 ? "Comment" : "Comments"
+                            }
+                            
+                            if let profileImageUrl = dictionary["authorPic"] as? String {
+                                self.profileImageView.loadImageUsingCacheWithUrlString(urlString: profileImageUrl)
+                            }
+                            if let postType = dictionary["mediaType"] as? String{
+                                switch postType{
+                                case "VIDEO":
+                                    guard let videoThumbnail = dictionary["thumbnailUrl"] as? String else { return }
+                                    self.showcaseImageView.loadImageUsingCacheWithUrlString(urlString: videoThumbnail)
+                                case "PHOTO":
+                                    guard let picImage = dictionary["showcaseUrl"] as? String else { return }
+                                    self.showcaseImageView.loadImageUsingCacheWithUrlString(urlString: picImage)
+                                default:
+                                    self.showcaseImageView.image = nil
+                                }
                             }
                         }
-                    }
                     }, withCancel: nil)
             
                     likeRef.observeSingleEvent(of: .value, with: { snapshot in
@@ -64,15 +66,14 @@ class testPostCell: UITableViewCell {
                         }
                     })
 
-            
-            
-            
-//            if let seconds = userPost?.timestamp?.doubleValue{
-//                let timestampDate = NSDate(timeIntervalSince1970: seconds)
-//                let dateFormatter = NSDateFormatter()
-//                    dateFormatter.dateFormat = "hh:mm:ss a"
-//                timeLabel.text = dateFormatter.stringFromDate(timestampDate)
-//            }
+
+            if let seconds = userPost?.timestamp?.doubleValue{
+                let timestampDate = NSDate(timeIntervalSince1970: seconds)
+                let dateFormatter = DateFormatter()
+                    dateFormatter.dateFormat = "MMM d, hh:mm a"
+                    //dateFormatter.dateFormat = "hh:mm:ss a"
+                timeLabel.text = dateFormatter.string(from: timestampDate as Date)
+            }
             
         }
     }
@@ -97,7 +98,7 @@ class testPostCell: UITableViewCell {
         let profileNameView = UIView()
             profileNameView.translatesAutoresizingMaskIntoConstraints = false
             profileNameView.backgroundColor = UIColor.white
-        profileNameView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(testPostCell.handleProfileViewTapped)))
+            profileNameView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(testPostCell.handleProfileViewTapped)))
         return profileNameView
     }()
     
@@ -116,12 +117,23 @@ class testPostCell: UITableViewCell {
             label.translatesAutoresizingMaskIntoConstraints = false
             label.alpha = 1.0
             label.text = "User Name"
-            label.font = UIFont(name: "Avenir Medium", size:  18.0)
+            label.font = UIFont(name: FONT_AVENIR_MEDIUM, size:  18.0)
             label.backgroundColor = UIColor.clear
             label.textColor = UIColor.blue
             label.sizeToFit()
         return label
     }()
+    
+    let cityAndStateLabel: UILabel = {
+        let label = UILabel()
+            label.translatesAutoresizingMaskIntoConstraints = false
+            label.font = UIFont(name: FONT_AVENIR_LIGHT, size:  14.0)
+            label.backgroundColor = UIColor.clear
+            label.textColor = UIColor.lightGray
+            label.sizeToFit()
+        return label
+    }()
+
     
     lazy var likeButton: UIButton = {
         let likeBtn = UIButton()
@@ -134,10 +146,10 @@ class testPostCell: UITableViewCell {
 
     let timeLabel: UILabel = {
         let label = UILabel()
-            label.text = "HH:MM:SS"
             label.font = UIFont.systemFont(ofSize: 12)
             label.textColor = UIColor.lightGray
             label.translatesAutoresizingMaskIntoConstraints = false
+            label.sizeToFit()
         return label
     }()
     
@@ -291,6 +303,8 @@ class testPostCell: UITableViewCell {
         cellContainerView.addSubview(profilePictureUserNameContainerView)
             profilePictureUserNameContainerView.addSubview(profileImageView)
             profilePictureUserNameContainerView.addSubview(userNameLabel)
+            profilePictureUserNameContainerView.addSubview(cityAndStateLabel)
+            profilePictureUserNameContainerView.addSubview(timeLabel)
         cellContainerView.addSubview(likeButton)
         cellContainerView.addSubview(likeCount)
         cellContainerView.addSubview(likesLabel)
@@ -318,20 +332,21 @@ class testPostCell: UITableViewCell {
         profilePictureUserNameContainerView.leftAnchor.constraint(equalTo: cellContainerView.leftAnchor, constant: 8).isActive = true
         profilePictureUserNameContainerView.topAnchor.constraint(equalTo: cellContainerView.topAnchor, constant: 8).isActive = true
         profilePictureUserNameContainerView.widthAnchor.constraint(equalToConstant: 235).isActive = true
-        profilePictureUserNameContainerView.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        profilePictureUserNameContainerView.heightAnchor.constraint(equalToConstant: 60).isActive = true
         profileImageView.leftAnchor.constraint(equalTo: profilePictureUserNameContainerView.leftAnchor).isActive = true
         profileImageView.topAnchor.constraint(equalTo: profilePictureUserNameContainerView.topAnchor).isActive = true
         profileImageView.widthAnchor.constraint(equalToConstant: 48).isActive = true
         profileImageView.heightAnchor.constraint(equalToConstant: 48).isActive = true
         
         userNameLabel.leftAnchor.constraint(equalTo: profileImageView.rightAnchor, constant: 8).isActive = true
-        userNameLabel.centerYAnchor.constraint(equalTo: profilePictureUserNameContainerView.centerYAnchor).isActive = true
+        userNameLabel.topAnchor.constraint(equalTo: profilePictureUserNameContainerView.topAnchor).isActive = true
         
+        cityAndStateLabel.leftAnchor.constraint(equalTo: profileImageView.rightAnchor, constant: 16).isActive = true
+        cityAndStateLabel.topAnchor.constraint(equalTo: userNameLabel.bottomAnchor, constant: -4).isActive = true
         
-        //        timeLabel.rightAnchor.constraint(equalTo: self.rightAnchor).isActive = true
-        //        timeLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 8).isActive = true
-        //        timeLabel.widthAnchor.constraint(equalToConstant: 100).isActive = true
-        //        timeLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        timeLabel.leftAnchor.constraint(equalTo: profileImageView.rightAnchor, constant: 16).isActive = true
+        timeLabel.topAnchor.constraint(equalTo: cityAndStateLabel.bottomAnchor, constant: -4).isActive = true
+        
         
         likeButton.rightAnchor.constraint(equalTo: likesLabel.leftAnchor, constant: -8).isActive = true
         likeButton.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor).isActive = true

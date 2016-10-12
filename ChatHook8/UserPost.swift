@@ -22,6 +22,7 @@ class UserPost: NSObject {
     var mediaType: String?
     var authorPic: String?
     var authorName: String?
+    var cityAndState: String?
     var postRef: FIRDatabaseReference!
     
     init(key: String){

@@ -240,10 +240,10 @@ class IntroViewController: UIViewController {
         
         let newLayer = AVPlayerLayer(player: player)
         
-        newLayer.videoGravity = AVLayerVideoGravityResizeAspectFill
-        newLayer.masksToBounds = true
+            newLayer.videoGravity = AVLayerVideoGravityResizeAspectFill
+            newLayer.masksToBounds = true
+            newLayer.frame = view.bounds
         self.videoView.layer.addSublayer(newLayer)
-        newLayer.frame = view.bounds
         
         player.play()
         
@@ -388,7 +388,7 @@ class IntroViewController: UIViewController {
         registerButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -8).isActive = true
         registerButton.widthAnchor.constraint(equalToConstant: 200).isActive = true
         registerButton.heightAnchor.constraint(equalToConstant: 60).isActive = true
-}
+    }
     
     func setupProfileImageView(){
         profileImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
@@ -457,7 +457,6 @@ class IntroViewController: UIViewController {
                                 self.showErrorAlert(title: "Could not create account",
                                     msg: "Problem creating account. Try something else")
                         }else{
-                            print("INSIDE ELSE")
                             UserDefaults.standard.setValue(user!.uid, forKey: KEY_UID)
                             UserDefaults.standard.setValue(self.userEmail, forKey: USER_EMAIL)
                             self.uploadPictureAndSetupCurrentUser(userName: userName)
@@ -511,23 +510,26 @@ class IntroViewController: UIViewController {
                     }
                 })
             }
-        
     }
     
     func postRegisteredUserToFirebase(values:[String: String]){
         for (key, value) in values{
             DataService.ds.REF_USER_CURRENT.child(key).setValue(value)
         }
+        
         self.profileImageView.isHidden = true
         self.loginContainerView.isHidden = true
         self.facebookContainerView.isHidden = false
         self.eMailContainerView.isHidden = false
+        
+        setupChatHookLogoView()
+        setupFacebookContainerView()
+        setupEmailContainerView()
         handleReturningUser()
     }
 
     func handleKeyboardWillShow(notification: Notification){
-        
-//        let userInfo:NSDictionary = notification.userInfo! as NSDictionary
+            //        let userInfo:NSDictionary = notification.userInfo! as NSDictionary
 //        let keyboardFrame:NSValue = userInfo.value(forKey: UIKeyboardFrameEndUserInfoKey) as! NSValue
 //        let keyboardRectangle = keyboardFrame.cgRectValue
 //        let keyboardHeight = keyboardRectangle.height
@@ -556,16 +558,18 @@ class IntroViewController: UIViewController {
         chatHookLogoViewCenterAnchor?.constant = -250
         facebookContainerView.isHidden = true
         eMailContainerView.isHidden = true
-        UIView.animate(withDuration: 0.5){
-            self.view.layoutIfNeeded()
-        }
-        UIView.animate(withDuration: 0.5,
-                       delay: 1.0,
-                       options: [],
-                       animations: { self.loginContainerView.alpha = 1.0;
-                                     self.profileImageView.alpha = 1.0
-                                   },
-                       completion: nil)
+            UIView.animate(withDuration: 0.5){
+                self.view.layoutIfNeeded()
+            }
+        
+            UIView.animate(withDuration: 0.5,
+                           delay: 1.0,
+                           options: [],
+                           animations: { self.loginContainerView.alpha = 1.0;
+                                         self.profileImageView.alpha = 1.0;
+                                         self.registerButton.isHidden = false
+                                       },
+                           completion: nil)
     }
     
     //MARK: - Error Alert
@@ -586,7 +590,6 @@ class IntroViewController: UIViewController {
 extension IntroViewController: UITextFieldDelegate{
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
-        registerButton.isHidden = false
         return true
     }
 }

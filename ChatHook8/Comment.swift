@@ -19,6 +19,7 @@ class Comment: NSObject {
     var commentRef: FIRDatabaseReference!
     var authorPic: String?
     var authorName: String?
+    var cityAndState: String?
     
     init(key: String){
         commentKey = key

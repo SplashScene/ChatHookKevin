@@ -35,7 +35,6 @@ class NewMessagesController: UITableViewController {
         observeUsersOnline()
         tableView.register(UserCell.self, forCellReuseIdentifier: "cellID")
         blockedUsersArray = []
-   
     }
     
     override func viewWillAppear(_ animated: Bool) {

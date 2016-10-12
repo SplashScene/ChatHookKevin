@@ -12,12 +12,14 @@ import FirebaseStorage
 import MobileCoreServices
 import AVFoundation
 import Social
-
+import CoreLocation
 
 class CommentViewController: UIViewController{
     var profileView: ProfileViewController?
     var postsController: PostsVC?
     var postForComment: UserPost?
+    var geocoder: CLGeocoder?
+    var postCityAndState: String?
     var cellID = "cellID"
     var postedText: String?
     var timer: Timer?
@@ -64,7 +66,7 @@ class CommentViewController: UIViewController{
         let ptv = UITableView()
             ptv.translatesAutoresizingMaskIntoConstraints = false
             ptv.backgroundColor = UIColor(r: 220, g: 220, b: 220)
-            ptv.allowsSelection = false
+            //ptv.allowsSelection = false
         return ptv
     }()
     
@@ -84,18 +86,18 @@ class CommentViewController: UIViewController{
         postTableView.dataSource = self
         postTableView.register(CommentViewCell.self, forCellReuseIdentifier: "cellID")
 
-//        postTextField.delegate = self
-        
         setupTopView()
-        setupPostView()
         setupPostTableView()
-//        setupNavBarWithUserOrProgress(progress: nil)
+        setupPostView()
+        
         observeComments()
+        handleCityAndState()
         
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        handleReloadPosts()
     }
     
     //MARK: - Setup Methods
@@ -126,7 +128,7 @@ class CommentViewController: UIViewController{
         postView.topAnchor.constraint(equalTo: topView.bottomAnchor).isActive = true
         postView.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
             if postForComment?.showcaseUrl == nil {
-                postView.bottomAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+                postView.bottomAnchor.constraint(equalTo: view.centerYAnchor, constant: -40).isActive = true
             }else{
                 postView.heightAnchor.constraint(equalToConstant: 350).isActive = true
             }
@@ -145,28 +147,29 @@ class CommentViewController: UIViewController{
     
     //MARK: - Handler Methods
     func handleCommentButtonTapped(){
+        guard let toPost = postForComment?.postKey,
+              let postedComment = self.postTextField.text, postedComment != "" else { return }
         let commentRef = DataService.ds.REF_USERS_COMMENTS.childByAutoId()
         let timestamp: Int = Int(NSDate().timeIntervalSince1970)
-            if let toPost = postForComment?.postKey,
-               let postedComment = self.postTextField.text, postedComment != "" {
         
-                    let commentItem:[String:AnyObject] =
-                            ["fromId": CurrentUser._postKey as AnyObject,
-                             "commentText": postedComment as AnyObject,
-                             "timestamp": timestamp as AnyObject,
-                             "toPost": toPost as AnyObject,
-                             "likes": 0 as AnyObject,
-                             "authorPic": CurrentUser._profileImageUrl as AnyObject,
-                             "authorName": CurrentUser._userName as AnyObject]
-                    
-                    commentRef.updateChildValues(commentItem) { (error, ref) in
-                        if error != nil { print(error?.localizedDescription); return }
-                        
-                        let postCommentRef = DataService.ds.REF_BASE.child("post_comments").child(toPost)
-                        let commentID = commentRef.key
-                        postCommentRef.updateChildValues([commentID: 1])
-                    }
+            let commentItem:[String:AnyObject] =
+                    ["fromId": CurrentUser._postKey as AnyObject,
+                     "commentText": postedComment as AnyObject,
+                     "timestamp": timestamp as AnyObject,
+                     "toPost": toPost as AnyObject,
+                     "likes": 0 as AnyObject,
+                     "authorPic": CurrentUser._profileImageUrl as AnyObject,
+                     "authorName": CurrentUser._userName as AnyObject,
+                     "cityAndState": postCityAndState! as AnyObject]
+            
+            commentRef.updateChildValues(commentItem) { (error, ref) in
+                if error != nil { print(error?.localizedDescription); return }
+                
+                let postCommentRef = DataService.ds.REF_BASE.child("post_comments").child(toPost)
+                let commentID = commentRef.key
+                postCommentRef.updateChildValues([commentID: 1])
             }
+        
         self.postTextField.text = ""
         self.postTextField.endEditing(true)
         adjustComments()
@@ -209,10 +212,29 @@ class CommentViewController: UIViewController{
         postForComment!.postRef.child("comments").setValue(adjustedComments)
     }
     
+    func handleCityAndState(){
+        if geocoder == nil { geocoder = CLGeocoder() }
+        
+        geocoder?.reverseGeocodeLocation(CurrentUser._location!){ placemarks, error in
+            if error != nil{
+                print("Error get geoLocation: \(error?.localizedDescription)")
+            }else{
+                let placemark = placemarks?.first
+                let city = placemark?.locality!
+                let state = placemark?.administrativeArea!
+                    if let postCity = city, let postState = state{
+                        self.postCityAndState = "\(postCity), \(postState)"
+                    }
+            }
+        }
+        
+    }
+
 //    func handleProfile(profileView: UIView){
+//        print("Inside CONTROLLER profile view tapped")
 //        let profileViewPosition = profileView.convert(CGPoint(x: 0, y: 0), to: self.postTableView)
 //        if let indexPath = self.postTableView.indexPathForRow(at: profileViewPosition){
-//            let userPost = commeArray[indexPath.row]
+//            let userPost = commentsArray[indexPath.row]
 //            let ref = DataService.ds.REF_USERS.child(userPost.fromId!)
 //            
 //            ref.observeSingleEvent(of: .value, with: { (snapshot) in
@@ -265,17 +287,28 @@ extension CommentViewController:UITableViewDelegate, UITableViewDataSource{
         let customCell:CommentViewCell = cell as! CommentViewCell
             customCell.backgroundColor = UIColor.clear
         
+        
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: cellID, for: indexPath as IndexPath) as! CommentViewCell
         let comment = commentsArray[indexPath.row]
             cell.userComment = comment
-//        let cell = UITableViewCell(style: .default, reuseIdentifier: cellID)
-//            cell.textLabel?.text = "Sample Cell"
+
         return cell
     }
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let comment = commentsArray[indexPath.row]
+        let ref = DataService.ds.REF_USERS.child(comment.fromId!)
+        
+            ref.observeSingleEvent(of: .value, with: { (snapshot) in
+                    guard let dictionary = snapshot.value as? [String : AnyObject] else { return }
+                    let user = User(postKey: snapshot.key, dictionary: dictionary)
+                    self.showProfileControllerForUser(user: user)
+                }, withCancel: nil)
+    }
+
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
@@ -285,59 +318,10 @@ extension CommentViewController:UITableViewDelegate, UITableViewDataSource{
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 72
+        return 92
     }
 }//end extension
 
-
-//extension CommentViewController{
-//    
-//    func enterIntoPostsAndPostsPerRoomDatabaseWithImageUrl(metadata: String, postText: String?, thumbnailURL: String?, fileURL: String?){
-//        guard let uid = FIRAuth.auth()?.currentUser!.uid else { return }
-//        let toRoom = parentRoom?.postKey
-//        let itemRef = DataService.ds.REF_POSTS.childByAutoId()
-//        let timestamp: Int = Int(NSDate().timeIntervalSince1970)
-//        var messageItem: Dictionary<String,AnyObject>
-//        
-//
-//            messageItem = ["fromId": uid as AnyObject,
-//                           "timestamp" : timestamp as AnyObject,
-//                           "toRoom": toRoom! as AnyObject,
-//                           "mediaType": "TEXT" as AnyObject,
-//                           "likes": 0 as AnyObject,
-//                           "authorName": CurrentUser._userName as AnyObject,
-//                           "authorPic": CurrentUser._profileImageUrl as AnyObject]
-//        
-//        
-//        
-//        if let unwrappedText = postText{
-//            messageItem["postText"] = unwrappedText as AnyObject
-//        }
-//        
-//        
-//        itemRef.updateChildValues(messageItem) { (error, ref) in
-//            if error != nil {
-//                print(error?.localizedDescription)
-//                return
-//            }
-//            
-//            let postRoomRef = DataService.ds.REF_BASE.child("posts_per_room").child(self.parentRoom!.postKey!)
-//            
-//            let postID = itemRef.key
-//            postRoomRef.updateChildValues([postID: 1])
-//        }
-//        
-//        self.postTextField.text = ""
-//        self.postedImage = nil
-//        self.postedVideo = nil
-//        self.postedText = nil
-//        self.postButton.isUserInteractionEnabled = false
-//        self.postButton.alpha = 0.5
-//        
-//        handleReloadPosts()
-//        
-//    }
-//}//end extension
 
 //extension CommentViewController: UITextFieldDelegate{
 //    

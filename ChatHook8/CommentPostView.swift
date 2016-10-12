@@ -18,11 +18,19 @@ class CommentPostView: MaterialView {
             self.profileImageView.loadImageUsingCacheWithUrlString(urlString: (userPost?.authorPic!)!)
             self.userNameLabel.text = userPost?.authorName
             self.descriptionText.text = userPost?.postText
+            self.cityAndStateLabel.text = userPost?.cityAndState
             
             if let showCaseImageURL = userPost?.showcaseUrl{
                self.showcaseImageView.loadImageUsingCacheWithUrlString(urlString: showCaseImageURL)
             }
             
+            if let seconds = userPost?.timestamp?.doubleValue{
+                let timestampDate = NSDate(timeIntervalSince1970: seconds)
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "MMM d, hh:mm a"
+                timeLabel.text = dateFormatter.string(from: timestampDate as Date)
+            }
+
         }
     }
     
@@ -71,6 +79,16 @@ class CommentPostView: MaterialView {
         return label
     }()
     
+    let cityAndStateLabel: UILabel = {
+        let label = UILabel()
+            label.translatesAutoresizingMaskIntoConstraints = false
+            label.font = UIFont(name: FONT_AVENIR_LIGHT, size:  12.0)
+            label.backgroundColor = UIColor.clear
+            label.textColor = UIColor.lightGray
+            label.sizeToFit()
+        return label
+    }()
+    
     lazy var likeButton: UIButton = {
         let likeBtn = UIButton()
         let image = UIImage(named: "Like")
@@ -82,10 +100,10 @@ class CommentPostView: MaterialView {
     
     let timeLabel: UILabel = {
         let label = UILabel()
-            label.text = "HH:MM:SS"
             label.font = UIFont.systemFont(ofSize: 12)
             label.textColor = UIColor.lightGray
             label.translatesAutoresizingMaskIntoConstraints = false
+            label.sizeToFit()
         return label
     }()
     
@@ -167,6 +185,7 @@ class CommentPostView: MaterialView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = UIColor.white
+        
         addSubview(profilePictureUserNameContainerView)
         addSubview(descriptionText)
         addSubview(showcaseImageView)
@@ -177,21 +196,31 @@ class CommentPostView: MaterialView {
         //cellContainerView.addSubview(profilePictureUserNameContainerView)
         profilePictureUserNameContainerView.addSubview(profileImageView)
         profilePictureUserNameContainerView.addSubview(userNameLabel)
+        profilePictureUserNameContainerView.addSubview(cityAndStateLabel)
+        profilePictureUserNameContainerView.addSubview(timeLabel)
+        
         
         profilePictureUserNameContainerView.leftAnchor.constraint(equalTo: self.leftAnchor, constant: 8).isActive = true
         profilePictureUserNameContainerView.topAnchor.constraint(equalTo: self.topAnchor, constant: 8).isActive = true
         profilePictureUserNameContainerView.widthAnchor.constraint(equalToConstant: 235).isActive = true
         profilePictureUserNameContainerView.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        
         profileImageView.leftAnchor.constraint(equalTo: profilePictureUserNameContainerView.leftAnchor).isActive = true
         profileImageView.topAnchor.constraint(equalTo: profilePictureUserNameContainerView.topAnchor).isActive = true
         profileImageView.widthAnchor.constraint(equalToConstant: 48).isActive = true
         profileImageView.heightAnchor.constraint(equalToConstant: 48).isActive = true
         
         userNameLabel.leftAnchor.constraint(equalTo: profileImageView.rightAnchor, constant: 8).isActive = true
-        userNameLabel.centerYAnchor.constraint(equalTo: profilePictureUserNameContainerView.centerYAnchor).isActive = true
+        userNameLabel.centerYAnchor.constraint(equalTo: profilePictureUserNameContainerView.centerYAnchor, constant: -8).isActive = true
+        
+        cityAndStateLabel.leftAnchor.constraint(equalTo: profileImageView.rightAnchor, constant: 16).isActive = true
+        cityAndStateLabel.topAnchor.constraint(equalTo: userNameLabel.bottomAnchor, constant: -4).isActive = true
+        
+        timeLabel.leftAnchor.constraint(equalTo: profileImageView.rightAnchor, constant: 16).isActive = true
+        timeLabel.topAnchor.constraint(equalTo: cityAndStateLabel.bottomAnchor, constant: -4).isActive = true
         
         descriptionText.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
-        descriptionText.topAnchor.constraint(equalTo: profilePictureUserNameContainerView.bottomAnchor, constant: -8).isActive = true
+        descriptionText.topAnchor.constraint(equalTo: profilePictureUserNameContainerView.bottomAnchor).isActive = true
         descriptionText.widthAnchor.constraint(equalTo: self.widthAnchor, constant: -16).isActive = true
         descriptionText.heightAnchor.constraint(greaterThanOrEqualToConstant: 40).isActive = true
         

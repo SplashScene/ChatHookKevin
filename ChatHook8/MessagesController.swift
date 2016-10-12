@@ -106,7 +106,7 @@ class MessagesController: UITableViewController {
         messagesRef.observeSingleEvent(of: .value, with: { (snapshot) in
                 if let dictionary = snapshot.value as? [String: AnyObject]{
                     let message = Message()
-                    message.setValuesForKeys(dictionary)
+                        message.setValuesForKeys(dictionary)
                     self.messagesArray.append(message)
                     
                     if let chatPartnerID = message.chatPartnerID(){
@@ -217,10 +217,10 @@ class MessagesController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: cellID, for: indexPath as IndexPath) as! UserCell
         let message = messagesArray[indexPath.row]
-        cell.message = message
-        cell.accessoryType = UITableViewCellAccessoryType.detailButton
+        let cell = tableView.dequeueReusableCell(withIdentifier: cellID, for: indexPath as IndexPath) as! UserCell
+            cell.message = message
+            cell.accessoryType = UITableViewCellAccessoryType.detailButton
         return cell
     }
     
@@ -236,9 +236,9 @@ class MessagesController: UITableViewController {
         let ref = DataService.ds.REF_USERS.child(chatPartnerID)
         
         ref.observeSingleEvent(of: .value, with: { (snapshot) in
-            guard let dictionary = snapshot.value as? [String : AnyObject] else { return }
-            let user = User(postKey: snapshot.key, dictionary: dictionary)
-            self.showProfileControllerForUser(user: user)
+                guard let dictionary = snapshot.value as? [String : AnyObject] else { return }
+                let user = User(postKey: snapshot.key, dictionary: dictionary)
+                self.showProfileControllerForUser(user: user)
             }, withCancel: nil)
 
     }
@@ -250,9 +250,9 @@ class MessagesController: UITableViewController {
         let ref = DataService.ds.REF_USERS.child(chatPartnerID)
         
         ref.observeSingleEvent(of: .value, with: { (snapshot) in
-            guard let dictionary = snapshot.value as? [String : AnyObject] else { return }
-            let user = User(postKey: snapshot.key, dictionary: dictionary)
-            self.showChatControllerForUser(user: user)
+                guard let dictionary = snapshot.value as? [String : AnyObject] else { return }
+                let user = User(postKey: snapshot.key, dictionary: dictionary)
+                self.showChatControllerForUser(user: user)
             },
             withCancel: nil)
     }

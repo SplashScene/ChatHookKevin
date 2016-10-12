@@ -10,14 +10,22 @@ import UIKit
 import Firebase
 
 class CommentViewCell: UITableViewCell {
-    var postViewController:PostsVC?
     var likeRef: FIRDatabaseReference!
+    var commentViewController: CommentViewController?
     
     var userComment: Comment?{
         didSet{
             self.profileImageView.loadImageUsingCacheWithUrlString(urlString: (userComment?.authorPic!)!)
             self.userNameLabel.text = userComment?.authorName
+            self.cityAndStateLabel.text = userComment?.cityAndState
             self.descriptionText.text = userComment?.commentText
+            
+            if let seconds = userComment?.timestamp?.doubleValue{
+                let timestampDate = NSDate(timeIntervalSince1970: seconds)
+                let dateFormatter = DateFormatter()
+                    dateFormatter.dateFormat = "MMM d, hh:mm a"
+                timeLabel.text = dateFormatter.string(from: timestampDate as Date)
+            }
         }
     }
     
@@ -33,20 +41,10 @@ class CommentViewCell: UITableViewCell {
         return containerView
     }()
     
-    lazy var profilePictureUserNameContainerView: UIView = {
-        let profileNameView = UIView()
-            profileNameView.translatesAutoresizingMaskIntoConstraints = false
-            profileNameView.backgroundColor = UIColor.white
-            profileNameView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(testPostCell.handleProfileViewTapped)))
-        return profileNameView
-    }()
-    
     let profileImageView: MaterialImageView = {
         let imageView = MaterialImageView(frame: CGRect(x: 0, y: 0, width: 60, height: 60))
             imageView.translatesAutoresizingMaskIntoConstraints = false
-//            imageView.layer.cornerRadius = 30
-//            imageView.layer.masksToBounds = true
-//            imageView.contentMode = .scaleAspectFill
+        
         return imageView
     }()
     
@@ -62,21 +60,22 @@ class CommentViewCell: UITableViewCell {
         return label
     }()
     
-    lazy var likeButton: UIButton = {
-        let likeBtn = UIButton()
-        let image = UIImage(named: "Like")
-            likeBtn.setImage(image, for: .normal)
-            likeBtn.translatesAutoresizingMaskIntoConstraints = false
-        //likeBtn.addTarget(self, action: #selector(handleLikeButtonTapped), for: .touchUpInside)
-        return likeBtn
+    let cityAndStateLabel: UILabel = {
+        let label = UILabel()
+            label.translatesAutoresizingMaskIntoConstraints = false
+            label.font = UIFont(name: FONT_AVENIR_LIGHT, size:  12.0)
+            label.backgroundColor = UIColor.clear
+            label.textColor = UIColor.lightGray
+            label.sizeToFit()
+        return label
     }()
     
     let timeLabel: UILabel = {
         let label = UILabel()
-            label.text = "HH:MM:SS"
             label.font = UIFont.systemFont(ofSize: 12)
             label.textColor = UIColor.lightGray
             label.translatesAutoresizingMaskIntoConstraints = false
+            label.sizeToFit()
         return label
     }()
     
@@ -105,6 +104,8 @@ class CommentViewCell: UITableViewCell {
             descripTextView.font = UIFont(name: "Avenir Medium", size:  14.0)
             descripTextView.textColor = UIColor.darkGray
             descripTextView.numberOfLines = 0
+            descripTextView.sizeToFit()
+        
         return descripTextView
     }()
  
@@ -117,28 +118,28 @@ class CommentViewCell: UITableViewCell {
     
     let commentContainerView: UIView = {
         let commentContainerView = UIView()
-        commentContainerView.translatesAutoresizingMaskIntoConstraints = false
-        commentContainerView.backgroundColor = UIColor.white
+            commentContainerView.translatesAutoresizingMaskIntoConstraints = false
+            commentContainerView.backgroundColor = UIColor.white
         return commentContainerView
     }()
     
     var commentCount: UILabel = {
         let label = UILabel()
-        label.text = "0"
-        label.font = UIFont(name: "Avenir Medium", size:  12.0)
-        label.textColor = UIColor.darkGray
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.sizeToFit()
+            label.text = "0"
+            label.font = UIFont(name: "Avenir Medium", size:  12.0)
+            label.textColor = UIColor.darkGray
+            label.translatesAutoresizingMaskIntoConstraints = false
+            label.sizeToFit()
         return label
     }()
     
     let commentLabel: UILabel = {
         let label = UILabel()
-        label.text = "Comments"
-        label.font = UIFont(name: "Avenir Medium", size:  12.0)
-        label.textColor = UIColor.darkGray
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.sizeToFit()
+            label.text = "Comments"
+            label.font = UIFont(name: "Avenir Medium", size:  12.0)
+            label.textColor = UIColor.darkGray
+            label.translatesAutoresizingMaskIntoConstraints = false
+            label.sizeToFit()
         return label
     }()
     
@@ -151,12 +152,6 @@ class CommentViewCell: UITableViewCell {
         super.init(style: .subtitle, reuseIdentifier: reuseIdentifier)
         addSubview(cellContainerView)
         setupCellContainerView()
-        
-//        setupCommentContainerView()
-//        //need x, y, width, height anchors
-//        setupProfileImageUserNameLikes()
-//        setupDescriptionTextShowcaseImage()
-//        setupCommentSection()
     }
     
     //MARK: - Setup Methods
@@ -169,6 +164,8 @@ class CommentViewCell: UITableViewCell {
         
         cellContainerView.addSubview(profileImageView)
         cellContainerView.addSubview(userNameLabel)
+        cellContainerView.addSubview(timeLabel)
+        cellContainerView.addSubview(cityAndStateLabel)
         cellContainerView.addSubview(descriptionText)
         
         profileImageView.leftAnchor.constraint(equalTo: cellContainerView.leftAnchor, constant: 8).isActive = true
@@ -179,40 +176,23 @@ class CommentViewCell: UITableViewCell {
         userNameLabel.leftAnchor.constraint(equalTo: profileImageView.rightAnchor, constant: 8).isActive = true
         userNameLabel.topAnchor.constraint(equalTo: cellContainerView.topAnchor, constant: 8).isActive = true
         
+        timeLabel.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -8).isActive = true
+        timeLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 4).isActive = true
+        
+        cityAndStateLabel.leftAnchor.constraint(equalTo: profileImageView.rightAnchor, constant: 16).isActive = true
+        cityAndStateLabel.topAnchor.constraint(equalTo: userNameLabel.bottomAnchor, constant: -4).isActive = true
+        
         descriptionText.leftAnchor.constraint(equalTo: profileImageView.rightAnchor, constant: 8).isActive = true
-
-        descriptionText.topAnchor.constraint(equalTo: userNameLabel.bottomAnchor, constant: -16).isActive = true
+        descriptionText.topAnchor.constraint(equalTo: cityAndStateLabel.bottomAnchor).isActive = true
         descriptionText.rightAnchor.constraint(equalTo: cellContainerView.rightAnchor, constant: -8).isActive = true
-        descriptionText.heightAnchor.constraint(equalToConstant: 50).isActive = true
 
-        
-        
-        
-        //cellContainerView.addSubview(profilePictureUserNameContainerView)
-//        profilePictureUserNameContainerView.addSubview(profileImageView)
-//        profilePictureUserNameContainerView.addSubview(userNameLabel)
-//
-//        profilePictureUserNameContainerView.leftAnchor.constraint(equalTo: self.leftAnchor, constant: 8).isActive = true
-//        profilePictureUserNameContainerView.topAnchor.constraint(equalTo: self.topAnchor, constant: 8).isActive = true
-//        profilePictureUserNameContainerView.widthAnchor.constraint(equalToConstant: 235).isActive = true
-//        profilePictureUserNameContainerView.heightAnchor.constraint(equalToConstant: 50).isActive = true
-//        profileImageView.leftAnchor.constraint(equalTo: profilePictureUserNameContainerView.leftAnchor).isActive = true
-//        profileImageView.topAnchor.constraint(equalTo: profilePictureUserNameContainerView.topAnchor).isActive = true
-//        profileImageView.widthAnchor.constraint(equalToConstant: 60).isActive = true
-//        profileImageView.heightAnchor.constraint(equalToConstant: 48).isActive = true
-//        
-//        userNameLabel.leftAnchor.constraint(equalTo: profileImageView.rightAnchor, constant: 8).isActive = true
-//        userNameLabel.centerYAnchor.constraint(equalTo: profilePictureUserNameContainerView.centerYAnchor).isActive = true
-//        
-//        descriptionText.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
-//        descriptionText.topAnchor.constraint(equalTo: profilePictureUserNameContainerView.bottomAnchor, constant: -8).isActive = true
-//        descriptionText.widthAnchor.constraint(equalTo: self.widthAnchor, constant: -16).isActive = true
-//        descriptionText.heightAnchor.constraint(greaterThanOrEqualToConstant: 40).isActive = true
-        
     }
     
     func handleProfileViewTapped(tapGesture: UITapGestureRecognizer){
-        postViewController?.handleProfile(profileView: tapGesture.view!)
+        if let view = tapGesture.view{
+            print("Inside VIEW profile tapped")
+        }
+        //commentViewController?.handleProfile(profileView: tapGesture.view!)
     }
 }
 

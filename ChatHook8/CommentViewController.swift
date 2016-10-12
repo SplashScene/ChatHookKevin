@@ -186,12 +186,31 @@ class CommentViewController: UIViewController{
         }
     }
     
-    func handleShare(shareView: UIView){
+    func handleFacebookShare(shareView: UIView){
         let sharePosition = shareView.convert(CGPoint(x: 0, y: 0), to: self.postTableView)
         let indexPath = self.postTableView.indexPathForRow(at: sharePosition)
         let cell = self.postTableView.cellForRow(at: indexPath!) as? testPostCell
         
         let vc = SLComposeViewController(forServiceType: SLServiceTypeFacebook)
+        
+        if let postText = cell?.descriptionText.text{
+            vc?.setInitialText("Check out this great post from ChatHook: \n \(postText)")
+        }else{
+            vc?.setInitialText("Check out this great post from ChatHook:")
+        }
+        
+        if let image = cell?.showcaseImageView.image{
+            vc?.add(image)
+        }
+        present(vc!, animated: true, completion: nil)
+    }
+    
+    func handleTwitterShare(shareView: UIView){
+        let sharePosition = shareView.convert(CGPoint(x: 0, y: 0), to: self.postTableView)
+        let indexPath = self.postTableView.indexPathForRow(at: sharePosition)
+        let cell = self.postTableView.cellForRow(at: indexPath!) as? testPostCell
+        
+        let vc = SLComposeViewController(forServiceType: SLServiceTypeTwitter)
         
         if let postText = cell?.descriptionText.text{
             vc?.setInitialText("Check out this great post from ChatHook: \n \(postText)")
@@ -227,23 +246,7 @@ class CommentViewController: UIViewController{
                     }
             }
         }
-        
     }
-
-//    func handleProfile(profileView: UIView){
-//        print("Inside CONTROLLER profile view tapped")
-//        let profileViewPosition = profileView.convert(CGPoint(x: 0, y: 0), to: self.postTableView)
-//        if let indexPath = self.postTableView.indexPathForRow(at: profileViewPosition){
-//            let userPost = commentsArray[indexPath.row]
-//            let ref = DataService.ds.REF_USERS.child(userPost.fromId!)
-//            
-//            ref.observeSingleEvent(of: .value, with: { (snapshot) in
-//                guard let dictionary = snapshot.value as? [String : AnyObject] else { return }
-//                let user = User(postKey: snapshot.key, dictionary: dictionary)
-//                self.showProfileControllerForUser(user: user)
-//                }, withCancel: nil)
-//        }
-//    }
     
     //MARK: - Observe Methods
     

@@ -261,6 +261,27 @@ class PostsVC: UIViewController{
     }
     
     func handleShare(shareView: UIView){
+        let alertController = UIAlertController(title: "Share", message: "Where do you want to share this post?", preferredStyle: .alert)
+        let buttonOne = UIAlertAction(title: "Share on Facebook", style: .default) { (action) in
+            self.handleFacebookShare(shareView: shareView)
+        }
+        let buttonTwo = UIAlertAction(title: "Share on Twitter", style: .default) { (action) in
+            self.handleTwitterShare(shareView: shareView)
+        }
+        
+        let buttonCancel = UIAlertAction(title: "Cancel", style: .cancel) { (action) in
+            print("Inside Cancel")
+        }
+        
+        alertController.addAction(buttonOne)
+        alertController.addAction(buttonTwo)
+        alertController.addAction(buttonCancel)
+        
+        present(alertController, animated: true, completion: nil)
+
+    }
+    
+    func handleFacebookShare(shareView: UIView){
         let sharePosition = shareView.convert(CGPoint(x: 0, y: 0), to: self.postTableView)
         let indexPath = self.postTableView.indexPathForRow(at: sharePosition)
         let cell = self.postTableView.cellForRow(at: indexPath!) as? testPostCell
@@ -279,6 +300,27 @@ class PostsVC: UIViewController{
       
         present(vc!, animated: true, completion: nil)
     }
+    
+    func handleTwitterShare(shareView: UIView){
+        let sharePosition = shareView.convert(CGPoint(x: 0, y: 0), to: self.postTableView)
+        let indexPath = self.postTableView.indexPathForRow(at: sharePosition)
+        let cell = self.postTableView.cellForRow(at: indexPath!) as? testPostCell
+        
+        let vc = SLComposeViewController(forServiceType: SLServiceTypeTwitter)
+        
+        if let postText = cell?.descriptionText.text{
+            vc?.setInitialText("Check out this great post from ChatHook: \n \(postText)")
+        }else{
+            vc?.setInitialText("Check out this great post from ChatHook:")
+        }
+        
+        if let image = cell?.showcaseImageView.image{
+            vc?.add(image)
+        }
+        
+        present(vc!, animated: true, completion: nil)
+    }
+
     
     func handleProfile(profileView: UIView){
         let profileViewPosition = profileView.convert(CGPoint(x: 0, y: 0), to: self.postTableView)

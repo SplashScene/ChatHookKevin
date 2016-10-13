@@ -85,8 +85,7 @@ class NewMessagesController: UITableViewController {
                                         
                                         self.loadDistanceArrays(distanceDouble: user.distance!, user: user)
                                         
-                                        self.timer?.invalidate()
-                                        self.timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.loadSections), userInfo: nil, repeats: false)
+                                        self.attemptLoadOfSections()
                                     }
                                     
                                 }else{
@@ -135,12 +134,19 @@ class NewMessagesController: UITableViewController {
         }
         if usersArray3.count > 0 {
             self.groupedUsersArray.append(GroupedUsers(sectionName: "Over 5 miles", sectionUsers: self.usersArray3))
-        }
-        
-        DispatchQueue.main.async {
+        }        
+        handleReloadTable()
+    }
+    
+    private func attemptLoadOfSections(){
+        self.timer?.invalidate()
+        self.timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.loadSections), userInfo: nil, repeats: false)
+    }
+    
+    func handleReloadTable(){
+        DispatchQueue.main.async{
             self.tableView.reloadData()
         }
-
     }
     
     func handleCancel(){

@@ -29,8 +29,6 @@ class CommentViewCell: UITableViewCell {
         }
     }
     
-    var postLiked: Bool = false
-    
     let cellContainerView: MaterialView = {
         let containerView = MaterialView()
             containerView.translatesAutoresizingMaskIntoConstraints = false
@@ -44,15 +42,12 @@ class CommentViewCell: UITableViewCell {
     let profileImageView: MaterialImageView = {
         let imageView = MaterialImageView(frame: CGRect(x: 0, y: 0, width: 60, height: 60))
             imageView.translatesAutoresizingMaskIntoConstraints = false
-        
         return imageView
     }()
     
     let userNameLabel: UILabel = {
         let label = UILabel()
             label.translatesAutoresizingMaskIntoConstraints = false
-            label.alpha = 1.0
-            label.text = "User Name"
             label.font = UIFont(name: "Avenir Medium", size:  18.0)
             label.backgroundColor = UIColor.clear
             label.textColor = UIColor.blue
@@ -105,14 +100,13 @@ class CommentViewCell: UITableViewCell {
             descripTextView.textColor = UIColor.darkGray
             descripTextView.numberOfLines = 0
             descripTextView.sizeToFit()
-        
         return descripTextView
     }()
  
     let separatorLineView: UIView = {
         let sepLineView = UIView()
-        sepLineView.translatesAutoresizingMaskIntoConstraints = false
-        sepLineView.backgroundColor = UIColor.darkGray
+            sepLineView.translatesAutoresizingMaskIntoConstraints = false
+            sepLineView.backgroundColor = UIColor.darkGray
         return sepLineView
     }()
     
@@ -187,24 +181,6 @@ class CommentViewCell: UITableViewCell {
         descriptionText.rightAnchor.constraint(equalTo: cellContainerView.rightAnchor, constant: -8).isActive = true
 
     }
-    
-    func handleProfileViewTapped(tapGesture: UITapGestureRecognizer){
-        if let view = tapGesture.view{
-            print("Inside VIEW profile tapped")
-        }
-        //commentViewController?.handleProfile(profileView: tapGesture.view!)
-    }
 }
-
-//extension testPostCell: UITextViewDelegate{
-//    func textViewDidChange(textView: UITextView) {
-//        let fixedWidth = textView.frame.size.width
-//        textView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.max))
-//        let newSize = textView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.max))
-//        var newFrame = textView.frame
-//        newFrame.size = CGSize(width: max(newSize.width, fixedWidth), height: newSize.height)
-//        textView.frame = newFrame;
-//    }
-//}
 
 

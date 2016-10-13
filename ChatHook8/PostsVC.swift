@@ -484,7 +484,7 @@ class PostsVC: UIViewController{
         let url = NSURL(string: post.showcaseUrl!)
         player = AVPlayer(url: url! as URL)
         playerLayer = AVPlayerLayer(player: player)
-        playerLayer!.videoGravity = AVLayerVideoGravityResize
+        playerLayer!.videoGravity = AVLayerVideoGravityResizeAspectFill
         playerLayer!.masksToBounds = true
         
         cell!.showcaseImageView.layer.addSublayer(playerLayer!)

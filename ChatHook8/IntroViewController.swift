@@ -423,8 +423,7 @@ class IntroViewController: UIViewController {
                 if facebookError != nil {
                     print("Facebook login failed. Error: \(facebookError)")
                 }else{
-                    let accessToken = FBSDKAccessToken.current().tokenString
-                    print("Successfully logged in with facebook. \(accessToken)")
+                    //let accessToken = FBSDKAccessToken.current().tokenString
                     FBSDKProfile.enableUpdates(onAccessTokenChange: true)
                     
                     let credential = FIRFacebookAuthProvider.credential(withAccessToken: FBSDKAccessToken.current().tokenString)
@@ -432,7 +431,6 @@ class IntroViewController: UIViewController {
                             if error != nil {
                                 print("Login Failed. \(error)")
                             }else{
-                                print("Logged In! \(user)")
                                 let parameters = ["fields": "email, first_name, last_name, name, picture.type(large)"]
                                 FBSDKGraphRequest(graphPath: "me", parameters: parameters).start(completionHandler: { (connection, result, error) in
                                     if error != nil{

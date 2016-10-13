@@ -20,17 +20,25 @@ class CommentPostView: MaterialView {
             self.descriptionText.text = userPost?.postText
             self.cityAndStateLabel.text = userPost?.cityAndState
             
-            if let showCaseImageURL = userPost?.showcaseUrl{
-               self.showcaseImageView.loadImageUsingCacheWithUrlString(urlString: showCaseImageURL)
+            
+            if userPost?.mediaType == "PHOTO"{
+                if let showCaseImageURL = userPost?.showcaseUrl{
+                    self.showcaseImageView.loadImageUsingCacheWithUrlString(urlString: showCaseImageURL)
+                }
+            }
+            
+            if userPost?.mediaType == "VIDEO"{
+                if let thumbNailURL = userPost?.thumbnailUrl{
+                    self.showcaseImageView.loadImageUsingCacheWithUrlString(urlString: thumbNailURL)
+                }
             }
             
             if let seconds = userPost?.timestamp?.doubleValue{
                 let timestampDate = NSDate(timeIntervalSince1970: seconds)
                 let dateFormatter = DateFormatter()
-                dateFormatter.dateFormat = "MMM d, hh:mm a"
+                    dateFormatter.dateFormat = "MMM d, hh:mm a"
                 timeLabel.text = dateFormatter.string(from: timestampDate as Date)
             }
-
         }
     }
     

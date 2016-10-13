@@ -166,7 +166,7 @@ class GetLocation1: UIViewController {
                 CurrentUser._postKey = snapshot.key
                 CurrentUser._userName = dictionary["UserName"] as! String
                 CurrentUser._location = userLocation
-                CurrentUser._email = dictionary["Email"] as! String
+                //CurrentUser._email = dictionary["Email"] as! String
                 CurrentUser._profileImageUrl = dictionary["ProfileImage"] as? String
                 print("Current user profile is: \(CurrentUser._profileImageUrl)")
                 

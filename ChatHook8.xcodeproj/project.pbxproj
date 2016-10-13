@@ -47,6 +47,9 @@
 		84D3AF261D9AFE8000EE54CF /* NewMessagesController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3AF241D9AFE8000EE54CF /* NewMessagesController.swift */; };
 		84D3AF281D9B01F600EE54CF /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3AF271D9B01F600EE54CF /* ChatViewController.swift */; };
 		84D3AF2C1D9C01E200EE54CF /* ImageExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3AF2B1D9C01E200EE54CF /* ImageExtensions.swift */; };
+		84F043AD1DAECD9700D45664 /* FBSDKLoginKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84F043AC1DAECD9700D45664 /* FBSDKLoginKit.framework */; };
+		84F043B01DAED00B00D45664 /* Bolts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84F043AE1DAED00B00D45664 /* Bolts.framework */; };
+		84F043B11DAED00B00D45664 /* FBSDKCoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84F043AF1DAED00B00D45664 /* FBSDKCoreKit.framework */; };
 		84FB04741DA2D3F70061D5C2 /* CommentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FB04731DA2D3F70061D5C2 /* CommentViewController.swift */; };
 		84FB04761DA2D5D30061D5C2 /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FB04751DA2D5D30061D5C2 /* Comment.swift */; };
 		84FB047A1DA2F35E0061D5C2 /* CommentPostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FB04791DA2F35E0061D5C2 /* CommentPostView.swift */; };
@@ -98,6 +101,9 @@
 		84D3AF241D9AFE8000EE54CF /* NewMessagesController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewMessagesController.swift; sourceTree = "<group>"; };
 		84D3AF271D9B01F600EE54CF /* ChatViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
 		84D3AF2B1D9C01E200EE54CF /* ImageExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageExtensions.swift; sourceTree = "<group>"; };
+		84F043AC1DAECD9700D45664 /* FBSDKLoginKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = FBSDKLoginKit.framework; sourceTree = "<group>"; };
+		84F043AE1DAED00B00D45664 /* Bolts.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Bolts.framework; sourceTree = "<group>"; };
+		84F043AF1DAED00B00D45664 /* FBSDKCoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = FBSDKCoreKit.framework; sourceTree = "<group>"; };
 		84FB04731DA2D3F70061D5C2 /* CommentViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentViewController.swift; sourceTree = "<group>"; };
 		84FB04751DA2D5D30061D5C2 /* Comment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
 		84FB04791DA2F35E0061D5C2 /* CommentPostView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentPostView.swift; sourceTree = "<group>"; };
@@ -111,6 +117,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84F043B01DAED00B00D45664 /* Bolts.framework in Frameworks */,
+				84F043B11DAED00B00D45664 /* FBSDKCoreKit.framework in Frameworks */,
+				84F043AD1DAECD9700D45664 /* FBSDKLoginKit.framework in Frameworks */,
 				5DAB8CAC41D9568BD31D51D3 /* Pods_ChatHook8.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -121,6 +130,9 @@
 		5024DFCBD1304E4C604B0FA1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				84F043AE1DAED00B00D45664 /* Bolts.framework */,
+				84F043AF1DAED00B00D45664 /* FBSDKCoreKit.framework */,
+				84F043AC1DAECD9700D45664 /* FBSDKLoginKit.framework */,
 				C80371A829201E16C2475201 /* Pods_ChatHook8.framework */,
 			);
 			name = Frameworks;

@@ -8,6 +8,8 @@
 
 import UIKit
 import Firebase
+import FBSDKLoginKit
+
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, PushNotificationDelegate {
@@ -20,7 +22,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PushNotificationDelegate 
         PushNotificationManager.push().handlePushReceived(launchOptions)
         PushNotificationManager.push().sendAppOpen()
         PushNotificationManager.push().registerForPushNotifications()
-        return true
+        
+        return FBSDKApplicationDelegate.sharedInstance()
+            .application(application, didFinishLaunchingWithOptions: launchOptions)
+        //return true
     }
 
     func applicationWillResignActive(_ application: UIApplication) {
@@ -38,31 +43,35 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PushNotificationDelegate 
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
-        // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
-    }
+       FBSDKAppEvents.activateApp()    }
 
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
     
     
-     private func application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData) {
-     PushNotificationManager.push().handlePushRegistration(deviceToken as Data!)
-     }
-     
-     private func application(application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: NSError) {
-     PushNotificationManager.push().handlePushRegistrationFailure(error)
-     }
-     
-     private func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject]) {
-     PushNotificationManager.push().handlePushReceived(userInfo)
-     }
-     
-     private func onPushAccepted(pushManager: PushNotificationManager!, withNotification pushNotification: [NSObject : AnyObject]!, onStart: Bool) {
-     print("Push notification accepted: \(pushNotification)");
-     }
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        PushNotificationManager.push().handlePushRegistration(deviceToken as Data!)
+    }
+    func onDidFailToRegisterForRemoteNotificationsWithError(_ error: Error!) {
+        PushNotificationManager.push().handlePushRegistrationFailure(error)
+    }
+//     private func application(application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: NSError) {
+//     
+//     }
+    
+    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        PushNotificationManager.push().handlePushReceived(userInfo)
+    }
+    
+    func onPushAccepted(_ pushManager: PushNotificationManager!, withNotification pushNotification: [AnyHashable : Any]!) {
+        print("Push notification accepted: \(pushNotification)");
+    }
+        
+    func application(_ application: UIApplication, open url: URL, sourceApplication: String?, annotation: Any) -> Bool {
+        return FBSDKApplicationDelegate.sharedInstance().application(application, open: url as URL!, sourceApplication: sourceApplication, annotation: annotation)
+    }
  
-
 
 }
 

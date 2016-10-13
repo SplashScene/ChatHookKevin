@@ -9,8 +9,7 @@
 import UIKit
 import AVKit
 import AVFoundation
-//import FBSDKLoginKit
-//import FBSDKCoreKit
+import FBSDKLoginKit
 import Firebase
 import FirebaseStorage
 
@@ -22,6 +21,14 @@ class IntroViewController: UIViewController {
     var userEmail: String?
     var userProvider: String?
     var profileImageChanged: Bool = false
+    
+    
+    let facebookLoginButton: FBSDKLoginButton = {
+        let button = FBSDKLoginButton()
+            button.readPermissions = ["email", "public_profile"]
+        
+        return button
+    }()
     
     let chatHookLogo: UILabel = {
         let logoLabel = UILabel()
@@ -49,7 +56,7 @@ class IntroViewController: UIViewController {
             facebookView.layer.shadowOpacity = 0.8
             facebookView.layer.shadowRadius = 5.0
             facebookView.layer.shadowOffset = CGSize(width: 0.0, height: 2.0)
-            //facebookView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(fbButtonPressed)))
+            facebookView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(fbButtonPressed)))
         return facebookView
     }()
     
@@ -252,6 +259,7 @@ class IntroViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector:#selector(IntroViewController.videoDidPlayToEnd), name: NSNotification.Name(rawValue: "AVPlayerItemDidPlayToEndTimeNotification"), object: player.currentItem)
         
         self.videoView.addSubview(chatHookLogo)
+        //self.videoView.addSubview(facebookLoginButton)
         self.videoView.addSubview(facebookContainerView)
         self.videoView.addSubview(eMailContainerView)
         self.videoView.addSubview(loginContainerView)
@@ -259,6 +267,7 @@ class IntroViewController: UIViewController {
         self.videoView.addSubview(registerButton)
         
         setupChatHookLogoView()
+        //setupFacebookLoginButton()
         setupFacebookContainerView()
         setupEmailContainerView()
         setupLoginContainerView()
@@ -288,6 +297,14 @@ class IntroViewController: UIViewController {
 
     }
     
+//    func setupFacebookLoginButton(){
+//        facebookLoginButton.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+//        facebookLoginButton.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+//        //facebookLoginButton.topAnchor.constraint(equalTo: chatHookLogo.bottomAnchor, constant: 8).isActive = true
+//        facebookLoginButton.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -24).isActive = true
+//        facebookLoginButton.heightAnchor.constraint(equalToConstant: 55).isActive = true
+//    }
+    
     func setupFacebookContainerView(){
         //need x, y, width and height constraints
         facebookContainerView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
@@ -312,6 +329,7 @@ class IntroViewController: UIViewController {
     func setupEmailContainerView(){
         //need x, y, width and height constraints
         eMailContainerView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        //eMailContainerView.topAnchor.constraint(equalTo: facebookLoginButton.bottomAnchor, constant: 8).isActive = true
         eMailContainerView.topAnchor.constraint(equalTo: facebookContainerView.bottomAnchor, constant: 8).isActive = true
         eMailContainerView.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -24).isActive = true
         eMailContainerView.heightAnchor.constraint(equalToConstant: 55).isActive = true
@@ -398,36 +416,53 @@ class IntroViewController: UIViewController {
     }
     
     //MARK: - Login Methods
-    /*
+   
     func fbButtonPressed(){
         let facebookLogin = FBSDKLoginManager()
-        facebookLogin.logInWithReadPermissions(["email","public_profile"], fromViewController: nil) { (facebookResult: FBSDKLoginManagerLoginResult!, facebookError: NSError!) -> Void in
-            if facebookError != nil {
-                print("Facebook login failed. Error: \(facebookError)")
-            }else{
-                let accessToken = FBSDKAccessToken.currentAccessToken().tokenString
-                print("Successfully logged in with facebook. \(accessToken)")
-                
-                let credential = FIRFacebookAuthProvider.credentialWithAccessToken(FBSDKAccessToken.currentAccessToken().tokenString)
-                FIRAuth.auth()?.signInWithCredential(credential, completion: { (user, error) in
-                    if error != nil {
-                        print("Login Failed. \(error)")
-                    }else{
-                        print("Logged In! \(user)")
-                        
-                        let userData = ["provider": credential.provider,
-                                        "UserName": "AnonymousPoster",
-                                        "ProfileImage":"http://imageshack.com/a/img922/8259/MrQ96I.png"]
-                        DataService.ds.createFirebaseUser(user!.uid, user: userData )
-                        
-                        NSUserDefaults.standardUserDefaults().setValue(user!.uid, forKey: KEY_UID)
-                        //self.performSegueWithIdentifier(SEGUE_LOGGED_IN, sender: nil)
-                    }//end else
-                })//end withCompletionBlock
-            }//end else
+            facebookLogin.logIn(withReadPermissions: ["email", "public_profile"], from: nil) { (FBSDKLoginManagerLoginResult, facebookError) in
+                if facebookError != nil {
+                    print("Facebook login failed. Error: \(facebookError)")
+                }else{
+                    let accessToken = FBSDKAccessToken.current().tokenString
+                    print("Successfully logged in with facebook. \(accessToken)")
+                    FBSDKProfile.enableUpdates(onAccessTokenChange: true)
+                    
+                    let credential = FIRFacebookAuthProvider.credential(withAccessToken: FBSDKAccessToken.current().tokenString)
+                        FIRAuth.auth()?.signIn(with: credential, completion: { (user, error) in
+                            if error != nil {
+                                print("Login Failed. \(error)")
+                            }else{
+                                print("Logged In! \(user)")
+                                let parameters = ["fields": "email, first_name, last_name, name, picture.type(large)"]
+                                FBSDKGraphRequest(graphPath: "me", parameters: parameters).start(completionHandler: { (connection, result, error) in
+                                    if error != nil{
+                                        print(error?.localizedDescription)
+                                        return
+                                    }
+                                    let result1 = result as? NSDictionary
+                                    if let picture = result1?["picture"] as? NSDictionary,
+                                       let data = picture["data"] as? NSDictionary,
+                                       let url = data["url"] as? String,
+                                       let name = result1?["name"] as? String,
+                                       let email = result1?["email"] as? String{
+                                            
+                                            let userData = ["provider": credential.provider,
+                                                            "Email": email,
+                                                            "UserName": name,
+                                                            "ProfileImage": url]
+                                            
+                                            DataService.ds.createFirebaseUser(uid: user!.uid, user: userData as Dictionary<String, AnyObject> )
+                                            
+                                            UserDefaults.standard.setValue(user!.uid, forKey: KEY_UID)
+                                            self.handleReturningUser()
+                                    }
+                                })
+                            }//end else
+                        })//end withCompletionBlock
+                }//end else
         }//end facebook login handler
     }
-    */
+
     func attemptLogin(){
         if !profileImageChanged { showErrorAlert(title: "Profile Image Required", msg: "You must provide a profile picture.")
             return }
@@ -519,10 +554,12 @@ class IntroViewController: UIViewController {
         
         self.profileImageView.isHidden = true
         self.loginContainerView.isHidden = true
+        //self.facebookLoginButton.isHidden = true
         self.facebookContainerView.isHidden = false
         self.eMailContainerView.isHidden = false
         
         setupChatHookLogoView()
+        //setupFacebookLoginButton()
         setupFacebookContainerView()
         setupEmailContainerView()
         handleReturningUser()

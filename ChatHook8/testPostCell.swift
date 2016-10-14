@@ -15,6 +15,7 @@ class testPostCell: UITableViewCell {
 
     var userPost: UserPost?{
         didSet{
+                deleteButton.isHidden = CurrentUser._postKey != userPost?.fromId
                 likeRef = DataService.ds.REF_USER_CURRENT.child("Likes").child(userPost!.postKey!)
                 let postRef = DataService.ds.REF_POSTS.child(userPost!.postKey!)
                     postRef.observeSingleEvent(of: .value, with: { (snapshot) in
@@ -24,10 +25,8 @@ class testPostCell: UITableViewCell {
                             self.cityAndStateLabel.text = dictionary["cityAndState"] as? String
                             self.descriptionText.text = dictionary["postText"] as? String
                             
-                            
                             if let numberOfLikes = dictionary["likes"] as? Int{
-                                self.likeCount.text = String(numberOfLikes)
-                                self.likesLabel.text = numberOfLikes == 1 ? "Like" : "Likes"
+                                self.likesLabel.text = numberOfLikes == 1 ? "\(numberOfLikes) Like" : "\(numberOfLikes) Likes"
                             }
                             
                             if let numberOfComments = dictionary["comments"] as? Int{
@@ -65,7 +64,6 @@ class testPostCell: UITableViewCell {
                            // self.likeImageView.image = UIImage(named: "iLike")
                         }
                     })
-
 
             if let seconds = userPost?.timestamp?.doubleValue{
                 let timestampDate = NSDate(timeIntervalSince1970: seconds)
@@ -112,11 +110,18 @@ class testPostCell: UITableViewCell {
         return imageView
     }()
     
+    lazy var deleteButton: UIButton = {
+        let image = UIImage(named: "deleteIcon40")
+        let delButton = UIButton()
+            delButton.translatesAutoresizingMaskIntoConstraints = false
+            delButton.setImage(image, for: .normal)
+            delButton.addTarget(self, action: #selector(testPostCell.handlePostDelete), for: .touchUpInside)
+        return delButton
+    }()
+    
     let userNameLabel: UILabel = {
         let label = UILabel()
             label.translatesAutoresizingMaskIntoConstraints = false
-            label.alpha = 1.0
-            label.text = "User Name"
             label.font = UIFont(name: FONT_AVENIR_MEDIUM, size:  18.0)
             label.backgroundColor = UIColor.clear
             label.textColor = UIColor.blue
@@ -134,7 +139,6 @@ class testPostCell: UITableViewCell {
         return label
     }()
 
-    
     lazy var likeButton: UIButton = {
         let likeBtn = UIButton()
         let image = UIImage(named: "Like")
@@ -152,20 +156,10 @@ class testPostCell: UITableViewCell {
             label.sizeToFit()
         return label
     }()
-    
-    var likeCount: UILabel = {
-        let label = UILabel()
-            label.text = "0"
-            label.font = UIFont(name: "Avenir Medium", size:  12.0)
-            label.textColor = UIColor.darkGray
-            label.translatesAutoresizingMaskIntoConstraints = false
-            label.sizeToFit()
-        return label
-    }()
 
     let likesLabel: UILabel = {
         let label = UILabel()
-            label.font = UIFont(name: "Avenir Medium", size:  12.0)
+            label.font = UIFont(name: FONT_AVENIR_MEDIUM, size:  12.0)
             label.textColor = UIColor.darkGray
             label.translatesAutoresizingMaskIntoConstraints = false
             label.sizeToFit()
@@ -234,7 +228,7 @@ class testPostCell: UITableViewCell {
         let commentContainerView = UIView()
             commentContainerView.translatesAutoresizingMaskIntoConstraints = false
             commentContainerView.backgroundColor = UIColor.white
-        commentContainerView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleCommentTapped)))
+            commentContainerView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleCommentTapped)))
         return commentContainerView
     }()
     
@@ -306,8 +300,8 @@ class testPostCell: UITableViewCell {
             profilePictureUserNameContainerView.addSubview(cityAndStateLabel)
             profilePictureUserNameContainerView.addSubview(timeLabel)
         cellContainerView.addSubview(likeButton)
-        cellContainerView.addSubview(likeCount)
         cellContainerView.addSubview(likesLabel)
+        cellContainerView.addSubview(deleteButton)
         cellContainerView.addSubview(descriptionText)
         cellContainerView.addSubview(showcaseImageView)
         cellContainerView.addSubview(separatorLineView)
@@ -333,6 +327,7 @@ class testPostCell: UITableViewCell {
         profilePictureUserNameContainerView.topAnchor.constraint(equalTo: cellContainerView.topAnchor, constant: 8).isActive = true
         profilePictureUserNameContainerView.widthAnchor.constraint(equalToConstant: 235).isActive = true
         profilePictureUserNameContainerView.heightAnchor.constraint(equalToConstant: 60).isActive = true
+        
         profileImageView.leftAnchor.constraint(equalTo: profilePictureUserNameContainerView.leftAnchor).isActive = true
         profileImageView.topAnchor.constraint(equalTo: profilePictureUserNameContainerView.topAnchor).isActive = true
         profileImageView.widthAnchor.constraint(equalToConstant: 48).isActive = true
@@ -348,16 +343,18 @@ class testPostCell: UITableViewCell {
         timeLabel.topAnchor.constraint(equalTo: cityAndStateLabel.bottomAnchor, constant: -4).isActive = true
         
         
-        likeButton.rightAnchor.constraint(equalTo: likesLabel.leftAnchor, constant: -8).isActive = true
-        likeButton.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor).isActive = true
+        likeButton.leftAnchor.constraint(equalTo: profilePictureUserNameContainerView.rightAnchor, constant: -8).isActive = true
+        likeButton.topAnchor.constraint(equalTo: profileImageView.topAnchor).isActive = true
         likeButton.widthAnchor.constraint(equalToConstant: 40).isActive = true
         likeButton.heightAnchor.constraint(equalToConstant: 40).isActive = true
         
-        likesLabel.rightAnchor.constraint(equalTo: cellContainerView.rightAnchor, constant: -16).isActive = true
-        likesLabel.topAnchor.constraint(equalTo: likeButton.centerYAnchor).isActive = true
+        likesLabel.centerXAnchor.constraint(equalTo: likeButton.centerXAnchor).isActive = true
+        likesLabel.topAnchor.constraint(equalTo: likeButton.bottomAnchor).isActive = true
         
-        likeCount.centerXAnchor.constraint(equalTo: likesLabel.centerXAnchor).isActive = true
-        likeCount.bottomAnchor.constraint(equalTo: likeButton.centerYAnchor).isActive = true
+        deleteButton.rightAnchor.constraint(equalTo: cellContainerView.rightAnchor).isActive = true
+        deleteButton.topAnchor.constraint(equalTo: cellContainerView.topAnchor).isActive = true
+        deleteButton.widthAnchor.constraint(equalToConstant: 30).isActive = true
+        deleteButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
     }
     
     func setupDescriptionTextShowcaseImage(){
@@ -449,27 +446,6 @@ class testPostCell: UITableViewCell {
         })
     }
     
-//    func likeTapped(tapGesture: UITapGestureRecognizer){
-//        likeRef.observeSingleEvent(of: .value, with: { snapshot in
-//            if let _ = snapshot.value as? NSNull{
-//                //This means that we have not liked this specific post
-//                let image = UIImage(named: "iLike")
-//                self.likeButton.setImage(image, for: .normal)
-//                //self.likeImageView.image = UIImage(named: "iLike")
-//                self.userPost!.adjustLikes(addLike: true)
-//                self.likeRef.setValue(true)
-//                self.postViewController!.handleReloadPosts()
-//            }else{
-//                let image = UIImage(named: "Like")
-//                self.likeButton.setImage(image, for: .normal)
-//                //self.likeImageView.image = UIImage(named: "Like")
-//                self.userPost!.adjustLikes(addLike: false)
-//                self.likeRef.removeValue()
-//                self.postViewController!.handleReloadPosts()
-//            }
-//        })
-//    }
-    
     func handleZoom(tapGesture: UITapGestureRecognizer){
         if let imageView = tapGesture.view as? UIImageView{
             postViewController?.performZoomInForStartingImageView(startingImageView: imageView)
@@ -490,6 +466,10 @@ class testPostCell: UITableViewCell {
     
     func handleCommentTapped(tapGesture: UITapGestureRecognizer){
         postViewController?.handleCommentTapped(commentView: tapGesture.view!)
+    }
+    
+    func handlePostDelete(sender: UIButton){
+        postViewController?.handleDeletePost(sender: sender)
     }
     
     func setupVideoPostCell(cell: testPostCell){
@@ -518,13 +498,3 @@ class testPostCell: UITableViewCell {
     }
 }
 
-//extension testPostCell: UITextViewDelegate{
-//    func textViewDidChange(textView: UITextView) {
-//        let fixedWidth = textView.frame.size.width
-//        textView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.max))
-//        let newSize = textView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.max))
-//        var newFrame = textView.frame
-//        newFrame.size = CGSize(width: max(newSize.width, fixedWidth), height: newSize.height)
-//        textView.frame = newFrame;
-//    }
-//}

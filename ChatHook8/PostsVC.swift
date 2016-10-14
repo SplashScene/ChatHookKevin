@@ -266,6 +266,48 @@ class PostsVC: UIViewController{
         }
     }
     
+    func handleDeletePost(sender: UIButton){
+        let alert = UIAlertController(title: "Delete Post", message: "Are you sure that you want to DELETE this post?", preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "OK", style: .default, handler: {(alert: UIAlertAction) in
+            let sharePosition = sender.convert(CGPoint(x: 0, y: 0), to: self.postTableView)
+            let indexPath = self.postTableView.indexPathForRow(at: sharePosition)
+            if let indPath = indexPath{
+                let post = self.postsArray[indPath.row]
+                if let postID = post.postKey{
+                    let commentsPostRef = DataService.ds.REF_POST_COMMENTS.child(postID)
+                        commentsPostRef.observe(.value, with: {snapshot in
+                                if let snapshots = snapshot.children.allObjects as? [FIRDataSnapshot]{
+                                    for snap in snapshots{
+                                        DataService.ds.REF_USERS_COMMENTS.child(snap.key).removeValue()
+                                        commentsPostRef.child(snap.key).removeValue()
+                                    }
+                                }
+                            }, withCancel: nil)
+                    DataService.ds.REF_POSTS.child(postID).removeValue()
+                    DataService.ds.REF_POSTSPERROOM.child(post.toRoom!).child(postID).removeValue()
+                    
+                    let publicRoomRef = DataService.ds.REF_CHATROOMS.child(post.toRoom!)
+                    publicRoomRef.observeSingleEvent(of: .value, with: { (snapshot) in
+                            if let dictionary = snapshot.value as? [String: AnyObject]{
+                                let numOfPosts = dictionary["posts"] as! Int - 1
+                                let adjustedPosts = NSNumber(value: Int32(numOfPosts))
+                                publicRoomRef.child("posts").setValue(adjustedPosts)
+                            }
+                        }, withCancel: nil)
+                 }
+                self.postsArray.remove(at: indPath.row)
+                self.postTableView.deleteRows(at: [indPath], with: .automatic)
+            }
+        })
+        
+        let cancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        
+        alert.addAction(cancel)
+        alert.addAction(okAction)
+        
+        present(alert, animated: true, completion: nil)
+    }
+    
     func handleShare(shareView: UIView){
         let alertController = UIAlertController(title: "Share", message: "Where do you want to share this post?", preferredStyle: .alert)
         
@@ -375,6 +417,18 @@ class PostsVC: UIViewController{
                 },
                 withCancel: nil)
             }, withCancel: nil)
+        
+        roomPostsRef.observe(.childRemoved, with: { (snapshot) in
+            guard let dictionary = snapshot.value as? [String: AnyObject] else { return }
+            
+            let post = UserPost(key: snapshot.key)
+                post.setValuesForKeys(dictionary)
+            
+            self.postsArray.insert(post, at: 0)
+            
+            self.attemptReloadOfTable()
+            
+            }, withCancel: nil)
     }
     
     func adjustLikesInArrayDisplay(sender:UIButton){
@@ -387,14 +441,13 @@ class PostsVC: UIViewController{
             intLikes += 1
             let adjustedLikes = NSNumber(value: Int32(intLikes))
             post.likes = adjustedLikes
-            cell?.likeCount.text = "\(Int(post.likes))"
-            cell?.likesLabel.text = intLikes == 1 ? "Like" : "Likes"
+            
+            cell?.likesLabel.text = intLikes == 1 ? "\(adjustedLikes) Like" : "\(adjustedLikes) Likes"
         }else{
             intLikes -= 1
             let adjustedLikes = NSNumber(value: Int32(intLikes))
             post.likes = adjustedLikes
-            cell?.likeCount.text = "\(Int(post.likes))"
-            cell?.likesLabel.text = intLikes == 1 ? "Like" : "Likes"
+            cell?.likesLabel.text = intLikes == 1 ? "\(adjustedLikes) Like" : "\(adjustedLikes) Likes"
         }
     }
     

@@ -305,7 +305,8 @@ class ProfileViewController: UIViewController {
         present(alert, animated: true, completion: nil)
     }
     
-    func handleUnblockUserTapped(){let alert = UIAlertController(title: "Unblock User", message: "Are you sure that you want to UNBLOCK this user?", preferredStyle: .alert)
+    func handleUnblockUserTapped(){
+        let alert = UIAlertController(title: "Unblock User", message: "Are you sure that you want to UNBLOCK this user?", preferredStyle: .alert)
         
         let okAction = UIAlertAction(title: "OK", style: .default, handler: {(alert: UIAlertAction) in
             let currentUserRef = DataService.ds.REF_USER_CURRENT

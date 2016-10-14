@@ -22,14 +22,7 @@ class UserCell: UITableViewCell {
                     detailTextLabel?.text = "Video sent"
                 }
             }
-            
-                if let seconds = message?.timestamp?.doubleValue{
-                    let timestampDate = NSDate(timeIntervalSince1970: seconds)
-                    let dateFormatter = DateFormatter()
-                        dateFormatter.dateFormat = "MMM d, hh:mm a"
-                        //dateFormatter.dateFormat = "hh:mm:ss a"
-                    timeLabel.text = dateFormatter.string(from: timestampDate as Date)
-                }
+            timeLabel.text = formatDate(messageTimeStamp: (message?.timestamp?.doubleValue)!)
         }
     }
     
@@ -93,13 +86,18 @@ class UserCell: UITableViewCell {
         
         timeLabel.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -8).isActive = true
         timeLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 4).isActive = true
-        
-        
+    }
+    
+    private func formatDate(messageTimeStamp: Double) -> String{
+        let timestampDate = NSDate(timeIntervalSince1970: messageTimeStamp)
+        let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "MMM d, hh:mm a"
+        return dateFormatter.string(from: timestampDate as Date)
     }
     
     private func setupNameAndProfileImage(){
         if let id = message?.chatPartnerID(){
-            checkIfUserIsOnline()
+            checkIfUserIsOnline(userID: id)
             let ref = DataService.ds.REF_USERS.child(id)
             ref.observeSingleEvent(of: .value, with: { (snapshot) in
                 if let dictionary = snapshot.value as? [String: AnyObject]{
@@ -112,10 +110,10 @@ class UserCell: UITableViewCell {
         }
     }
     
-    func checkIfUserIsOnline(){
+    func checkIfUserIsOnline(userID: String){
         let searchLat = Int(CurrentUser._location.coordinate.latitude)
         let searchLong = Int(CurrentUser._location.coordinate.longitude)
-        let onlineRef = DataService.ds.REF_USERSONLINE.child("\(searchLat)").child("\(searchLong)")
+        let onlineRef = DataService.ds.REF_USERSONLINE.child("\(searchLat)").child("\(searchLong)").child(userID)
         
         onlineRef.observeSingleEvent(of: .value, with: { snapshot in
             if let _ = snapshot.value as? NSNull{
@@ -128,5 +126,4 @@ class UserCell: UITableViewCell {
             }
         })
     }
-
-}
+}//end user cell

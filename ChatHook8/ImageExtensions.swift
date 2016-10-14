@@ -54,14 +54,12 @@ extension ProfileViewController: UIImagePickerControllerDelegate, UINavigationCo
             uploadTask.observe(.progress) { (snapshot) in
                 if let completedUnitCount = snapshot.progress?.completedUnitCount{
                     self.navigationItem.title = "Upload: \(completedUnitCount)"
-                    
                 }
             }
             
             uploadTask.observe(.success) { (snapshot) in
                 self.profileImageView.image = selectedImage
                 self.navigationItem.title = CurrentUser._userName
-                
             }
         }
         
@@ -105,7 +103,7 @@ extension ProfileViewController: UIImagePickerControllerDelegate, UINavigationCo
             
             uploadTask.observe(.progress) { (snapshot) in
                 if let completedUnitCount = snapshot.progress?.completedUnitCount{
-                    self.navigationItem.title = "\(completedUnitCount)"
+                    self.navigationItem.title = "Upload: \(completedUnitCount)"
                 }
             }
             

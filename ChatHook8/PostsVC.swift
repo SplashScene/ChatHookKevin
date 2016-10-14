@@ -138,7 +138,7 @@ class PostsVC: UIViewController{
             nameLabel.font = UIFont(name: "Avenir-Medium", size: 14.0)
         
                 if let progressText = progress{
-                    nameLabel.text = progressText
+                    nameLabel.text = "Upload: \(progressText)"
                     nameLabel.textColor = UIColor.red
                 }else{
                     nameLabel.text = parentRoom?.RoomName
@@ -254,6 +254,12 @@ class PostsVC: UIViewController{
         }
     }
     
+    private func attemptReloadOfTable(){
+        self.timer?.invalidate()
+        self.timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.handleReloadPosts), userInfo: nil, repeats: false)
+    }
+
+    
     func handleReloadPosts(){
         DispatchQueue.main.async{
             self.postTableView.reloadData()
@@ -365,8 +371,7 @@ class PostsVC: UIViewController{
                 
                 self.postsArray.insert(post, at: 0)
                 
-                self.timer?.invalidate()
-                self.timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.handleReloadPosts), userInfo: nil, repeats: false)
+                self.attemptReloadOfTable()
                 },
                 withCancel: nil)
             }, withCancel: nil)

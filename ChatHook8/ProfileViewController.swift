@@ -33,15 +33,22 @@ class ProfileViewController: UIViewController {
         return backImageView
     }()
     
-    lazy var addPhotoBlockUserButton: UIButton = {
-        let btnImage = UIImage(named: "add_photo_btn")
+    let addPhotoBlockUserButton: UIButton = {
         let addPicBtn = UIButton()
             addPicBtn.translatesAutoresizingMaskIntoConstraints = false
-        
         return addPicBtn
     }()
     
-    lazy var profileImageView: MaterialImageView = {
+    lazy var profileChatButton: UIButton = {
+        let btnImage = UIImage(named: "chatIconRev")
+        let profChatButton = UIButton()
+            profChatButton.translatesAutoresizingMaskIntoConstraints = false
+            profChatButton.setImage(btnImage, for: .normal)
+            profChatButton.addTarget(self, action: #selector(ProfileViewController.handleShowChatControllerForSelectedUser), for: .touchUpInside)
+        return profChatButton
+    }()
+    
+    let profileImageView: MaterialImageView = {
         let imageView = MaterialImageView(frame: CGRect(x: 0, y: 0, width: 150, height: 150))
             imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
@@ -103,14 +110,13 @@ class ProfileViewController: UIViewController {
     override var preferredStatusBarStyle: UIStatusBarStyle{
         return .lightContent
     }
-    //MARK: - Setup Views
     
+    //MARK: - Setup Views
     override func setEditing(_ editing: Bool, animated: Bool) {
         super.setEditing(editing, animated: animated)
         collectionView!.allowsMultipleSelection = editing
         
         let indexPaths = collectionView!.indexPathsForVisibleItems as [NSIndexPath]
-        
             for indexPath in indexPaths{
                 collectionView!.deselectItem(at: indexPath as IndexPath, animated: false)
                 let cell = collectionView!.cellForItem(at: indexPath as IndexPath) as! GalleryCollectionCell
@@ -133,13 +139,13 @@ class ProfileViewController: UIViewController {
         
         view.addSubview(backgroundImageView)
         view.addSubview(addPhotoBlockUserButton)
+        view.addSubview(profileChatButton)
         
-        
-        if selectedUser != nil{
-            navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(handleCancel))
-        }else{
-             navigationItem.leftBarButtonItem = editButtonItem
-        }
+            if selectedUser != nil{
+                navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(handleCancel))
+            }else{
+                navigationItem.leftBarButtonItem = editButtonItem
+            }
         
         let layout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
             layout.sectionInset = UIEdgeInsets(top: 10, left: 15, bottom: 10, right: 15)
@@ -159,7 +165,6 @@ class ProfileViewController: UIViewController {
         addPhotosToGalleryLabel.centerYAnchor.constraint(equalTo: collectionView.centerYAnchor).isActive = true
 
         self.view.addSubview(collectionView)
-        
     }
     
     func setupBackgroundImageView(){
@@ -186,6 +191,11 @@ class ProfileViewController: UIViewController {
         addPhotoBlockUserButton.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor).isActive = true
         addPhotoBlockUserButton.widthAnchor.constraint(equalToConstant: 40).isActive = true
         addPhotoBlockUserButton.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        
+        profileChatButton.centerXAnchor.constraint(equalTo: profileImageView.leftAnchor, constant: -24).isActive = true
+        profileChatButton.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor).isActive = true
+        profileChatButton.widthAnchor.constraint(equalToConstant: 54).isActive = true
+        profileChatButton.heightAnchor.constraint(equalToConstant: 54).isActive = true
     }
     
     func checkUserAndSetupUI(){
@@ -196,6 +206,7 @@ class ProfileViewController: UIViewController {
             self.navigationItem.title = CurrentUser._userName
             self.addPhotoBlockUserButton.setImage(btnImage, for: .normal)
             self.addPhotoBlockUserButton.addTarget(self, action: #selector(handleAddPhotoButtonTapped), for: .touchUpInside)
+            self.profileChatButton.isHidden = true
             observeGallery(uid: CurrentUser._postKey)
         }else if selectedUser?.isBlocked == false{
             let btnImage = UIImage(named: "unblock")
@@ -204,6 +215,7 @@ class ProfileViewController: UIViewController {
             addPhotosToGalleryLabel.text = "No Photos in Gallery"
             self.addPhotoBlockUserButton.setImage(btnImage, for: .normal)
             self.addPhotoBlockUserButton.addTarget(self, action: #selector(handleBlockUserTapped), for: .touchUpInside)
+            self.profileChatButton.isHidden = false
         }else{
             let btnImage = UIImage(named: "block")
             setupSelectedUserProfile()
@@ -211,6 +223,7 @@ class ProfileViewController: UIViewController {
             addPhotosToGalleryLabel.text = "No Photos in Gallery"
             self.addPhotoBlockUserButton.setImage(btnImage, for: .normal)
             self.addPhotoBlockUserButton.addTarget(self, action: #selector(handleUnblockUserTapped), for: .touchUpInside)
+            self.profileChatButton.isHidden = false
         }
     }
     
@@ -322,6 +335,25 @@ class ProfileViewController: UIViewController {
             self.collectionView.reloadData()
         }
     }
+    
+    func handleShowChatControllerForSelectedUser(){
+        let chatLogController = ChatViewController()
+            chatLogController.senderId = CurrentUser._postKey
+            chatLogController.senderDisplayName = CurrentUser._userName
+            chatLogController.user = selectedUser
+        
+        var img: UIImage?
+        if let url = selectedUser?.profileImageUrl{
+            img = imageCache.object(forKey: url as NSString) as UIImage?
+        }
+        
+        chatLogController.messageImage = img
+        
+        let navController = UINavigationController(rootViewController: chatLogController)
+        present(navController, animated: true, completion: nil)
+        
+    }
+
     
     //MARK: - Observe Method
     func observeGallery(uid: String){

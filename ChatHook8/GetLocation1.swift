@@ -50,6 +50,7 @@ class GetLocation1: UIViewController {
             logButton.titleLabel?.textColor = UIColor.white
             logButton.titleLabel?.font = UIFont(name: "Avenir Medium", size: 14.0)
             logButton.addTarget(self, action: #selector(handleLogout), for: .touchUpInside)
+            logButton.isHidden = true
         return logButton
     }()
     
@@ -187,6 +188,8 @@ class GetLocation1: UIViewController {
                 print("I aint got no dictionary dickhead")
             }
         }, withCancel: nil)
+        
+        logoutButton.isHidden = false
     }
     
     func observeOtherUsersLocations(){

@@ -23,7 +23,6 @@ class UserCell: UITableViewCell {
                 }
             }
             
-            
                 if let seconds = message?.timestamp?.doubleValue{
                     let timestampDate = NSDate(timeIntervalSince1970: seconds)
                     let dateFormatter = DateFormatter()
@@ -36,12 +35,19 @@ class UserCell: UITableViewCell {
     
     lazy var profileImageView: UIImageView = {
         let imageView = UIImageView()
-            imageView.image = UIImage(named: "profileToon.jpg")
             imageView.translatesAutoresizingMaskIntoConstraints = false
             imageView.layer.cornerRadius = 24
             imageView.layer.masksToBounds = true
             imageView.contentMode = .scaleAspectFill
-        
+        return imageView
+    }()
+    
+    let onlineImageView: UIImageView = {
+        let imageView = UIImageView()
+            imageView.translatesAutoresizingMaskIntoConstraints = false
+            imageView.layer.cornerRadius = 10
+            imageView.layer.masksToBounds = true
+            imageView.contentMode = .scaleAspectFill
         return imageView
     }()
     
@@ -55,21 +61,11 @@ class UserCell: UITableViewCell {
         return label
     }()
     
-    let onlineLabel: UILabel = {
-        let label = UILabel()
-            label.font = UIFont.systemFont(ofSize: 16)
-            label.textColor = UIColor.lightGray
-            label.translatesAutoresizingMaskIntoConstraints = false
-            label.textAlignment = .right
-            label.sizeToFit()
-        return label
-    }()
-    
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: .subtitle, reuseIdentifier: reuseIdentifier)
         addSubview(profileImageView)
+        addSubview(onlineImageView)
         addSubview(timeLabel)
-        addSubview(onlineLabel)
         layoutUserCell()
     }
     
@@ -80,7 +76,7 @@ class UserCell: UITableViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
         textLabel?.frame = CGRect(x: 64, y: textLabel!.frame.origin.y - 2, width: textLabel!.frame.width, height: textLabel!.frame.height)
-        detailTextLabel?.frame = CGRect(x: 72, y: detailTextLabel!.frame.origin.y + 2, width: detailTextLabel!.frame.width, height: detailTextLabel!.frame.height)
+        detailTextLabel?.frame = CGRect(x: 64, y: detailTextLabel!.frame.origin.y + 2, width: detailTextLabel!.frame.width, height: detailTextLabel!.frame.height)
         detailTextLabel?.textColor = UIColor.lightGray
     }
 
@@ -90,11 +86,15 @@ class UserCell: UITableViewCell {
         profileImageView.widthAnchor.constraint(equalToConstant: 48).isActive = true
         profileImageView.heightAnchor.constraint(equalToConstant: 48).isActive = true
         
+        onlineImageView.centerXAnchor.constraint(equalTo: profileImageView.leftAnchor, constant: 7).isActive = true
+        onlineImageView.centerYAnchor.constraint(equalTo: profileImageView.topAnchor, constant: 7).isActive = true
+        onlineImageView.widthAnchor.constraint(equalToConstant: 20).isActive = true
+        onlineImageView.heightAnchor.constraint(equalToConstant: 20).isActive = true
+        
         timeLabel.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -8).isActive = true
         timeLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 4).isActive = true
         
-        onlineLabel.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -8).isActive = true
-        onlineLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -4).isActive = true
+        
     }
     
     private func setupNameAndProfileImage(){
@@ -119,11 +119,12 @@ class UserCell: UITableViewCell {
         
         onlineRef.observeSingleEvent(of: .value, with: { snapshot in
             if let _ = snapshot.value as? NSNull{
-                self.onlineLabel.text = "Offline"
-                self.onlineLabel.textColor = UIColor.red
+                let image = UIImage(named: "offline")
+                self.onlineImageView.image = image
             }else{
-                self.onlineLabel.text = "Online"
-                self.onlineLabel.textColor = UIColor.green
+                let image = UIImage(named: "online")
+                self.onlineImageView.image = image
+
             }
         })
     }

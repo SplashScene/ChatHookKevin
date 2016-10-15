@@ -23,29 +23,31 @@ class NewMessagesController: UITableViewController {
     var userLong: Double?
     var timer: Timer?
     
-    
-    
     //MARK: - View Methods
     override func viewDidLoad() {
+        
         super.viewDidLoad()
-        
-        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(handleCancel))
-        
         navigationItem.title = "People Near You"
-        observeUsersOnline()
+        
         tableView.register(UserCell.self, forCellReuseIdentifier: "cellID")
         blockedUsersArray = []
+        messagesController = MessagesController()
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        print("Inside View Will Appear")
         super.viewWillAppear(animated)
-        //tableView.reloadData()
+        observeUsersOnline()
     }
     
     //MARK: - Observe Methods
     func observeUsersOnline(){
         
         groupedUsersArray = []
+        blockedUsersArray = []
+        usersArray1 = []
+        usersArray2 = []
+        usersArray3 = []
 
         let searchLat = Int(CurrentUser._location.coordinate.latitude)
         let searchLong = Int(CurrentUser._location.coordinate.longitude)
@@ -70,31 +72,32 @@ class NewMessagesController: UITableViewController {
                         if let dictionary = snapshot.value as? [String: AnyObject]{
                             let userPostKey = snapshot.key
                             let user = User(postKey: userPostKey, dictionary: dictionary)
-                            user.location = userLocation
+                                user.location = userLocation
                             if let isBlockedUser = CurrentUser._blockedUsersArray?.contains(user.postKey){
                                 user.isBlocked = isBlockedUser
                             }
                             
                             userRef.child("blocked_users").child(CurrentUser._postKey).observe(.value, with: { (snapshot) in
-                                if let _ = snapshot.value as? NSNull{
-                                    if user.postKey != CurrentUser._postKey{
+                                    if let _ = snapshot.value as? NSNull{
                                         
-                                        let distanceFromMe = self.messagesController!.calculateDistance(otherLocation: user.location)
-                                        let distanceDouble = distanceFromMe["DistanceDouble"] as! Double
-                                        user.distance = distanceDouble
+                                        if user.postKey != CurrentUser._postKey{
+                                            let distanceFromMe = self.messagesController!.calculateDistance(otherLocation: user.location)
+                                            let distanceDouble = distanceFromMe["DistanceDouble"] as! Double
+                                            user.distance = distanceDouble
+                                            
+                                            self.loadDistanceArrays(distanceDouble: user.distance!, user: user)
+                                            
+                                            self.attemptLoadOfSections()
+                                            print("Past attempt to load sections")
+                                        }
                                         
-                                        self.loadDistanceArrays(distanceDouble: user.distance!, user: user)
-                                        
-                                        self.attemptLoadOfSections()
+                                    }else{
+                                        print("\(user.userName) cock blocked me")
                                     }
-                                    
-                                }else{
-                                    print("\(user.userName) cock blocked me")
-                                }
                                 }, withCancel: nil)
                         }
                         
-                        }, withCancel: nil)
+                    }, withCancel: nil)
                 }
                 }, withCancel: nil)
             
@@ -102,7 +105,6 @@ class NewMessagesController: UITableViewController {
     }
     
     //MARK: - Load Handlers
-    
     func loadDistanceArrays(distanceDouble: Double, user: User){
         switch distanceDouble{
             case 0...1.099:
@@ -155,21 +157,41 @@ class NewMessagesController: UITableViewController {
     
     func showProfileControllerForUser(user: User){
         let profileController = ProfileViewController()
-        profileController.selectedUser = user
+            profileController.selectedUser = user
         
         let navController = UINavigationController(rootViewController: profileController)
         present(navController, animated: true, completion: nil)
     }
     
+    func showChatControllerForUser(user: User){
+        let chatLogController = ChatViewController()
+            chatLogController.senderId = CurrentUser._postKey
+            chatLogController.senderDisplayName = CurrentUser._userName
+            chatLogController.user = user
+        
+        var img: UIImage?
+        if let url = user.profileImageUrl{
+            img = imageCache.object(forKey: url as NSString) as UIImage?
+        }
+        
+        chatLogController.messageImage = img
+        
+        let navController = UINavigationController(rootViewController: chatLogController)
+        present(navController, animated: true, completion: nil)
+        ///navigationController?.pushViewController(chatLogController, animated: true)
+        
+    }
+
+    
     //MARK: - TableView Methods
     
     override func numberOfSections(in tableView: UITableView) -> Int {
+        print("The count of grouped users array is: \(groupedUsersArray.count)")
         return groupedUsersArray.count
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return groupedUsersArray[section].sectionUsers.count
-        
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -199,29 +221,24 @@ class NewMessagesController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        dismiss(animated: true){
             let user = self.groupedUsersArray[indexPath.section].sectionUsers[indexPath.row]
-            self.messagesController?.showChatControllerForUser(user: user)
-        }
+            print("The user for chat controller is: \(user.userName)")
+            self.showChatControllerForUser(user: user)
     }
-    
-//    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-//        dismiss(animated: true){
-//            let user = self.groupedUsersArray[indexPath.section].sectionUsers[indexPath.row]
-//            self.messagesController?.showChatControllerForUser(user: user)
-//        }
-//    }
-    
+
     override func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
+        print("Inside Accessory Button Tapped")
         let user = self.groupedUsersArray[indexPath.section].sectionUsers[indexPath.row]
         self.showProfileControllerForUser(user: user)
     }
     
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        print("Inside Title For Header")
         return groupedUsersArray[section].sectionName
     }
     
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        print("Inside Height For Row At IndexPath")
         return 72
     }
     

@@ -22,14 +22,6 @@ class IntroViewController: UIViewController {
     var userProvider: String?
     var profileImageChanged: Bool = false
     
-    
-    let facebookLoginButton: FBSDKLoginButton = {
-        let button = FBSDKLoginButton()
-            button.readPermissions = ["email", "public_profile"]
-        
-        return button
-    }()
-    
     let chatHookLogo: UILabel = {
         let logoLabel = UILabel()
             logoLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -155,7 +147,6 @@ class IntroViewController: UIViewController {
             label.sizeToFit()
             label.textAlignment = NSTextAlignment.center
         return label
-
     }()
     
     let emailTextField: MaterialTextField = {
@@ -237,7 +228,6 @@ class IntroViewController: UIViewController {
     //MARK: - Setup Methods
     func setupKeyboardObservers(){
         NotificationCenter.default.addObserver(self, selector: #selector(IntroViewController.handleKeyboardWillShow), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
-        
         NotificationCenter.default.addObserver(self, selector: #selector(IntroViewController.handleKeyboardWillHide), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
     }
     
@@ -246,7 +236,6 @@ class IntroViewController: UIViewController {
         let player = AVPlayer(url: path as URL)
         
         let newLayer = AVPlayerLayer(player: player)
-        
             newLayer.videoGravity = AVLayerVideoGravityResizeAspectFill
             newLayer.masksToBounds = true
             newLayer.frame = view.bounds
@@ -267,7 +256,6 @@ class IntroViewController: UIViewController {
         self.videoView.addSubview(registerButton)
         
         setupChatHookLogoView()
-        //setupFacebookLoginButton()
         setupFacebookContainerView()
         setupEmailContainerView()
         setupLoginContainerView()
@@ -294,16 +282,7 @@ class IntroViewController: UIViewController {
                        animations: { self.facebookContainerView.alpha = 1.0;
                                      self.eMailContainerView.alpha = 1.0},
                        completion: nil)
-
     }
-    
-//    func setupFacebookLoginButton(){
-//        facebookLoginButton.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-//        facebookLoginButton.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
-//        //facebookLoginButton.topAnchor.constraint(equalTo: chatHookLogo.bottomAnchor, constant: 8).isActive = true
-//        facebookLoginButton.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -24).isActive = true
-//        facebookLoginButton.heightAnchor.constraint(equalToConstant: 55).isActive = true
-//    }
     
     func setupFacebookContainerView(){
         //need x, y, width and height constraints
@@ -370,38 +349,31 @@ class IntroViewController: UIViewController {
         inputsContainerView.addSubview(passwordSeparatorView)
         inputsContainerView.addSubview(passwordTextField)
         
-        //need x, y, width, height constraints for email text field
         emailTextField.leftAnchor.constraint(equalTo: inputsContainerView.leftAnchor).isActive = true
         emailTextField.topAnchor.constraint(equalTo: inputsContainerView.topAnchor).isActive = true
         emailTextField.widthAnchor.constraint(equalTo: inputsContainerView.widthAnchor).isActive = true
         emailTextField.heightAnchor.constraint(equalTo: inputsContainerView.heightAnchor, multiplier: 1/3).isActive = true
         
-        //need x, y, width, height constraints for email separator view
         emailSeparatorView.leftAnchor.constraint(equalTo: inputsContainerView.leftAnchor).isActive = true
         emailSeparatorView.topAnchor.constraint(equalTo: emailTextField.bottomAnchor).isActive = true
         emailSeparatorView.widthAnchor.constraint(equalTo: inputsContainerView.widthAnchor).isActive = true
         emailSeparatorView.heightAnchor.constraint(equalToConstant: 1).isActive = true
         
-        //need x, y, width, height constraints for password text field
         userNameTextField.leftAnchor.constraint(equalTo: inputsContainerView.leftAnchor).isActive = true
         userNameTextField.topAnchor.constraint(equalTo: emailSeparatorView.bottomAnchor).isActive = true
         userNameTextField.widthAnchor.constraint(equalTo: inputsContainerView.widthAnchor).isActive = true
         userNameTextField.heightAnchor.constraint(equalTo: inputsContainerView.heightAnchor, multiplier: 1/3).isActive = true
         
-        //need x, y, width, height constraints for email separator view
         passwordSeparatorView.leftAnchor.constraint(equalTo: inputsContainerView.leftAnchor).isActive = true
         passwordSeparatorView.topAnchor.constraint(equalTo: userNameTextField.bottomAnchor).isActive = true
         passwordSeparatorView.widthAnchor.constraint(equalTo: inputsContainerView.widthAnchor).isActive = true
         passwordSeparatorView.heightAnchor.constraint(equalToConstant: 1).isActive = true
         
-        //need x, y, width, height constraints for password text field
         passwordTextField.leftAnchor.constraint(equalTo: inputsContainerView.leftAnchor).isActive = true
         passwordTextField.topAnchor.constraint(equalTo: passwordSeparatorView.bottomAnchor).isActive = true
         passwordTextField.widthAnchor.constraint(equalTo: inputsContainerView.widthAnchor).isActive = true
         passwordTextField.heightAnchor.constraint(equalTo: inputsContainerView.heightAnchor, multiplier: 1/3).isActive = true
 
-
-//        //need x, y, width, height constraints for login label - size to fit
         registerButton.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         registerButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -8).isActive = true
         registerButton.widthAnchor.constraint(equalToConstant: 200).isActive = true
@@ -416,7 +388,6 @@ class IntroViewController: UIViewController {
     }
     
     //MARK: - Login Methods
-   
     func fbButtonPressed(){
         let facebookLogin = FBSDKLoginManager()
             facebookLogin.logIn(withReadPermissions: ["email", "public_profile"], from: nil) { (FBSDKLoginManagerLoginResult, facebookError) in
@@ -471,42 +442,50 @@ class IntroViewController: UIViewController {
             return
         }
         
-        FIRAuth.auth()?.signIn(withEmail: email, password: password, completion: {(user, error) in
-            self.userEmail = email
-            self.userProvider = "email"
-            
-            if error != nil{
-                print(error)
-                if error!._code == STATUS_NO_INTERNET{
-                    self.showErrorAlert(title: "No Internet Connection", msg: "You currently have no internet connection. Please try again later.")
-                }
-                
-                if error!._code == STATUS_ACCOUNT_NONEXIST{
-                    FIRAuth.auth()?.createUser(withEmail: email, password: password, completion: { (user, error) in
+        let userNameRef = DataService.ds.REF_USERS_NAMES.child(String(userName[userName.startIndex])).child(userName.lowercased())
+            userNameRef.observe(.value, with: { (snapshot) in
+                if let _ = snapshot.value as? NSNull{
+                    FIRAuth.auth()?.signIn(withEmail: email, password: password, completion: {(user, error) in
+                        self.userEmail = email
+                        self.userProvider = "email"
                         
                         if error != nil{
-                            error!._code == STATUS_ACCOUNT_WEAKPASSWORD ?
-                                self.showErrorAlert(title: "Weak Password", msg: "The password must be more than 5 characters.") :
-                                self.showErrorAlert(title: "Could not create account",
-                                    msg: "Problem creating account. Try something else")
-                        }else{
-                            UserDefaults.standard.setValue(user!.uid, forKey: KEY_UID)
-                            UserDefaults.standard.setValue(self.userEmail, forKey: USER_EMAIL)
-                            self.uploadPictureAndSetupCurrentUser(userName: userName)
+                            print(error)
+                            if error!._code == STATUS_NO_INTERNET{
+                                self.showErrorAlert(title: "No Internet Connection", msg: "You currently have no internet connection. Please try again later.")
+                            }
                             
+                            if error!._code == STATUS_ACCOUNT_NONEXIST{
+                                FIRAuth.auth()?.createUser(withEmail: email, password: password, completion: { (user, error) in
+                                    
+                                    if error != nil{
+                                        error!._code == STATUS_ACCOUNT_WEAKPASSWORD ?
+                                            self.showErrorAlert(title: "Weak Password", msg: "The password must be more than 5 characters.") :
+                                            self.showErrorAlert(title: "Could not create account",
+                                                                msg: "Problem creating account. Try something else")
+                                    }else{
+                                        UserDefaults.standard.setValue(user!.uid, forKey: KEY_UID)
+                                        UserDefaults.standard.setValue(self.userEmail, forKey: USER_EMAIL)
+                                        self.uploadPictureAndSetupCurrentUser(userName: userName)
+                                    }
+                                })
+                            } else if error!._code == STATUS_ACCOUNT_WRONGPASSWORD{
+                                self.showErrorAlert(title: "Incorrect Password", msg: "The password that you entered does not match the one we have for your email address")
+                                return
+                            }
+                        } else {
+                            //set only to allow different signins
+                            UserDefaults.standard.setValue(user!.uid, forKey: KEY_UID)
+                            self.handleReturningUser()
                         }
                     })
-                } else if error!._code == STATUS_ACCOUNT_WRONGPASSWORD{
-                    self.showErrorAlert(title: "Incorrect Password", msg: "The password that you entered does not match the one we have for your email address")
+                } else {
+                    self.showErrorAlert(title: "UserName Taken", msg: "This user name is already in use. Please choose a different one")
                     return
                 }
-            } else {
-                //set only to allow different signins
-                UserDefaults.standard.setValue(user!.uid, forKey: KEY_UID)
-                self.handleReturningUser()
-            }
-        })
-    }
+                }, withCancel: nil)
+        
+    }//end method
     
     //MARK: - Handler Methods
     func handleReturningUser(){
@@ -550,14 +529,18 @@ class IntroViewController: UIViewController {
             DataService.ds.REF_USER_CURRENT.child(key).setValue(value)
         }
         
+        if let userName = values["UserName"]{
+            let firstLetter = String(userName[userName.startIndex])
+            let userNameRef = DataService.ds.REF_USERS_NAMES.child(firstLetter)
+            userNameRef.updateChildValues([userName.lowercased(): 1])
+        }
+        
         self.profileImageView.isHidden = true
         self.loginContainerView.isHidden = true
-        //self.facebookLoginButton.isHidden = true
         self.facebookContainerView.isHidden = false
         self.eMailContainerView.isHidden = false
         
         setupChatHookLogoView()
-        //setupFacebookLoginButton()
         setupFacebookContainerView()
         setupEmailContainerView()
         handleReturningUser()

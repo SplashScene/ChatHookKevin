@@ -57,8 +57,9 @@ class PostsVC: UIViewController{
     lazy var imageSelectorView: UIImageView = {
         let isv = UIImageView()
             isv.translatesAutoresizingMaskIntoConstraints = false
-            isv.image = UIImage(named: "cameraIcon")
-            isv.contentMode = .scaleAspectFill
+            isv.image = UIImage(named: "add_photo_btn")
+            isv.backgroundColor = UIColor.blue
+            isv.contentMode = .scaleAspectFit
             isv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleImageSelector)))
             isv.isUserInteractionEnabled = true
         return isv

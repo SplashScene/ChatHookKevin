@@ -24,8 +24,8 @@ class MessagesController: UITableViewController {
     //MARK: - View Methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        let newMessageImage = UIImage(named: "newmessage")
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: newMessageImage, style: .plain, target: self, action: #selector(handleNewMessage))
+        //let newMessageImage = UIImage(named: "newmessage")
+        //navigationItem.rightBarButtonItem = UIBarButtonItem(image: newMessageImage, style: .plain, target: self, action: #selector(handleNewMessage))
         setupNavBarWithUser()
         tableView.register(UserCell.self, forCellReuseIdentifier: "cellID")
         tableView.allowsMultipleSelectionDuringEditing = true

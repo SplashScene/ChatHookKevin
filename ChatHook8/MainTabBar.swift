@@ -17,12 +17,13 @@ class MainTabBar: UITabBarController {
         super.viewDidLoad()
         //set up our custom view controllers
         
-        
         let mapViewController = GetLocation1()
         let messagesViewController = MessagesController()
         let postsViewController = RoomsViewController()
         let profileViewController = ProfileViewController()
+        let peopleViewController = NewMessagesController()
         let chatNavController = UINavigationController(rootViewController: messagesViewController)
+        let peepsNavController = UINavigationController(rootViewController: peopleViewController)
         let postsNavController = UINavigationController(rootViewController: postsViewController)
         let profileNavController = UINavigationController(rootViewController: profileViewController)
         
@@ -35,14 +36,18 @@ class MainTabBar: UITabBarController {
         messagesViewController.tabBarItem.image = UIImage(named: "ChatIcon25")
         messagesViewController.tabBarItem.isEnabled = false
         
+        peepsNavController.title = "People"
+        peepsNavController.tabBarItem.image = UIImage(named: "peeps")
+        peepsNavController.tabBarItem.isEnabled = false
+        
         postsViewController.title = "Posts"
-        postsViewController.tabBarItem.image = UIImage(named: "peeps")
+        postsViewController.tabBarItem.image = UIImage(named: "language_icon")
         postsViewController.tabBarItem.isEnabled = false
         
         profileViewController.title = "Profile"
         profileViewController.tabBarItem.image = UIImage(named: "ProfileIcon25")
         profileViewController.tabBarItem.isEnabled = false
-        viewControllers = [mapViewController, chatNavController, postsNavController, profileNavController]
+        viewControllers = [mapViewController, chatNavController, peepsNavController, postsNavController, profileNavController]
     }
     
     override func viewWillAppear(_ animated: Bool) {

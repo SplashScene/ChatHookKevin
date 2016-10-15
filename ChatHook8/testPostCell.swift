@@ -87,11 +87,11 @@ class testPostCell: UITableViewCell {
                     likeRef.observeSingleEvent(of: .value, with: { snapshot in
                         if let _ = snapshot.value as? NSNull{
                             //This means that we have not liked this specific post
-                            let image = UIImage(named: "Like")
+                            let image = UIImage(named: "unlike1")
                             self.likeButton.setImage(image, for: .normal)
                             //self.likeImageView.image = UIImage(named: "Like")
                         }else{
-                            let image = UIImage(named: "iLike")
+                            let image = UIImage(named: "like1")
                             self.likeButton.setImage(image, for: .normal)
                            // self.likeImageView.image = UIImage(named: "iLike")
                         }
@@ -173,10 +173,11 @@ class testPostCell: UITableViewCell {
 
     lazy var likeButton: UIButton = {
         let likeBtn = UIButton()
-        let image = UIImage(named: "Like")
+        let image = UIImage(named: "unlike1")
             likeBtn.setImage(image, for: .normal)
             likeBtn.translatesAutoresizingMaskIntoConstraints = false
             likeBtn.addTarget(self, action: #selector(handleLikeButtonTapped), for: .touchUpInside)
+            likeBtn.contentMode = .scaleAspectFill
         return likeBtn
     }()
 
@@ -378,8 +379,8 @@ class testPostCell: UITableViewCell {
         
         likeButton.leftAnchor.constraint(equalTo: profilePictureUserNameContainerView.rightAnchor, constant: -8).isActive = true
         likeButton.topAnchor.constraint(equalTo: profileImageView.topAnchor).isActive = true
-        likeButton.widthAnchor.constraint(equalToConstant: 40).isActive = true
-        likeButton.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        likeButton.widthAnchor.constraint(equalToConstant: 30).isActive = true
+        likeButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
         
         likesLabel.centerXAnchor.constraint(equalTo: likeButton.centerXAnchor).isActive = true
         likesLabel.topAnchor.constraint(equalTo: likeButton.bottomAnchor).isActive = true
@@ -484,7 +485,7 @@ class testPostCell: UITableViewCell {
         likeRef.observeSingleEvent(of: .value, with: { snapshot in
             if let _ = snapshot.value as? NSNull{
                 //This means that we have not liked this specific post
-                let image = UIImage(named: "iLike")
+                let image = UIImage(named: "like1")
                 self.likeButton.setImage(image, for: .normal)
                 self.userPost!.adjustLikes(addLike: true)
                 self.likeRef.setValue(true)
@@ -493,7 +494,7 @@ class testPostCell: UITableViewCell {
                 self.postViewController!.adjustLikesInArrayDisplay(sender: likeBtn)
                 //self.postViewController!.handleReloadPosts()
             }else{
-                let image = UIImage(named: "Like")
+                let image = UIImage(named: "unlike1")
                 self.likeButton.setImage(image, for: .normal)
                 self.userPost!.adjustLikes(addLike: false)
                 self.likeRef.removeValue()

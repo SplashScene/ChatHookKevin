@@ -81,13 +81,14 @@ class GetLocation1: UIViewController {
         
         setupUI()
         mapView.addAnnotations(otherUsersLocations)
+        
     }
     
     override var preferredStatusBarStyle: UIStatusBarStyle{
         return .lightContent
     }
-    //MARK: - Setup Methods
     
+    //MARK: - Setup Methods
     func checkAuthorizationStatus(){
         print("In checkAuthorizationStatus")
         let authStatus = CLLocationManager.authorizationStatus()
@@ -220,14 +221,16 @@ class GetLocation1: UIViewController {
     
     //MARK: - Handlers
     
+    func handleCheckLocation(){
+        print("Checking Location")
+        locationManager?.requestLocation()
+    }
+    
     func handleAnnotations(){
-        print("In handleAnnotations")
         self.mapView.addAnnotations(self.otherUsersLocations)
     }
     
     func handleLoadingBlockedUsers(){
-        print("In handleLoadingBlockedUsers")
-        print("Inside handleLoadingBlockedUsers")
         CurrentUser._blockedUsersArray = blockedUsers
         print("Current User blocked array count is: \(CurrentUser._blockedUsersArray?.count)")
     }
@@ -277,6 +280,10 @@ extension GetLocation1: CLLocationManagerDelegate{
                                 barTabItem.isEnabled = true
                             }
                         }
+                        if timer != nil{
+                            timer.invalidate()
+                        }
+                        self.timer = Timer.scheduledTimer(timeInterval: 900.0, target: self, selector: #selector(self.handleCheckLocation), userInfo: nil, repeats: true)
                     }else{
                         print("I got NO location")
                     }

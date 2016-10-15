@@ -264,7 +264,7 @@ class ProfileViewController: UIViewController {
                 self.photoChoice = "Profile"
                 self.pickPhoto()
             }
-            let buttonTwo = UIAlertAction(title: "Add to Photo Gallery", style: .default) { (action) in
+            let buttonTwo = UIAlertAction(title: "Add to Profile Gallery", style: .default) { (action) in
                 self.photoChoice = "Gallery"
                 self.pickPhoto()
             }

@@ -223,13 +223,12 @@ class PostsVC: UIViewController{
         sheet.addAction(videoLibrary)
         sheet.addAction(cancel)
         self.present(sheet, animated: true, completion: nil)
-        
     }
     
     private func getMediaFrom(type: CFString){
         let mediaPicker = UIImagePickerController()
-        mediaPicker.delegate = self
-        mediaPicker.mediaTypes = [type as String]
+            mediaPicker.delegate = self
+            mediaPicker.mediaTypes = [type as String]
         
         present(mediaPicker, animated: true, completion: nil)
     }
@@ -259,7 +258,6 @@ class PostsVC: UIViewController{
         self.timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.handleReloadPosts), userInfo: nil, repeats: false)
     }
 
-    
     func handleReloadPosts(){
         DispatchQueue.main.async{
             self.postTableView.reloadData()
@@ -273,28 +271,28 @@ class PostsVC: UIViewController{
             let indexPath = self.postTableView.indexPathForRow(at: sharePosition)
             if let indPath = indexPath{
                 let post = self.postsArray[indPath.row]
-                if let postID = post.postKey{
-                    let commentsPostRef = DataService.ds.REF_POST_COMMENTS.child(postID)
-                        commentsPostRef.observe(.value, with: {snapshot in
-                                if let snapshots = snapshot.children.allObjects as? [FIRDataSnapshot]{
-                                    for snap in snapshots{
-                                        DataService.ds.REF_USERS_COMMENTS.child(snap.key).removeValue()
-                                        commentsPostRef.child(snap.key).removeValue()
+                    if let postID = post.postKey{
+                        let commentsPostRef = DataService.ds.REF_POST_COMMENTS.child(postID)
+                            commentsPostRef.observe(.value, with: {snapshot in
+                                    if let snapshots = snapshot.children.allObjects as? [FIRDataSnapshot]{
+                                        for snap in snapshots{
+                                            DataService.ds.REF_USERS_COMMENTS.child(snap.key).removeValue()
+                                            commentsPostRef.child(snap.key).removeValue()
+                                        }
                                     }
-                                }
-                            }, withCancel: nil)
-                    DataService.ds.REF_POSTS.child(postID).removeValue()
-                    DataService.ds.REF_POSTSPERROOM.child(post.toRoom!).child(postID).removeValue()
-                    
-                    let publicRoomRef = DataService.ds.REF_CHATROOMS.child(post.toRoom!)
-                    publicRoomRef.observeSingleEvent(of: .value, with: { (snapshot) in
-                            if let dictionary = snapshot.value as? [String: AnyObject]{
-                                let numOfPosts = dictionary["posts"] as! Int - 1
-                                let adjustedPosts = NSNumber(value: Int32(numOfPosts))
-                                publicRoomRef.child("posts").setValue(adjustedPosts)
-                            }
-                        }, withCancel: nil)
-                 }
+                                }, withCancel: nil)
+                        DataService.ds.REF_POSTS.child(postID).removeValue()
+                        DataService.ds.REF_POSTSPERROOM.child(post.toRoom!).child(postID).removeValue()
+                        
+                        let publicRoomRef = DataService.ds.REF_CHATROOMS.child(post.toRoom!)
+                            publicRoomRef.observeSingleEvent(of: .value, with: { (snapshot) in
+                                    if let dictionary = snapshot.value as? [String: AnyObject]{
+                                        let numOfPosts = dictionary["posts"] as! Int - 1
+                                        let adjustedPosts = NSNumber(value: Int32(numOfPosts))
+                                        publicRoomRef.child("posts").setValue(adjustedPosts)
+                                    }
+                                }, withCancel: nil)
+                     }
                 self.postsArray.remove(at: indPath.row)
                 self.postTableView.deleteRows(at: [indPath], with: .automatic)
             }
@@ -382,7 +380,6 @@ class PostsVC: UIViewController{
                 }
             }
         }
-
     }
     
     func handleCommentTapped(commentView: UIView){
@@ -501,7 +498,6 @@ class PostsVC: UIViewController{
                             },
                            completion: nil)
         }
-  
     }
 
     func handleZoomOut(tapGesture: UITapGestureRecognizer){
@@ -549,7 +545,6 @@ class PostsVC: UIViewController{
         playerLayer!.frame = cell!.showcaseImageView.bounds
         player!.play()
         
-        
         NotificationCenter.default.addObserver(self, selector: #selector(playerDidFinishPlaying), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: player!.currentItem)
     }
     
@@ -563,7 +558,6 @@ class PostsVC: UIViewController{
     }
 
 }//end class
-
 
 extension PostsVC:UITableViewDelegate, UITableViewDataSource{
     
@@ -581,35 +575,12 @@ extension PostsVC:UITableViewDelegate, UITableViewDataSource{
         let post = postsArray[indexPath.row]
             cell.userPost = post
             cell.postViewController = self
-        
-        if let mediaType = post.mediaType{
-            switch mediaType{
-                case "VIDEO":
-                    cell.showcaseImageView.isHidden = false
-                    if cell.showcaseImageView.subviews.count == 0{
-                        cell.setupVideoPostCell(cell: cell)
-                    }
-                case "PHOTO":
-                    if cell.showcaseImageView.subviews.count > 0{
-                        for view in (cell.showcaseImageView.subviews){
-                            view.removeFromSuperview()
-                        }
-                    }
-                default:
-                    if cell.showcaseImageView.subviews.count > 0{
-                        for view in (cell.showcaseImageView.subviews){
-                            view.removeFromSuperview()
-                        }
-                }                
-            }
-        }
         return cell
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
-    
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return postsArray.count
@@ -624,7 +595,6 @@ extension PostsVC:UITableViewDelegate, UITableViewDataSource{
         }
     }
 }//end extension
-
 
 extension PostsVC{
     func uploadToFirebaseStorageUsingSelectedMedia(image: UIImage?, video: NSURL?, completion: @escaping (_ imageUrl: String) -> ()){

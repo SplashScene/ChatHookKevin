@@ -13,6 +13,7 @@ class testPostCell: UITableViewCell {
     var postViewController:PostsVC?
     var likeRef: FIRDatabaseReference!
 
+    //MARK: - Properties
     var userPost: UserPost?{
         didSet{
                 deleteButton.isHidden = CurrentUser._postKey != userPost?.fromId
@@ -42,11 +43,42 @@ class testPostCell: UITableViewCell {
                                 case "VIDEO":
                                     guard let videoThumbnail = dictionary["thumbnailUrl"] as? String else { return }
                                     self.showcaseImageView.loadImageUsingCacheWithUrlString(urlString: videoThumbnail)
+                                    let playButton = PlayButton()
+                                    
+                                    playButton.addTarget(self, action: #selector(self.handlePostVideoPlay), for: .touchUpInside)
+                                    
+                                    self.showcaseImageView.addSubview(playButton)
+                                    
+                                    playButton.centerXAnchor.constraint(equalTo: self.showcaseImageView.centerXAnchor).isActive = true
+                                    playButton.centerYAnchor.constraint(equalTo: self.showcaseImageView.centerYAnchor).isActive = true
+                                    playButton.widthAnchor.constraint(equalToConstant: 50).isActive = true
+                                    playButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+                                    
+                                    let activityIndicatorView = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
+                                    activityIndicatorView.translatesAutoresizingMaskIntoConstraints = false
+                                    activityIndicatorView.hidesWhenStopped = true
+                                    
+                                    self.showcaseImageView.addSubview(activityIndicatorView)
+                                    
+                                    activityIndicatorView.centerXAnchor.constraint(equalTo: self.showcaseImageView.centerXAnchor).isActive = true
+                                    activityIndicatorView.centerYAnchor.constraint(equalTo: self.showcaseImageView.centerYAnchor).isActive = true
+                                    activityIndicatorView.widthAnchor.constraint(equalToConstant: 50).isActive = true
+                                    activityIndicatorView.heightAnchor.constraint(equalToConstant: 50).isActive = true
                                 case "PHOTO":
                                     guard let picImage = dictionary["showcaseUrl"] as? String else { return }
                                     self.showcaseImageView.loadImageUsingCacheWithUrlString(urlString: picImage)
+                                        if self.showcaseImageView.subviews.count > 0{
+                                            for view in (self.showcaseImageView.subviews){
+                                                view.removeFromSuperview()
+                                            }
+                                        }
                                 default:
                                     self.showcaseImageView.image = nil
+                                        if self.showcaseImageView.subviews.count > 0{
+                                            for view in (self.showcaseImageView.subviews){
+                                                view.removeFromSuperview()
+                                            }
+                                        }
                                 }
                             }
                         }
@@ -282,7 +314,7 @@ class testPostCell: UITableViewCell {
     }()
 
 
-
+    //MARK: - Init
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: .subtitle, reuseIdentifier: reuseIdentifier)
         setupCellContainerView()
@@ -293,6 +325,7 @@ class testPostCell: UITableViewCell {
         setupCommentSection()
     }
     
+    //MARK: - Setup Methods
     func setupCellContainerView(){
         cellContainerView.addSubview(profilePictureUserNameContainerView)
             profilePictureUserNameContainerView.addSubview(profileImageView)
@@ -418,9 +451,35 @@ class testPostCell: UITableViewCell {
         
         shareLabel.rightAnchor.constraint(equalTo: shareButtonContainerView.rightAnchor, constant: -3).isActive = true
         shareLabel.centerYAnchor.constraint(equalTo: shareButtonContainerView.centerYAnchor).isActive = true
-
     }
     
+    func setupVideoPostCell(cell: testPostCell){
+        
+        let playButton = PlayButton()
+        
+        playButton.addTarget(self, action: #selector(handlePostVideoPlay), for: .touchUpInside)
+        
+        cell.showcaseImageView.addSubview(playButton)
+        
+        playButton.centerXAnchor.constraint(equalTo: cell.showcaseImageView.centerXAnchor).isActive = true
+        playButton.centerYAnchor.constraint(equalTo: cell.showcaseImageView.centerYAnchor).isActive = true
+        playButton.widthAnchor.constraint(equalToConstant: 50).isActive = true
+        playButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        
+        let activityIndicatorView = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
+        activityIndicatorView.translatesAutoresizingMaskIntoConstraints = false
+        activityIndicatorView.hidesWhenStopped = true
+        
+        cell.showcaseImageView.addSubview(activityIndicatorView)
+        
+        activityIndicatorView.centerXAnchor.constraint(equalTo: cell.showcaseImageView.centerXAnchor).isActive = true
+        activityIndicatorView.centerYAnchor.constraint(equalTo: cell.showcaseImageView.centerYAnchor).isActive = true
+        activityIndicatorView.widthAnchor.constraint(equalToConstant: 50).isActive = true
+        activityIndicatorView.heightAnchor.constraint(equalToConstant: 50).isActive = true
+    }
+
+    
+    //MARK: - Handle Methods
     func handleLikeButtonTapped(sender: UIButton){
         likeRef.observeSingleEvent(of: .value, with: { snapshot in
             if let _ = snapshot.value as? NSNull{
@@ -472,29 +531,5 @@ class testPostCell: UITableViewCell {
         postViewController?.handleDeletePost(sender: sender)
     }
     
-    func setupVideoPostCell(cell: testPostCell){
-        
-        let playButton = PlayButton()
-        
-        playButton.addTarget(self, action: #selector(handlePostVideoPlay), for: .touchUpInside)
-        
-        cell.showcaseImageView.addSubview(playButton)
-        
-        playButton.centerXAnchor.constraint(equalTo: cell.showcaseImageView.centerXAnchor).isActive = true
-        playButton.centerYAnchor.constraint(equalTo: cell.showcaseImageView.centerYAnchor).isActive = true
-        playButton.widthAnchor.constraint(equalToConstant: 50).isActive = true
-        playButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        
-        let activityIndicatorView = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
-            activityIndicatorView.translatesAutoresizingMaskIntoConstraints = false
-            activityIndicatorView.hidesWhenStopped = true
-        
-        cell.showcaseImageView.addSubview(activityIndicatorView)
-        
-        activityIndicatorView.centerXAnchor.constraint(equalTo: cell.showcaseImageView.centerXAnchor).isActive = true
-        activityIndicatorView.centerYAnchor.constraint(equalTo: cell.showcaseImageView.centerYAnchor).isActive = true
-        activityIndicatorView.widthAnchor.constraint(equalToConstant: 50).isActive = true
-        activityIndicatorView.heightAnchor.constraint(equalToConstant: 50).isActive = true
-    }
 }
 

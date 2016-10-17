@@ -48,7 +48,7 @@ class GetLocation1: UIViewController {
             logButton.translatesAutoresizingMaskIntoConstraints = false
             logButton.setTitle("Logout", for: .normal)
             logButton.titleLabel?.textColor = UIColor.white
-            logButton.titleLabel?.font = UIFont(name: "Avenir Medium", size: 14.0)
+            logButton.titleLabel?.font = UIFont(name: FONT_AVENIR_MEDIUM, size: 14.0)
             logButton.addTarget(self, action: #selector(handleLogout), for: .touchUpInside)
             logButton.isHidden = true
         return logButton
@@ -57,19 +57,18 @@ class GetLocation1: UIViewController {
     let onlineLabel: UILabel = {
         let msgLabel = UILabel()
             msgLabel.translatesAutoresizingMaskIntoConstraints = false
-            msgLabel.font = UIFont(name: "Avenir Medium", size:  18.0)
+            msgLabel.font = UIFont(name: FONT_AVENIR_MEDIUM, size:  18.0)
             msgLabel.backgroundColor = UIColor.clear
             msgLabel.textColor = UIColor.white
             msgLabel.text = "Getting Location..."
             msgLabel.sizeToFit()
-
         return msgLabel
     }()
  
     //MARK: - View Methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        print("In viewDidLoad")
+        
         view.addSubview(topView)
         view.addSubview(mapView)
         
@@ -81,7 +80,6 @@ class GetLocation1: UIViewController {
         
         setupUI()
         mapView.addAnnotations(otherUsersLocations)
-        
     }
     
     override var preferredStatusBarStyle: UIStatusBarStyle{
@@ -90,29 +88,21 @@ class GetLocation1: UIViewController {
     
     //MARK: - Setup Methods
     func checkAuthorizationStatus(){
-        print("In checkAuthorizationStatus")
         let authStatus = CLLocationManager.authorizationStatus()
-        
-        switch(authStatus){
-        case .notDetermined: locationManager?.requestWhenInUseAuthorization(); print("In Auth switch statement1");return
-            case .denied: showLocationServicesDeniedAlert(); print("In Auth switch statement2");return
-            case .restricted: showLocationServicesDeniedAlert(); print("In Auth switch statement3"); return
-            default:
-                print("In Auth switch default");
-                if authStatus != .authorizedWhenInUse{
-                    locationManager?.requestWhenInUseAuthorization()
-                    print("The AUTHORIZATION STATUS IS: whenInUseAuthorization")
-                }else{
-                    //locationManager?.startUpdatingLocation()
-                    locationManager?.requestLocation()
-                    print("The AUTHORIZATION STATUS IS: requestLocation")
-                }
-        }//end switch
+            switch(authStatus){
+                case .notDetermined: locationManager?.requestWhenInUseAuthorization(); print("In Auth switch statement1");return
+                case .denied: showLocationServicesDeniedAlert(); print("In Auth switch statement2");return
+                case .restricted: showLocationServicesDeniedAlert(); print("In Auth switch statement3"); return
+                default:
+                    if authStatus != .authorizedWhenInUse{
+                        locationManager?.requestWhenInUseAuthorization()
+                    }else{
+                        locationManager?.requestLocation()
+                    }
+            }//end switch
     }//end checkAuthorizationStatus
     
     func setupUI(){
-        print("In setupUI")
-        //need x, y, width and height constraints
         topView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         topView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         topView.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
@@ -136,41 +126,36 @@ class GetLocation1: UIViewController {
     }
     
     func userIsOnline(){
-        print("In userIsOnline")
         userOnline = true
+        logoutButton.isHidden = false
         onlineLabel.text = "Online"
         topView.backgroundColor = UIColor(r: 80, g: 101, b: 161)
         
         if let currentUserLocation = CurrentUser._location{
              userLatInt = Int(currentUserLocation.coordinate.latitude)
-            print("The user lat is: \(userLatInt)")
              userLngInt = Int(currentUserLocation.coordinate.longitude)
-            print("The user lng is: \(userLngInt)")
-                let usersOnlineRef = DataService.ds.REF_BASE.child("users_online").child("\(userLatInt!)").child("\(userLngInt!)").child(CurrentUser._postKey)
-                let userLocal = ["userLatitude":currentUserLocation.coordinate.latitude, "userLongitude": currentUserLocation.coordinate.longitude]
-                usersOnlineRef.setValue(userLocal)
-                observeOtherUsersLocations()
-        
+            
+            let usersOnlineRef = DataService.ds.REF_BASE.child("users_online").child("\(userLatInt!)").child("\(userLngInt!)").child(CurrentUser._postKey)
+            let userLocal = ["userLatitude":currentUserLocation.coordinate.latitude, "userLongitude": currentUserLocation.coordinate.longitude]
+            usersOnlineRef.setValue(userLocal)
+            observeOtherUsersLocations()
         }
+        
         centerMapOnLocation(location: CurrentUser._location!)
         self.mapView.showsUserLocation = true
         //addRadiusCircle(location: CurrentUser._location!)
     }
 
     //MARK: - Observe Methods
-    
     func fetchCurrentUser(userLocation: CLLocation){
         print("In fetchCurrentUser")
         currentUserRef.observeSingleEvent(of: .value, with: { (snapshot) in
             print("The current user ref is: \(self.currentUserRef)")
             if let dictionary = snapshot.value as? [String: AnyObject]{
-                print("Inside Fetch Dictionary")
                 CurrentUser._postKey = snapshot.key
                 CurrentUser._userName = dictionary["UserName"] as! String
                 CurrentUser._location = userLocation
-                //CurrentUser._email = dictionary["Email"] as! String
                 CurrentUser._profileImageUrl = dictionary["ProfileImage"] as? String
-                print("Current user profile is: \(CurrentUser._profileImageUrl)")
                 
                 let blockedUsersRef = self.currentUserRef.child("blocked_users")
                     blockedUsersRef.observe(.value, with: { (snapshot) in
@@ -189,8 +174,6 @@ class GetLocation1: UIViewController {
                 print("I aint got no dictionary dickhead")
             }
         }, withCancel: nil)
-        
-        logoutButton.isHidden = false
     }
     
     func observeOtherUsersLocations(){
@@ -214,7 +197,7 @@ class GetLocation1: UIViewController {
                             self.timer?.invalidate()
                             self.timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.handleAnnotations), userInfo: nil, repeats: false)
                         }
-                        }, withCancel: nil)
+                    }, withCancel: nil)
                 }
             }, withCancel: nil)
     }
@@ -248,14 +231,6 @@ class GetLocation1: UIViewController {
         dismiss(animated: true, completion: nil)
         
     }
-    
-//    func startTimerForLocationUpdate(){
-//        if timer != nil{
-//            timer.invalidate()
-//        }
-//        timer = NSTimer.scheduledTimerWithTimeInterval(900.0, target: self, selector: #selector(CurrentLocationViewcontrollerViewController.startLocationManager), userInfo: nil, repeats: true)
-//    }
-    
 }//end class
 
 
@@ -317,7 +292,6 @@ extension GetLocation1: MKMapViewDelegate{
     }
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-        print("Inside annotations")
             if (annotation is MKUserLocation){ return nil }
         
             var annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: "otherLocation") as? MKPinAnnotationView

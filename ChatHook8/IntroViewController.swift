@@ -27,7 +27,7 @@ class IntroViewController: UIViewController {
             logoLabel.translatesAutoresizingMaskIntoConstraints = false
             logoLabel.alpha = 0.0
             logoLabel.text = "ChatHook"
-            logoLabel.font = UIFont(name: "Avenir Medium", size:  60.0)
+            logoLabel.font = UIFont(name: FONT_AVENIR_MEDIUM, size:  60.0)
             logoLabel.backgroundColor = UIColor.clear
             logoLabel.textColor = UIColor.white
             logoLabel.sizeToFit()
@@ -63,7 +63,7 @@ class IntroViewController: UIViewController {
         let fbLabel = UILabel()
             fbLabel.translatesAutoresizingMaskIntoConstraints = false
             fbLabel.text = "Login With Facebook"
-            fbLabel.font = UIFont(name: "Avenir Medium", size:  24.0)
+            fbLabel.font = UIFont(name: FONT_AVENIR_MEDIUM, size:  24.0)
             fbLabel.backgroundColor = UIColor.clear
             fbLabel.textColor = UIColor.blue
             fbLabel.sizeToFit()
@@ -97,7 +97,7 @@ class IntroViewController: UIViewController {
         let emLabel = UILabel()
             emLabel.translatesAutoresizingMaskIntoConstraints = false
             emLabel.text = "Login With Email"
-            emLabel.font = UIFont(name: "Avenir Medium", size:  24.0)
+            emLabel.font = UIFont(name: FONT_AVENIR_MEDIUM, size:  24.0)
             emLabel.backgroundColor = UIColor.clear
             emLabel.textColor = UIColor.blue
             emLabel.sizeToFit()
@@ -141,7 +141,7 @@ class IntroViewController: UIViewController {
             label.translatesAutoresizingMaskIntoConstraints = false
             label.alpha = 1.0
             label.text = "Email Login/Signup"
-            label.font = UIFont(name: "Avenir Medium", size:  18.0)
+            label.font = UIFont(name: FONT_AVENIR_MEDIUM, size:  18.0)
             label.backgroundColor = UIColor.clear
             label.textColor = UIColor.blue
             label.sizeToFit()

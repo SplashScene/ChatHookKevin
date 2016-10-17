@@ -58,7 +58,7 @@ class ProfileViewController: UIViewController {
         let nameLabel = UILabel()
             nameLabel.translatesAutoresizingMaskIntoConstraints = false
             nameLabel.alpha = 1.0
-            nameLabel.font = UIFont(name: "Avenir Medium", size:  18.0)
+            nameLabel.font = UIFont(name: FONT_AVENIR_MEDIUM, size:  18.0)
             nameLabel.backgroundColor = UIColor.clear
             nameLabel.textColor = UIColor.white
             nameLabel.sizeToFit()
@@ -70,7 +70,7 @@ class ProfileViewController: UIViewController {
         let distLabel = UILabel()
             distLabel.translatesAutoresizingMaskIntoConstraints = false
             distLabel.alpha = 1.0
-            distLabel.font = UIFont(name: "Avenir Medium", size:  14.0)
+            distLabel.font = UIFont(name: FONT_AVENIR_MEDIUM, size:  14.0)
             distLabel.backgroundColor = UIColor.clear
             distLabel.textColor = UIColor.white
             distLabel.sizeToFit()
@@ -82,7 +82,7 @@ class ProfileViewController: UIViewController {
         let galleryLabel = UILabel()
             galleryLabel.translatesAutoresizingMaskIntoConstraints = false
             galleryLabel.isHidden = false
-            galleryLabel.font = UIFont(name: "Avenir Medium", size:  18.0)
+            galleryLabel.font = UIFont(name: FONT_AVENIR_MEDIUM, size:  18.0)
             galleryLabel.backgroundColor = UIColor.clear
             galleryLabel.textColor = UIColor.white
             galleryLabel.sizeToFit()

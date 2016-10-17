@@ -109,90 +109,6 @@ class PostsVC: UIViewController{
         handleReloadPosts()
     }
     
-    //MARK: - Setup Methods
-    func setupNavBarWithUserOrProgress(progress:String?){
-        
-        let titleView = UIView()
-            titleView.frame = CGRect(x: 0, y: 0, width: 100, height: 60)
-        
-        let containerView = UIView()
-            containerView.translatesAutoresizingMaskIntoConstraints = false
-        
-        titleView.addSubview(containerView)
-        
-        let profileImageView = UIImageView()
-            profileImageView.translatesAutoresizingMaskIntoConstraints = false
-            profileImageView.contentMode = .scaleAspectFill
-            profileImageView.layer.cornerRadius = 15
-            profileImageView.clipsToBounds = true
-            profileImageView.image = messageImage
-        
-        containerView.addSubview(profileImageView)
-        
-        profileImageView.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
-        profileImageView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 4).isActive = true
-        profileImageView.widthAnchor.constraint(equalToConstant: 30).isActive = true
-        profileImageView.heightAnchor.constraint(equalToConstant: 30).isActive = true
-        
-        let nameLabel = UILabel()
-            nameLabel.translatesAutoresizingMaskIntoConstraints = false
-            nameLabel.font = UIFont(name: "Avenir-Medium", size: 14.0)
-        
-                if let progressText = progress{
-                    nameLabel.text = "Upload: \(progressText)"
-                    nameLabel.textColor = UIColor.red
-                }else{
-                    nameLabel.text = parentRoom?.RoomName
-                    nameLabel.textColor = UIColor.darkGray
-                }
-        
-        containerView.addSubview(nameLabel)
-        
-        nameLabel.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
-        nameLabel.topAnchor.constraint(equalTo: profileImageView.bottomAnchor).isActive = true
-        nameLabel.widthAnchor.constraint(equalTo: containerView.widthAnchor).isActive = true
-        nameLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
-        
-        containerView.centerXAnchor.constraint(equalTo: titleView.centerXAnchor).isActive = true
-        containerView.topAnchor.constraint(equalTo: titleView.topAnchor).isActive = true
-        
-        self.navigationItem.titleView = titleView
-    }
-    
-    func setupTopView(){
-        //need x, y, width and height constraints
-        topView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        topView.topAnchor.constraint(equalTo: view.topAnchor, constant: 72).isActive = true
-        topView.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -16).isActive = true
-        topView.heightAnchor.constraint(equalToConstant: 45).isActive = true
-        
-        topView.addSubview(postTextField)
-        topView.addSubview(imageSelectorView)
-        topView.addSubview(postButton)
-        
-        postTextField.leftAnchor.constraint(equalTo: topView.leftAnchor, constant: 8).isActive = true
-        postTextField.centerYAnchor.constraint(equalTo: topView.centerYAnchor).isActive = true
-        postTextField.widthAnchor.constraint(equalToConstant: 225).isActive = true
-        postTextField.heightAnchor.constraint(equalTo: topView.heightAnchor, constant: -16).isActive = true
-        
-        imageSelectorView.leftAnchor.constraint(equalTo: postTextField.rightAnchor, constant: 8).isActive = true
-        imageSelectorView.centerYAnchor.constraint(equalTo: topView.centerYAnchor).isActive = true
-        imageSelectorView.widthAnchor.constraint(equalToConstant: 37).isActive = true
-        imageSelectorView.heightAnchor.constraint(equalTo: topView.heightAnchor, constant: -16).isActive = true
-        
-        postButton.leftAnchor.constraint(equalTo: imageSelectorView.rightAnchor, constant: 8).isActive = true
-        postButton.centerYAnchor.constraint(equalTo: topView.centerYAnchor).isActive = true
-        postButton.rightAnchor.constraint(equalTo: topView.rightAnchor, constant: -8).isActive = true
-        postButton.heightAnchor.constraint(equalTo: topView.heightAnchor, constant: -16).isActive = true
-    }
-    
-    func setupPostTableView(){
-        postTableView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        postTableView.topAnchor.constraint(equalTo: topView.bottomAnchor, constant: 8).isActive = true
-        postTableView.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -16).isActive = true
-        postTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -40).isActive = true
-    }
-
     //MARK: - Handler Methods
     func handleBack(){
         dismiss(animated: true, completion: nil)
@@ -307,15 +223,15 @@ class PostsVC: UIViewController{
         present(alert, animated: true, completion: nil)
     }
     
-    func handleShare(shareView: UIView){
+    func handleShare(sender: UIButton){
         let alertController = UIAlertController(title: "Share", message: "Where do you want to share this post?", preferredStyle: .alert)
         
         let buttonOne = UIAlertAction(title: "Share on Facebook", style: .default) { (action) in
-            self.handleSocialShare(shareView: shareView, trigger: 1)
+            self.handleSocialShare(sender: sender, trigger: 1)
         }
         
         let buttonTwo = UIAlertAction(title: "Share on Twitter", style: .default) { (action) in
-            self.handleSocialShare(shareView: shareView, trigger: 2)
+            self.handleSocialShare(sender: sender, trigger: 2)
         }
         
         let buttonCancel = UIAlertAction(title: "Cancel", style: .cancel) { (action) in
@@ -329,8 +245,8 @@ class PostsVC: UIViewController{
         present(alertController, animated: true, completion: nil)
     }
     
-    func handleSocialShare(shareView: UIView, trigger: Int){
-        let sharePosition = shareView.convert(CGPoint(x: 0, y: 0), to: self.postTableView)
+    func handleSocialShare(sender: UIButton, trigger: Int){
+        let sharePosition = sender.convert(CGPoint(x: 0, y: 0), to: self.postTableView)
         let indexPath = self.postTableView.indexPathForRow(at: sharePosition)
         let cell = self.postTableView.cellForRow(at: indexPath!) as? testPostCell
         
@@ -383,8 +299,8 @@ class PostsVC: UIViewController{
         }
     }
     
-    func handleCommentTapped(commentView: UIView){
-        let commentViewPosition = commentView.convert(CGPoint(x: 0, y: 0), to: self.postTableView)
+    func handleCommentTapped(sender: UIButton){
+        let commentViewPosition = sender.convert(CGPoint(x: 0, y: 0), to: self.postTableView)
         if let indexPath = self.postTableView.indexPathForRow(at: commentViewPosition){
             let userPost = postsArray[indexPath.row]
             let commentViewController = CommentViewController()
@@ -436,17 +352,35 @@ class PostsVC: UIViewController{
         let post = postsArray[indexPath!.row]
         var intLikes = Int(post.likes)
         if sender.tag == 1{
+            let image = UIImage(named: "like")
+            sender.setImage(image, for: .normal)
             intLikes += 1
             let adjustedLikes = NSNumber(value: Int32(intLikes))
             post.likes = adjustedLikes
-            
-            cell?.likesLabel.text = intLikes == 1 ? "\(adjustedLikes) Like" : "\(adjustedLikes) Likes"
+            cell?.likesLabel.text = getLikesComments(numberOfLikes: post.likes as Int, numberOfComments: post.comments as Int)
         }else{
+            let image = UIImage(named: "meh")
+            sender.setImage(image, for: .normal)
             intLikes -= 1
             let adjustedLikes = NSNumber(value: Int32(intLikes))
             post.likes = adjustedLikes
-            cell?.likesLabel.text = intLikes == 1 ? "\(adjustedLikes) Like" : "\(adjustedLikes) Likes"
+            cell?.likesLabel.text = getLikesComments(numberOfLikes: post.likes as Int, numberOfComments: post.comments as Int)
         }
+    }
+    
+    func getLikesComments(numberOfLikes: Int, numberOfComments: Int) -> String {
+        var likesCommentsText = ""
+        if numberOfLikes == 1 && numberOfComments == 1{
+            likesCommentsText = "\(numberOfLikes) Like • \(numberOfComments) Comment"
+        } else if numberOfLikes > 1 && numberOfComments == 1{
+            likesCommentsText = "\(numberOfLikes) Likes • \(numberOfComments) Comment"
+        } else if numberOfLikes == 1 && numberOfComments > 1{
+            likesCommentsText = "\(numberOfLikes) Like • \(numberOfComments) Comments"
+        } else {
+            likesCommentsText = "\(numberOfLikes) Likes • \(numberOfComments) Comments"
+        }
+        
+        return likesCommentsText
     }
     
     func showProfileControllerForUser(user: User){
@@ -729,7 +663,7 @@ extension PostsVC{
         
         self.postTextField.text = ""
         self.postTextField.endEditing(true)
-        self.imageSelectorView.image = UIImage(named: "cameraIcon")
+        self.imageSelectorView.image = UIImage(named: "add_photo_btn")
         self.postedImage = nil
         self.postedVideo = nil
         self.postedText = nil
@@ -752,13 +686,13 @@ extension PostsVC{
         let asset = AVAsset(url: videoUrl as URL)
         let imageGenerator = AVAssetImageGenerator(asset: asset)
         
-        do{
-            let thumbnailCGImage = try imageGenerator.copyCGImage(at: CMTimeMake(1, 60), actualTime: nil)
-            
-            return UIImage(cgImage: thumbnailCGImage)
-        }catch let err{
-            print(err)
-        }
+            do{
+                let thumbnailCGImage = try imageGenerator.copyCGImage(at: CMTimeMake(1, 60), actualTime: nil)
+                return UIImage(cgImage: thumbnailCGImage)
+            }catch let err{
+                print(err)
+            }
+        
         return nil
     }
     

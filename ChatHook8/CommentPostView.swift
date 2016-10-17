@@ -80,7 +80,7 @@ class CommentPostView: MaterialView {
             label.translatesAutoresizingMaskIntoConstraints = false
             label.alpha = 1.0
             label.text = "User Name"
-            label.font = UIFont(name: "Avenir Medium", size:  18.0)
+            label.font = UIFont(name: FONT_AVENIR_MEDIUM, size:  18.0)
             label.backgroundColor = UIColor.clear
             label.textColor = UIColor.blue
             label.sizeToFit()
@@ -118,7 +118,7 @@ class CommentPostView: MaterialView {
     var likeCount: UILabel = {
         let label = UILabel()
             label.text = "0"
-            label.font = UIFont(name: "Avenir Medium", size:  12.0)
+            label.font = UIFont(name: FONT_AVENIR_MEDIUM, size:  12.0)
             label.textColor = UIColor.darkGray
             label.translatesAutoresizingMaskIntoConstraints = false
             label.sizeToFit()
@@ -127,7 +127,7 @@ class CommentPostView: MaterialView {
     
     let likesLabel: UILabel = {
         let label = UILabel()
-            label.font = UIFont(name: "Avenir Medium", size:  12.0)
+            label.font = UIFont(name: FONT_AVENIR_MEDIUM, size:  12.0)
             label.textColor = UIColor.darkGray
             label.translatesAutoresizingMaskIntoConstraints = false
             label.sizeToFit()
@@ -137,7 +137,7 @@ class CommentPostView: MaterialView {
     let descriptionText: UILabel = {
         let descripTextView = UILabel()
             descripTextView.translatesAutoresizingMaskIntoConstraints = false
-            descripTextView.font = UIFont(name: "Avenir Medium", size:  14.0)
+            descripTextView.font = UIFont(name: FONT_AVENIR_MEDIUM, size:  14.0)
             descripTextView.textColor = UIColor.darkGray
             descripTextView.numberOfLines = 0
         return descripTextView
@@ -173,7 +173,7 @@ class CommentPostView: MaterialView {
     var commentCount: UILabel = {
         let label = UILabel()
             label.text = "0"
-            label.font = UIFont(name: "Avenir Medium", size:  12.0)
+            label.font = UIFont(name: FONT_AVENIR_MEDIUM, size:  12.0)
             label.textColor = UIColor.darkGray
             label.translatesAutoresizingMaskIntoConstraints = false
             label.sizeToFit()
@@ -183,7 +183,7 @@ class CommentPostView: MaterialView {
     let commentLabel: UILabel = {
         let label = UILabel()
             label.text = "Comments"
-            label.font = UIFont(name: "Avenir Medium", size:  12.0)
+            label.font = UIFont(name: FONT_AVENIR_MEDIUM, size:  12.0)
             label.textColor = UIColor.darkGray
             label.translatesAutoresizingMaskIntoConstraints = false
             label.sizeToFit()

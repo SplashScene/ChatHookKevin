@@ -14,7 +14,6 @@ import AVFoundation
 import Social
 import CoreLocation
 
-
 class PostsVC: UIViewController{
     var profileView: ProfileViewController?
     var roomsController: RoomsViewController?

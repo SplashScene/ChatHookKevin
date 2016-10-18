@@ -93,7 +93,9 @@ class PostsVC: UIViewController{
         postTableView.delegate = self
         postTableView.dataSource = self
         postTableView.register(testPostCell.self, forCellReuseIdentifier: "cellID")
-        postTableView.estimatedRowHeight = 375
+        //postTableView.rowHeight = UITableViewAutomaticDimension
+        //postTableView.estimatedRowHeight = 140
+        postTableView.estimatedRowHeight = 400
         postTextField.delegate = self
         
         setupTopView()
@@ -509,6 +511,10 @@ extension PostsVC:UITableViewDelegate, UITableViewDataSource{
         let post = postsArray[indexPath.row]
             cell.userPost = post
             cell.postViewController = self
+        //startingFrame = startingImageView.superview?.convert(startingImageView.frame, to: nil)
+        let descripFrame = cell.descriptionText.superview?.convert(cell.descriptionText.frame, to: nil)
+        
+        print("The descripFrame is: \(descripFrame?.height)")
         return cell
     }
     
@@ -521,6 +527,7 @@ extension PostsVC:UITableViewDelegate, UITableViewDataSource{
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        
         let post = postsArray[indexPath.row]
         if post.showcaseUrl == nil{
             return 175

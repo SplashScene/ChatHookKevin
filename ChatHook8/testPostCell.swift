@@ -135,15 +135,6 @@ class testPostCell: UITableViewCell {
         return imageView
     }()
     
-    lazy var deleteButton: UIButton = {
-        let image = UIImage(named: "deleteIcon40")
-        let delButton = UIButton()
-            delButton.translatesAutoresizingMaskIntoConstraints = false
-            delButton.setImage(image, for: .normal)
-            delButton.addTarget(self, action: #selector(testPostCell.handlePostDelete), for: .touchUpInside)
-        return delButton
-    }()
-    
     let userNameLabel: UILabel = {
         let label = UILabel()
             label.numberOfLines = 2
@@ -163,12 +154,14 @@ class testPostCell: UITableViewCell {
         return label
     }()
     
-    let descriptionText: UILabel = {
-        let descripTextView = UILabel()
+    let descriptionText: UITextView = {
+        let descripTextView = UITextView()
             descripTextView.translatesAutoresizingMaskIntoConstraints = false
             descripTextView.font = UIFont(name: FONT_AVENIR_MEDIUM, size:  14.0)
             descripTextView.textColor = UIColor.darkGray
-            descripTextView.numberOfLines = 0
+            descripTextView.backgroundColor = UIColor.green
+            descripTextView.sizeToFit()
+            descripTextView.isScrollEnabled = false
         return descripTextView
     }()
 
@@ -194,63 +187,33 @@ class testPostCell: UITableViewCell {
         return sepLineView
     }()
     
-    lazy var likeButton1: UIButton = {
-        let image = UIImage(named: "meh")
+    lazy var likeButton1 = testPostCell.buttonForTitle(title: "Like", imageName: "meh")
+    lazy var commentButton = testPostCell.buttonForTitle(title: "Comment", imageName: "commenticon_small")
+    lazy var shareButton = testPostCell.buttonForTitle(title: "Share", imageName: "share")
+    lazy var deleteButton = testPostCell.buttonForTitle(title: nil, imageName: "deleteIcon40")
+    
+    static func buttonForTitle(title: String?, imageName: String) -> UIButton{
+        let image = UIImage(named: imageName)
         let button = UIButton()
             button.translatesAutoresizingMaskIntoConstraints = false
             button.titleEdgeInsets = UIEdgeInsetsMake(0, 8, 0, 0)
-            button.setTitle("Like", for: .normal)
+            button.setTitle(title, for: .normal)
             button.setTitleColor(UIColor.lightGray, for: .normal)
             button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 12)
             button.setImage(image, for: .normal)
-            button.addTarget(self, action: #selector(handleLikeButtonTapped), for: .touchUpInside)
         return button
-    }()
-
-    
-     lazy var commentButton: UIButton = {
-         let image = UIImage(named: "commenticon_small")
-         let button = UIButton()
-             button.translatesAutoresizingMaskIntoConstraints = false
-             button.titleEdgeInsets = UIEdgeInsetsMake(0, 8, 0, 0)
-             button.setTitle("Comment", for: .normal)
-             button.setTitleColor(UIColor.lightGray, for: .normal)
-             button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 12)
-             button.setImage(image, for: .normal)
-             button.addTarget(self, action: #selector(handleCommentTapped), for: .touchUpInside)
-         return button
-     }()
-    
-    lazy var shareButton: UIButton = {
-        let image = UIImage(named: "share")
-        let button = UIButton()
-            button.translatesAutoresizingMaskIntoConstraints = false
-            button.titleEdgeInsets = UIEdgeInsetsMake(0, 8, 0, 0)
-            button.setTitle("Share", for: .normal)
-            button.setTitleColor(UIColor.lightGray, for: .normal)
-            button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 12)
-            button.setImage(image, for: .normal)
-            button.addTarget(self, action: #selector(handleShare), for: .touchUpInside)
-        return button
-    }()
-
-    let commentLabel: UILabel = {
-        let label = UILabel()
-            label.font = UIFont(name: FONT_AVENIR_MEDIUM, size:  12.0)
-            label.textColor = UIColor.lightGray
-            label.translatesAutoresizingMaskIntoConstraints = false
-            label.sizeToFit()
-        return label
-    }()
-    
+    }
     //MARK: - Init
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: .subtitle, reuseIdentifier: reuseIdentifier)
         setupCellContainerView()
-        //setupCommentContainerView()
         setupProfileImageUserNameLikes()
         setupDescriptionTextShowcaseImage()
         setupCommentSection()
+        likeButton1.addTarget(self, action: #selector(handleLikeButtonTapped), for: .touchUpInside)
+        commentButton.addTarget(self, action: #selector(handleCommentTapped), for: .touchUpInside)
+        shareButton.addTarget(self, action: #selector(handleShare), for: .touchUpInside)
+        deleteButton.addTarget(self, action: #selector(handlePostDelete), for: .touchUpInside)
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -298,7 +261,18 @@ class testPostCell: UITableViewCell {
         descriptionText.centerXAnchor.constraint(equalTo: cellContainerView.centerXAnchor).isActive = true
         descriptionText.topAnchor.constraint(equalTo: profilePictureUserNameContainerView.bottomAnchor).isActive = true
         descriptionText.widthAnchor.constraint(equalTo: cellContainerView.widthAnchor, constant: -16).isActive = true
-        descriptionText.heightAnchor.constraint(greaterThanOrEqualToConstant: 40).isActive = true
+//        descriptionText.heightAnchor.constraint(equalToConstant: 100).isActive = true
+        let sizeThatShouldFitTheContent = descriptionText.sizeThatFits(descriptionText.frame.size)
+        print("The height of the descrip text is: \(sizeThatShouldFitTheContent.height)")
+//        descriptionText.heightAnchor.constraint(equalToConstant: sizeThatShouldFitTheContent.height).isActive = true
+        
+//        let fixedWidth = cellContainerView.frame.size.width
+//        descriptionText.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
+//        let newSize = descriptionText.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
+//        var newFrame = descriptionText.frame
+//        newFrame.size = CGSize(width: max(newSize.width, fixedWidth), height: newSize.height)
+//        descriptionText.frame = newFrame;
+        
         
         showcaseImageView.centerXAnchor.constraint(equalTo: cellContainerView.centerXAnchor).isActive = true
         showcaseImageView.topAnchor.constraint(equalTo: descriptionText.bottomAnchor, constant: 8).isActive = true

@@ -102,6 +102,9 @@ class RoomsViewController: UITableViewController {
     }
     
     func showPostControllerForRoom(room: PublicRoom){
+//        let feedController = FeedVC()
+//            feedController.roomsController = self
+//            feedController.parentRoom = room
         
         let postController = PostsVC()
             postController.roomsController = self
@@ -113,9 +116,7 @@ class RoomsViewController: UITableViewController {
             }
             postController.messageImage = img
         
-       // let postNavController = UINavigationController(rootViewController: postController)
-           // presentViewController(postNavController, animated: true, completion: nil)
-        navigationController?.pushViewController(postController, animated: true)
+            navigationController?.pushViewController(postController, animated: true)
     }
     
     

@@ -159,7 +159,6 @@ class testPostCell: UITableViewCell {
             descripTextView.translatesAutoresizingMaskIntoConstraints = false
             descripTextView.font = UIFont(name: FONT_AVENIR_MEDIUM, size:  14.0)
             descripTextView.textColor = UIColor.darkGray
-            descripTextView.backgroundColor = UIColor.green
             descripTextView.sizeToFit()
             descripTextView.isScrollEnabled = false
         return descripTextView
@@ -275,12 +274,10 @@ class testPostCell: UITableViewCell {
         
         
         showcaseImageView.centerXAnchor.constraint(equalTo: cellContainerView.centerXAnchor).isActive = true
-        showcaseImageView.topAnchor.constraint(equalTo: descriptionText.bottomAnchor, constant: 8).isActive = true
+        showcaseImageView.topAnchor.constraint(equalTo: descriptionText.bottomAnchor).isActive = true
         showcaseImageView.widthAnchor.constraint(equalTo: cellContainerView.widthAnchor, constant: -16).isActive = true
         showcaseImageView.heightAnchor.constraint(equalToConstant: 205).isActive = true
         
-        likesLabel.leftAnchor.constraint(equalTo: cellContainerView.leftAnchor, constant: 8).isActive = true
-        likesLabel.bottomAnchor.constraint(equalTo: separatorLineView.topAnchor).isActive = true
 
         contentView.addSubview(cellContainerView)
         
@@ -291,6 +288,9 @@ class testPostCell: UITableViewCell {
     }
     
     func setupCommentSection(){
+        likesLabel.leftAnchor.constraint(equalTo: cellContainerView.leftAnchor, constant: 8).isActive = true
+        likesLabel.bottomAnchor.constraint(equalTo: separatorLineView.topAnchor, constant: -4).isActive = true
+        
         separatorLineView.leftAnchor.constraint(equalTo: cellContainerView.leftAnchor).isActive = true
         separatorLineView.bottomAnchor.constraint(equalTo: cellContainerView.bottomAnchor, constant: -24).isActive = true
         separatorLineView.widthAnchor.constraint(equalTo: cellContainerView.widthAnchor).isActive = true
@@ -299,17 +299,17 @@ class testPostCell: UITableViewCell {
         likeButton1.leftAnchor.constraint(equalTo: cellContainerView.leftAnchor, constant: 8).isActive = true
         likeButton1.topAnchor.constraint(equalTo: separatorLineView.bottomAnchor, constant: 4).isActive = true
         likeButton1.widthAnchor.constraint(equalToConstant: 60).isActive = true
-        likeButton1.heightAnchor.constraint(equalToConstant: 16).isActive = true
+        likeButton1.heightAnchor.constraint(equalToConstant: 20).isActive = true
         
         commentButton.centerXAnchor.constraint(equalTo: cellContainerView.centerXAnchor).isActive = true
         commentButton.topAnchor.constraint(equalTo: separatorLineView.bottomAnchor, constant: 4).isActive = true
         commentButton.widthAnchor.constraint(equalToConstant: 80).isActive = true
-        commentButton.heightAnchor.constraint(equalToConstant: 16).isActive = true
+        commentButton.heightAnchor.constraint(equalToConstant: 20).isActive = true
         
         shareButton.rightAnchor.constraint(equalTo: cellContainerView.rightAnchor, constant: -8).isActive = true
         shareButton.topAnchor.constraint(equalTo: separatorLineView.bottomAnchor, constant: 4).isActive = true
         shareButton.widthAnchor.constraint(equalToConstant: 60).isActive = true
-        shareButton.heightAnchor.constraint(equalToConstant: 16).isActive = true
+        shareButton.heightAnchor.constraint(equalToConstant: 20).isActive = true
     }
     
     func setupVideoPostCell(){

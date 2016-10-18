@@ -526,14 +526,32 @@ extension PostsVC:UITableViewDelegate, UITableViewDataSource{
         return postsArray.count
     }
     
+    
+    
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         
-        let post = postsArray[indexPath.row]
-        if post.showcaseUrl == nil{
-            return 175
-        }else{
-            return tableView.estimatedRowHeight
+        if let statusText = postsArray[indexPath.row].postText{
+            let rect = NSString(string: statusText).boundingRect(with: CGSize(width: view.frame.width, height: 1000), options: NSStringDrawingOptions.usesFontLeading.union(NSStringDrawingOptions.usesLineFragmentOrigin), attributes: [NSFontAttributeName: UIFont.systemFont(ofSize: 14)], context: nil)
+            
+            if let _ = postsArray[indexPath.row].showcaseUrl{
+                let knownHeight: CGFloat = 50 + 205 + 16 + 35 + 9 + 30
+                return rect.height > 50 ? rect.height + knownHeight + 40 : rect.height + knownHeight
+            }else{
+                let knowHeight: CGFloat = 50 + 16 + 35 + 9 + 30
+                return rect.height + knowHeight
+            }
+            
+            
         }
+        let noTextHeight:CGFloat = 50 + 205 + 16 + 35 + 9 + 50
+        return noTextHeight
+        
+//        let post = postsArray[indexPath.row]
+//        if post.showcaseUrl == nil{
+//            return 175
+//        }else{
+//            return tableView.estimatedRowHeight
+//        }
     }
 }//end extension
 

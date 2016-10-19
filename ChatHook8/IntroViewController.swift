@@ -16,11 +16,22 @@ import FirebaseStorage
 
 class IntroViewController: UIViewController {
     @IBOutlet weak var videoView: UIView!
-    var loginContainerViewBottomAnchor: NSLayoutConstraint?
-    var chatHookLogoViewCenterAnchor: NSLayoutConstraint?
+    var textFieldMultiplier: CGFloat = 1/3
+    var userNameTextFieldMultiplier:CGFloat = 1/3
+    var loginContainerViewHeightAnchor: NSLayoutConstraint?
+    var loginContainerViewCenterAnchor: NSLayoutConstraint?
+    var inputsContainerViewHeightAnchor: NSLayoutConstraint?
+    var emailTextFieldViewHeightAnchor: NSLayoutConstraint?
+    var userNameTextFieldViewHeightAnchor: NSLayoutConstraint?
+    var passwordSeparatorViewHeightAnchor: NSLayoutConstraint?
+    var passwordTextFieldViewHeightAnchor: NSLayoutConstraint?
+    var chatHookLogoViewBottomAnchor: NSLayoutConstraint?
     var userEmail: String?
     var userProvider: String?
     var profileImageChanged: Bool = false
+    var alreadyRegistered: Bool = false
+    var viewsArray:[UIView]? = []
+    var timer: Timer?
     
     let chatHookLogo: UILabel = {
         let logoLabel = UILabel()
@@ -136,19 +147,6 @@ class IntroViewController: UIViewController {
         return view
     }()
 
-    let loginLabel: UILabel = {
-        let label = UILabel()
-            label.translatesAutoresizingMaskIntoConstraints = false
-            label.alpha = 1.0
-            label.text = "Email Login/Signup"
-            label.font = UIFont(name: FONT_AVENIR_MEDIUM, size:  18.0)
-            label.backgroundColor = UIColor.clear
-            label.textColor = UIColor.blue
-            label.sizeToFit()
-            label.textAlignment = NSTextAlignment.center
-        return label
-    }()
-    
     let emailTextField: MaterialTextField = {
         let etf = MaterialTextField()
             etf.placeholder = "Email"
@@ -182,8 +180,8 @@ class IntroViewController: UIViewController {
     
     let userNameTextField: MaterialTextField = {
         let ntf = MaterialTextField()
-        ntf.placeholder = "User Name"
-        ntf.translatesAutoresizingMaskIntoConstraints = false
+            ntf.placeholder = "User Name"
+            ntf.translatesAutoresizingMaskIntoConstraints = false
         return ntf
     }()
     
@@ -192,32 +190,54 @@ class IntroViewController: UIViewController {
             button.translatesAutoresizingMaskIntoConstraints = false
             button.setTitle("Sign In", for: .normal)
             button.isHidden = true
-            button.addTarget(self, action: #selector(attemptLogin), for: UIControlEvents.touchUpInside)
+            button.addTarget(self, action: #selector(handleNewOrReturningUserForLogin), for: UIControlEvents.touchUpInside)
         return button
     }()
 
     //MARK: - View Methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.setupView()
+        emailTextField.delegate = self
+        userNameTextField.delegate = self
         passwordTextField.delegate = self
+        viewsArray = [chatHookLogo, facebookContainerView, eMailContainerView, loginContainerView, profileImageView, registerButton]
         setupKeyboardObservers()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
+        if UserDefaults.standard.value(forKey: USER_EMAIL) != nil {
+            chatHookLogoViewBottomAnchor?.constant = -16
+            facebookContainerView.isHidden = false
+            eMailContainerView.isHidden = true
+            loginContainerView.isHidden = false
+            passwordTextField.text = ""
+//            textFieldMultiplier = 1/2
+//            userNameTextFieldMultiplier = 0
+//            loginContainerViewHeightAnchor?.constant = 124
+//            loginContainerViewCenterAnchor?.constant = 30
+//            inputsContainerViewHeightAnchor?.constant = 100
+            inputsContainerView.isHidden = false
+            registerButton.setTitle("Sign In", for: .normal)
+            //setupLoginContainerViewNewUser()
+        }else {
+            self.setupView()
+        }
+        
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         if UserDefaults.standard.value(forKey: KEY_UID) != nil{
-            self.handleReturningUser()
+            timer?.invalidate()
+            self.timer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(self.self.handleReturningUser), userInfo: nil, repeats: false)
         }
     }
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
+
         NotificationCenter.default.removeObserver(self)
     }
 
@@ -247,18 +267,14 @@ class IntroViewController: UIViewController {
         
         NotificationCenter.default.addObserver(self, selector:#selector(IntroViewController.videoDidPlayToEnd), name: NSNotification.Name(rawValue: "AVPlayerItemDidPlayToEndTimeNotification"), object: player.currentItem)
         
-        self.videoView.addSubview(chatHookLogo)
-        //self.videoView.addSubview(facebookLoginButton)
-        self.videoView.addSubview(facebookContainerView)
-        self.videoView.addSubview(eMailContainerView)
-        self.videoView.addSubview(loginContainerView)
-        self.videoView.addSubview(profileImageView)
-        self.videoView.addSubview(registerButton)
+        for view in viewsArray!{
+            self.videoView.addSubview(view)
+        }
         
         setupChatHookLogoView()
         setupFacebookContainerView()
         setupEmailContainerView()
-        setupLoginContainerView()
+        setupLoginContainerViewNewUser()
         setupProfileImageView()
     }//end func setupView
     
@@ -269,8 +285,8 @@ class IntroViewController: UIViewController {
     func setupChatHookLogoView(){
         //need x, y, width and height constraints
         chatHookLogo.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        chatHookLogoViewCenterAnchor = chatHookLogo.centerYAnchor.constraint(equalTo: view.centerYAnchor)
-        chatHookLogoViewCenterAnchor?.isActive = true
+        chatHookLogoViewBottomAnchor = chatHookLogo.bottomAnchor.constraint(equalTo: facebookContainerView.topAnchor, constant: -16)
+        chatHookLogoViewBottomAnchor?.isActive = true
         UIView.animate(withDuration: 0.5,
                                    delay: 1.5,
                                    options: [],
@@ -287,7 +303,7 @@ class IntroViewController: UIViewController {
     func setupFacebookContainerView(){
         //need x, y, width and height constraints
         facebookContainerView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        facebookContainerView.topAnchor.constraint(equalTo: chatHookLogo.bottomAnchor, constant: 8).isActive = true
+        facebookContainerView.topAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
         facebookContainerView.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -24).isActive = true
         facebookContainerView.heightAnchor.constraint(equalToConstant: 55).isActive = true
         
@@ -327,21 +343,22 @@ class IntroViewController: UIViewController {
         eMailLabel.heightAnchor.constraint(equalTo: eMailContainerView.heightAnchor).isActive = true
     }
 
-    func setupLoginContainerView(){
+    func setupLoginContainerViewNewUser(){
         //need x, y, width and height constraints
         loginContainerView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        loginContainerView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
-//        loginContainerViewBottomAnchor = loginContainerView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -40)
-//        loginContainerViewBottomAnchor?.isActive = true
+        loginContainerViewCenterAnchor = loginContainerView.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: 0)
+        loginContainerViewCenterAnchor?.isActive = true
         loginContainerView.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -24).isActive = true
-        loginContainerView.heightAnchor.constraint(equalToConstant: 180).isActive = true
+        loginContainerViewHeightAnchor = loginContainerView.heightAnchor.constraint(equalToConstant: 174)
+        loginContainerViewHeightAnchor?.isActive = true
         
         loginContainerView.addSubview(inputsContainerView)
 
         inputsContainerView.centerXAnchor.constraint(equalTo: loginContainerView.centerXAnchor).isActive = true
         inputsContainerView.centerYAnchor.constraint(equalTo: loginContainerView.centerYAnchor).isActive = true
         inputsContainerView.widthAnchor.constraint(equalTo: loginContainerView.widthAnchor, constant: -24).isActive = true
-        inputsContainerView.heightAnchor.constraint(equalToConstant: 150).isActive = true
+        inputsContainerViewHeightAnchor = inputsContainerView.heightAnchor.constraint(equalToConstant: 150)
+        inputsContainerViewHeightAnchor?.isActive = true
         
         inputsContainerView.addSubview(emailTextField)
         inputsContainerView.addSubview(emailSeparatorView)
@@ -352,7 +369,8 @@ class IntroViewController: UIViewController {
         emailTextField.leftAnchor.constraint(equalTo: inputsContainerView.leftAnchor).isActive = true
         emailTextField.topAnchor.constraint(equalTo: inputsContainerView.topAnchor).isActive = true
         emailTextField.widthAnchor.constraint(equalTo: inputsContainerView.widthAnchor).isActive = true
-        emailTextField.heightAnchor.constraint(equalTo: inputsContainerView.heightAnchor, multiplier: 1/3).isActive = true
+        emailTextFieldViewHeightAnchor = emailTextField.heightAnchor.constraint(equalTo: inputsContainerView.heightAnchor, multiplier: textFieldMultiplier)
+        emailTextFieldViewHeightAnchor?.isActive = true
         
         emailSeparatorView.leftAnchor.constraint(equalTo: inputsContainerView.leftAnchor).isActive = true
         emailSeparatorView.topAnchor.constraint(equalTo: emailTextField.bottomAnchor).isActive = true
@@ -362,22 +380,33 @@ class IntroViewController: UIViewController {
         userNameTextField.leftAnchor.constraint(equalTo: inputsContainerView.leftAnchor).isActive = true
         userNameTextField.topAnchor.constraint(equalTo: emailSeparatorView.bottomAnchor).isActive = true
         userNameTextField.widthAnchor.constraint(equalTo: inputsContainerView.widthAnchor).isActive = true
-        userNameTextField.heightAnchor.constraint(equalTo: inputsContainerView.heightAnchor, multiplier: 1/3).isActive = true
+        userNameTextFieldViewHeightAnchor = userNameTextField.heightAnchor.constraint(equalTo: inputsContainerView.heightAnchor, multiplier: userNameTextFieldMultiplier)
+        userNameTextFieldViewHeightAnchor?.isActive = true
         
         passwordSeparatorView.leftAnchor.constraint(equalTo: inputsContainerView.leftAnchor).isActive = true
         passwordSeparatorView.topAnchor.constraint(equalTo: userNameTextField.bottomAnchor).isActive = true
         passwordSeparatorView.widthAnchor.constraint(equalTo: inputsContainerView.widthAnchor).isActive = true
-        passwordSeparatorView.heightAnchor.constraint(equalToConstant: 1).isActive = true
+        passwordSeparatorViewHeightAnchor = passwordSeparatorView.heightAnchor.constraint(equalToConstant: 1)
+        passwordSeparatorViewHeightAnchor?.isActive = true
         
         passwordTextField.leftAnchor.constraint(equalTo: inputsContainerView.leftAnchor).isActive = true
         passwordTextField.topAnchor.constraint(equalTo: passwordSeparatorView.bottomAnchor).isActive = true
         passwordTextField.widthAnchor.constraint(equalTo: inputsContainerView.widthAnchor).isActive = true
-        passwordTextField.heightAnchor.constraint(equalTo: inputsContainerView.heightAnchor, multiplier: 1/3).isActive = true
+        passwordTextFieldViewHeightAnchor = passwordTextField.heightAnchor.constraint(equalTo: inputsContainerView.heightAnchor, multiplier: textFieldMultiplier)
+        passwordTextFieldViewHeightAnchor?.isActive = true
 
+        setupRegisterButton()
+    }
+    
+    func setupRegisterButton(){
         registerButton.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         registerButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -8).isActive = true
         registerButton.widthAnchor.constraint(equalToConstant: 200).isActive = true
         registerButton.heightAnchor.constraint(equalToConstant: 60).isActive = true
+    }
+    
+    func setupSeparatorView(){
+        
     }
     
     func setupProfileImageView(){
@@ -431,60 +460,113 @@ class IntroViewController: UIViewController {
                 }//end else
         }//end facebook login handler
     }
-
-    func attemptLogin(){
+    
+    func handleNewOrReturningUserForLogin(){
+        print("Inside Handle New or Returning")
+        if UserDefaults.standard.value(forKey: USER_EMAIL) != nil{
+            attemptLoginAlreadyUser()
+        }else{
+            attemptLoginNewUser()
+        }
+    }
+    
+    func attemptLoginNewUser(){
+        print("Inside Login New User")
         if !profileImageChanged { showErrorAlert(title: "Profile Image Required", msg: "You must provide a profile picture.")
             return }
+        
         guard let email = emailTextField.text,
               let password = passwordTextField.text,
-              let userName = userNameTextField.text else {
-            showErrorAlert(title: "Email and Password Required", msg: "You must enter an email and password to login")
+              let userName = userNameTextField.text else { showErrorAlert(title: "Email and Password Required", msg: "You must enter an email and password to login")
             return
         }
+        //let isNameAlreadyRegistered = checkAlreadyUserName(userName: userName)
         
-        let userNameRef = DataService.ds.REF_USERS_NAMES.child(String(userName[userName.startIndex])).child(userName.lowercased())
-            userNameRef.observe(.value, with: { (snapshot) in
+        self.createAndSignInUser(email: email, password: password, username: userName)
+        
+        
+    }//end method
+    
+    func checkAlreadyUserName(userName: String) -> Bool {
+        var alreadyRegisteredUserName: Bool?
+        let userLetterNameRef = DataService.ds.REF_USERS_NAMES.child(String(userName.uppercased()[userName.startIndex])).child(userName.lowercased())
+            print("The user name ref is: \(userLetterNameRef)")
+            userLetterNameRef.observe(.value, with: { (snapshot) in
                 if let _ = snapshot.value as? NSNull{
-                    FIRAuth.auth()?.signIn(withEmail: email, password: password, completion: {(user, error) in
-                        self.userEmail = email
-                        self.userProvider = "email"
-                        
-                        if error != nil{
-                            print(error)
-                            if error!._code == STATUS_NO_INTERNET{
-                                self.showErrorAlert(title: "No Internet Connection", msg: "You currently have no internet connection. Please try again later.")
-                            }
-                            
-                            if error!._code == STATUS_ACCOUNT_NONEXIST{
-                                FIRAuth.auth()?.createUser(withEmail: email, password: password, completion: { (user, error) in
-                                    
-                                    if error != nil{
-                                        error!._code == STATUS_ACCOUNT_WEAKPASSWORD ?
-                                            self.showErrorAlert(title: "Weak Password", msg: "The password must be more than 5 characters.") :
-                                            self.showErrorAlert(title: "Could not create account",
-                                                                msg: "Problem creating account. Try something else")
-                                    }else{
-                                        UserDefaults.standard.setValue(user!.uid, forKey: KEY_UID)
-                                        UserDefaults.standard.setValue(self.userEmail, forKey: USER_EMAIL)
-                                        self.uploadPictureAndSetupCurrentUser(userName: userName)
-                                    }
-                                })
-                            } else if error!._code == STATUS_ACCOUNT_WRONGPASSWORD{
-                                self.showErrorAlert(title: "Incorrect Password", msg: "The password that you entered does not match the one we have for your email address")
-                                return
-                            }
-                        } else {
-                            //set only to allow different signins
-                            UserDefaults.standard.setValue(user!.uid, forKey: KEY_UID)
-                            self.handleReturningUser()
-                        }
-                    })
-                } else {
-                    self.showErrorAlert(title: "UserName Taken", msg: "This user name is already in use. Please choose a different one")
-                    return
+                    alreadyRegisteredUserName = false
+                }else{
+                    alreadyRegisteredUserName = true
                 }
                 }, withCancel: nil)
+            return alreadyRegisteredUserName!
+    }
+
+    func createAndSignInUser(email: String, password: String, username: String){
+        print("Inside Create and Sign In User")
+        FIRAuth.auth()?.signIn(withEmail: email, password: password, completion: {(user, error) in
+            print("Inside User Signed In with Email")
+            self.userEmail = email
+            self.userProvider = "email"
+            
+            if error != nil{
+                print(error)
+                if error!._code == STATUS_NO_INTERNET{
+                    self.showErrorAlert(title: "No Internet Connection", msg: "You currently have no internet connection. Please try again later.")
+                }
+                
+                if error!._code == STATUS_ACCOUNT_NONEXIST{
+                    self.registerButton.setTitle("Registering...", for: .normal)
+                    FIRAuth.auth()?.createUser(withEmail: email, password: password, completion: { (user, error) in
+                        
+                        if error != nil{
+                            error!._code == STATUS_ACCOUNT_WEAKPASSWORD ?
+                                self.showErrorAlert(title: "Weak Password", msg: "The password must be more than 5 characters.") :
+                                self.showErrorAlert(title: "Could not create account", msg: "Problem creating account. Try something else")
+                        }else{
+                            UserDefaults.standard.setValue(user!.uid, forKey: KEY_UID)
+                            UserDefaults.standard.setValue(self.userEmail, forKey: USER_EMAIL)
+                            self.uploadPictureAndSetupCurrentUser(userName: username)
+                        }
+                    })
+                } else if error!._code == STATUS_ACCOUNT_WRONGPASSWORD{
+                    self.showErrorAlert(title: "Incorrect Password", msg: "The password that you entered does not match the one we have for your email address")
+                    return
+                } else if error!._code == STATUS_ACCOUNT_BADEMAIL{
+                    self.showErrorAlert(title: "Email Format", msg: "Your email address is not formatted correctly. Please try again")
+                    return
+                }
+
+            } else {
+                //set only to allow different signins
+                UserDefaults.standard.setValue(user!.uid, forKey: KEY_UID)
+                self.handleReturningUser()
+            }
+        })
+    }
+    
+    func attemptLoginAlreadyUser(){
+        print("Inside Already User")
+        guard let email = emailTextField.text,
+              let password = passwordTextField.text else {
+                showErrorAlert(title: "Email and Password Required", msg: "You must enter an email and password to login")
+                return
+        }
         
+        FIRAuth.auth()?.signIn(withEmail: email, password: password, completion: { (user, error) in
+            if error != nil{
+                print(error)
+                if error!._code == STATUS_NO_INTERNET{
+                    self.showErrorAlert(title: "No Internet Connection", msg: "You currently have no internet connection. Please try again later.")
+                }
+                if error!._code == STATUS_ACCOUNT_WRONGPASSWORD{
+                    self.showErrorAlert(title: "Incorrect Password", msg: "The password that you entered does not match the one we have for your email address")
+                    return
+                }
+            }else{
+                UserDefaults.standard.setValue(user!.uid, forKey: KEY_UID)
+                self.handleReturningUser()
+            }
+        })
     }//end method
     
     //MARK: - Handler Methods
@@ -530,7 +612,7 @@ class IntroViewController: UIViewController {
         }
         
         if let userName = values["UserName"]{
-            let firstLetter = String(userName[userName.startIndex])
+            let firstLetter = String(userName.uppercased()[userName.startIndex])
             let userNameRef = DataService.ds.REF_USERS_NAMES.child(firstLetter)
             userNameRef.updateChildValues([userName.lowercased(): 1])
         }
@@ -562,7 +644,7 @@ class IntroViewController: UIViewController {
     }
     
     func handleKeyboardWillHide(notification: Notification){
-        loginContainerViewBottomAnchor?.constant = 0
+        //loginContainerViewBottomAnchor?.constant = 0
         let userInfo:NSDictionary = notification.userInfo! as NSDictionary
         let keyboardDuration = userInfo.value(forKey: UIKeyboardAnimationDurationUserInfoKey) as! Double
         
@@ -573,7 +655,7 @@ class IntroViewController: UIViewController {
     
     func eMailButtonPressed(){
         print("Email button pressed")
-        chatHookLogoViewCenterAnchor?.constant = -250
+        chatHookLogoViewBottomAnchor?.constant = -200
         facebookContainerView.isHidden = true
         eMailContainerView.isHidden = true
             UIView.animate(withDuration: 0.5){

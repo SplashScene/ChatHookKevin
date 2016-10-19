@@ -202,6 +202,7 @@ class IntroViewController: UIViewController {
         passwordTextField.delegate = self
         viewsArray = [chatHookLogo, facebookContainerView, eMailContainerView, loginContainerView, profileImageView, registerButton]
         setupKeyboardObservers()
+        self.setupView()
     }
     
     override func viewWillAppear(_ animated: Bool) {

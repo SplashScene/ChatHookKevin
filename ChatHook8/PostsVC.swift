@@ -535,23 +535,33 @@ extension PostsVC:UITableViewDelegate, UITableViewDataSource{
             
             if let _ = postsArray[indexPath.row].showcaseUrl{
                 let knownHeight: CGFloat = 50 + 205 + 16 + 35 + 9 + 30
-                return rect.height > 50 ? rect.height + knownHeight + 40 : rect.height + knownHeight
+                print("The rect height is: \(rect.height)")
+                    if rect.height > 50 && rect.height < 99{
+                        return rect.height + knownHeight + 40
+                    }else if rect.height > 100 && rect.height < 149{
+                        return rect.height + knownHeight + 70
+                    }else if rect.height > 150{
+                        return rect.height + knownHeight + 90
+                    }else{
+                        return rect.height + knownHeight + 15
+                    }
+                
             }else{
-                let knowHeight: CGFloat = 50 + 16 + 35 + 9 + 30
-                return rect.height + knowHeight
+                let knownHeight: CGFloat = 50 + 16 + 35 + 9 + 30
+                print("The rect height with no picture is: \(rect.height)")
+                    if rect.height > 50 && rect.height < 99{
+                        return rect.height + knownHeight + 40
+                    }else if rect.height > 100 && rect.height < 149{
+                        return rect.height + knownHeight + 60
+                    }else if rect.height > 150{
+                        return rect.height + knownHeight + 80
+                    }else{
+                        return rect.height + knownHeight + 15
+                    }
             }
-            
-            
         }
         let noTextHeight:CGFloat = 50 + 205 + 16 + 35 + 9 + 50
         return noTextHeight
-        
-//        let post = postsArray[indexPath.row]
-//        if post.showcaseUrl == nil{
-//            return 175
-//        }else{
-//            return tableView.estimatedRowHeight
-//        }
     }
 }//end extension
 

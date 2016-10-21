@@ -154,7 +154,9 @@ class ChatViewController: JSQMessagesViewController {
         let rawMessage = rawMessages[indexPath.item]
         
         if rawMessage.mediaType == "VIDEO"{
-            self.setupVideoCell(cell: cell, rawMessage: rawMessage)
+            if cell.mediaView.subviews.count == 0{
+                self.setupVideoCell(cell: cell, rawMessage: rawMessage)
+            }
         }
         
         cell.textView?.textColor = message!.senderId == CurrentUser._postKey ? UIColor.white : UIColor.black
@@ -166,12 +168,6 @@ class ChatViewController: JSQMessagesViewController {
     }
     
     private func setupVideoCell(cell: JSQMessagesCollectionViewCell, rawMessage: Message){
-        
-        if cell.mediaView.subviews.count > 0{
-            for view in (cell.mediaView.subviews){
-                view.removeFromSuperview()
-            }
-        }
         
         let thumbImageView = UIImageView()
             thumbImageView.loadImageUsingCacheWithUrlString(urlString: rawMessage.thumbnailUrl!)

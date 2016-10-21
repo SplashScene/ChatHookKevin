@@ -163,7 +163,7 @@ class CommentViewCell: UITableViewCell {
         cellContainerView.addSubview(descriptionText)
         
         profileImageView.leftAnchor.constraint(equalTo: cellContainerView.leftAnchor, constant: 8).isActive = true
-        profileImageView.centerYAnchor.constraint(equalTo: cellContainerView.centerYAnchor).isActive = true
+        profileImageView.topAnchor.constraint(equalTo: cellContainerView.topAnchor, constant: 8).isActive = true
         profileImageView.widthAnchor.constraint(equalToConstant: 60).isActive = true
         profileImageView.heightAnchor.constraint(equalToConstant: 60).isActive = true
         

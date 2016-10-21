@@ -11,8 +11,10 @@ import Firebase
 
 class RoomsViewController: UITableViewController {
     var roomsArray = [PublicRoom]()
+    var filteredRooms = [PublicRoom]()
     var chosenRoom: PublicRoom?
     let cellID = "cellID"
+    let searchController = UISearchController(searchResultsController: nil)
 
     //MARK: - View Methods
     override func viewDidLoad() {
@@ -24,8 +26,12 @@ class RoomsViewController: UITableViewController {
         tableView.estimatedRowHeight = 72
         tableView.delegate = self
         tableView.dataSource = self
-
         tableView.register(PublicRoomCell.self, forCellReuseIdentifier: cellID)
+        
+        searchController.searchResultsUpdater = self
+        searchController.dimsBackgroundDuringPresentation = false
+        definesPresentationContext = true
+        tableView.tableHeaderView = searchController.searchBar
         
         observeRooms()
     }
@@ -122,7 +128,14 @@ class RoomsViewController: UITableViewController {
     
     //MARK: - TableView Methods
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let post = roomsArray[indexPath.row]
+        //let post = roomsArray[indexPath.row]
+        let post: PublicRoom
+        
+        if searchController.isActive && searchController.searchBar.text != "" {
+            post = filteredRooms[indexPath.row]
+        } else {
+            post = roomsArray[indexPath.row]
+        }
         
         if let cell = tableView.dequeueReusableCell(withIdentifier: cellID) as? PublicRoomCell{
             cell.publicRoom = post
@@ -137,6 +150,9 @@ class RoomsViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if searchController.isActive && searchController.searchBar.text != "" {
+            return filteredRooms.count
+        }
         return roomsArray.count
     }
     
@@ -145,10 +161,33 @@ class RoomsViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let room = roomsArray[indexPath.row]
+        let room: PublicRoom
+        
+        if searchController.isActive && searchController.searchBar.text != "" {
+            room = filteredRooms[indexPath.row]
+        }else{
+            room = roomsArray[indexPath.row]
+        }
+        
         showPostControllerForRoom(room: room)
     }
+    
+    //MARK: - Search Delegate Methods
+    
+    func filterContentForSearchText(searchText: String, scope: String = "All"){
+        filteredRooms = roomsArray.filter{ room in
+            return (room.RoomName?.lowercased().contains(searchText.lowercased()))!
+        }
+        tableView.reloadData()
+    }
+    
 }//end RoomsViewController
+
+extension RoomsViewController: UISearchResultsUpdating{
+    func updateSearchResults(for searchController: UISearchController) {
+        filterContentForSearchText(searchText: searchController.searchBar.text!)
+    }
+}
 
 
 

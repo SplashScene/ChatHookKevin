@@ -56,8 +56,7 @@ class PostsVC: UIViewController{
     lazy var imageSelectorView: UIImageView = {
         let isv = UIImageView()
             isv.translatesAutoresizingMaskIntoConstraints = false
-            isv.image = UIImage(named: "add_photo_btn")
-            isv.backgroundColor = UIColor.blue
+            isv.image = UIImage(named: "camera_icon_snap")
             isv.contentMode = .scaleAspectFit
             isv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleImageSelector)))
             isv.isUserInteractionEnabled = true
@@ -460,7 +459,7 @@ class PostsVC: UIViewController{
     //MARK: - Video Player Methods
     
     func handlePlayPostVideo(sender: UIButton){
-        
+        print("Inside post video play - CONTROLLER")
         let buttonPosition = sender.convert(CGPoint(x: 0, y: 0), to: self.postTableView)
         let indexPath = self.postTableView.indexPathForRow(at: buttonPosition)
         let cell = self.postTableView.cellForRow(at: indexPath!) as? testPostCell
@@ -468,7 +467,7 @@ class PostsVC: UIViewController{
         
         self.playButton = sender
              playButton!.isHidden = true
-        self.activityIndicator = cell?.showcaseImageView.subviews[1] as? UIActivityIndicatorView
+        self.activityIndicator = cell?.showcaseImageView.subviews[0] as? UIActivityIndicatorView
         self.activityIndicator!.startAnimating()
         
         let url = NSURL(string: post.showcaseUrl!)
@@ -536,27 +535,23 @@ extension PostsVC:UITableViewDelegate, UITableViewDataSource{
             if let _ = postsArray[indexPath.row].showcaseUrl{
                 let knownHeight: CGFloat = 50 + 205 + 16 + 35 + 9 + 30
                 print("The rect height is: \(rect.height)")
-                    if rect.height > 50 && rect.height < 99{
-                        return rect.height + knownHeight + 40
-                    }else if rect.height > 100 && rect.height < 149{
-                        return rect.height + knownHeight + 70
-                    }else if rect.height > 150{
-                        return rect.height + knownHeight + 90
-                    }else{
-                        return rect.height + knownHeight + 15
-                    }
-                
+                switch(rect.height){
+                    case 50...99: return rect.height + knownHeight + 40
+                    case 100...149: return rect.height + knownHeight + 70
+                    case 150...199: return rect.height + knownHeight + 90
+                    case 200...299:  return rect.height + knownHeight + 175
+                    case 300...399:  return rect.height + knownHeight + rect.height / 3
+                    default: return rect.height + knownHeight + 15
+                }
             }else{
                 let knownHeight: CGFloat = 50 + 16 + 35 + 9 + 30
                 print("The rect height with no picture is: \(rect.height)")
-                    if rect.height > 50 && rect.height < 99{
-                        return rect.height + knownHeight + 40
-                    }else if rect.height > 100 && rect.height < 149{
-                        return rect.height + knownHeight + 60
-                    }else if rect.height > 150{
-                        return rect.height + knownHeight + 80
-                    }else{
-                        return rect.height + knownHeight + 15
+                    switch(rect.height){
+                        case 50...99: return rect.height + knownHeight + 40
+                        case 100...149: return rect.height + knownHeight + 60
+                        case 150...199: return rect.height + knownHeight + 80
+                        case 200...300:  return rect.height + knownHeight + 100
+                        default: return rect.height + knownHeight + 15
                     }
             }
         }
@@ -697,7 +692,7 @@ extension PostsVC{
         
         self.postTextField.text = ""
         self.postTextField.endEditing(true)
-        self.imageSelectorView.image = UIImage(named: "add_photo_btn")
+        self.imageSelectorView.image = UIImage(named: "camera_icon_snap")
         self.postedImage = nil
         self.postedVideo = nil
         self.postedText = nil

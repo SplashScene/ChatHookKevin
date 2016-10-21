@@ -321,8 +321,21 @@ extension CommentViewController:UITableViewDelegate, UITableViewDataSource{
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 92
+        var commentRowHeight: CGFloat = 0.0
+            if let statusText = commentsArray[indexPath.row].commentText{
+                let rect = NSString(string: statusText).boundingRect(with: CGSize(width: view.frame.width, height: 1000), options: NSStringDrawingOptions.usesFontLeading.union(NSStringDrawingOptions.usesLineFragmentOrigin), attributes: [NSFontAttributeName: UIFont.systemFont(ofSize: 14)], context: nil)
+                    print("My comment rect height is: \(rect.height)")
+                switch(rect.height){
+                    case 50...99: commentRowHeight = rect.height + 80
+                    case 100...149: commentRowHeight = rect.height + 140
+                    case 150...199: commentRowHeight = rect.height + 165
+                    case 200...300:  commentRowHeight = rect.height + 285
+                    default: commentRowHeight = 92
+                }
+            }
+       return commentRowHeight
     }
+    
 }//end extension
 
 

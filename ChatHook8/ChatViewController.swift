@@ -39,6 +39,15 @@ class ChatViewController: JSQMessagesViewController {
             userIsTypingRef.setValue(newValue)
         }
     }
+    
+    let uncheckedImageView: UIImageView = {
+        let imageView = UIImageView()
+            imageView.image = UIImage(named: "Unchecked")
+            imageView.translatesAutoresizingMaskIntoConstraints = false
+            imageView.isHidden = true
+            imageView.contentMode = .scaleAspectFill
+        return imageView
+    }()
 
     var usersTypingQuery: FIRDatabaseQuery!
     

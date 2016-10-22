@@ -30,15 +30,23 @@ class MessagesController: UITableViewController {
         tableView.register(UserCell.self, forCellReuseIdentifier: "cellID")
         tableView.allowsMultipleSelectionDuringEditing = true
     }
-    
-    //MARK: - Setup UI
-    
-    func setupNavBarWithUser(){
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         messagesArray.removeAll()
         messagesDictionary.removeAll()
         tableView.reloadData()
         
         observeUserMessages()
+    }
+    
+    //MARK: - Setup UI
+    
+    func setupNavBarWithUser(){
+//        messagesArray.removeAll()
+//        messagesDictionary.removeAll()
+//        tableView.reloadData()
+//        
+//        observeUserMessages()
         
         let titleView = UIView()
             titleView.frame = CGRect(x: 0, y: 0, width: 100, height: 40)
@@ -84,22 +92,23 @@ class MessagesController: UITableViewController {
     //MARK: - Observe Methods
     func observeUserMessages(){
         messagesArray = []
-        let ref = DataService.ds.REF_USERMESSAGES.child(CurrentUser._postKey)
+        let getAllMyMessages = DataService.ds.REF_USERMESSAGES.child(CurrentUser._postKey)
         
-        ref.observe(.childAdded, with: { (snapshot) in
+        getAllMyMessages.observe(.childAdded, with: { (snapshot) in
             let userID = snapshot.key
-            DataService.ds.REF_USERMESSAGES.child(CurrentUser._postKey!).child(userID).observe(.childAdded, with: { (snapshot) in
+        let lookAtEachMessage = DataService.ds.REF_USERMESSAGES.child(CurrentUser._postKey!).child(userID)
+            lookAtEachMessage.observe(.childAdded, with: { (snapshot) in
                     let messageID = snapshot.key
                     self.fetchMessageWithMessageId(messageID: messageID)
                 }, withCancel: nil)
             }, withCancel: nil)
         
-        ref.observe(.childRemoved, with: { (snapshot) in
+        getAllMyMessages.observe(.childRemoved, with: { (snapshot) in
             self.messagesDictionary.removeValue(forKey: snapshot.key)
             self.attemptReloadOfTable()
             }, withCancel: nil)
     }
-    
+        
     private func fetchMessageWithMessageId(messageID: String){
         let messagesRef = DataService.ds.REF_MESSAGES.child(messageID)
         

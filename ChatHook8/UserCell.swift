@@ -9,6 +9,8 @@
 import UIKit
 import Firebase
 
+var isUserBlocked:Bool = false
+
 class UserCell: UITableViewCell {
     var message: Message?{
         didSet{
@@ -23,9 +25,43 @@ class UserCell: UITableViewCell {
                 }
             }
             timeLabel.text = formatDate(messageTimeStamp: (message?.timestamp?.doubleValue)!)
+            
+            if let didIBlockThisUser = CurrentUser._blockedUsersArray?.contains((message?.fromId)!){
+                isUserBlocked = didIBlockThisUser
+            }
+            
+
         }
     }
     
+    lazy var blockedUserContainerView: UIView = {
+        let profileNameView = UIView()
+            profileNameView.translatesAutoresizingMaskIntoConstraints = false
+            profileNameView.backgroundColor = UIColor.clear
+        return profileNameView
+    }()
+    
+    let blockedUserImageView: MaterialImageView = {
+        let blockedImage = UIImage(named: "blocker")
+        let imageView = MaterialImageView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
+            imageView.translatesAutoresizingMaskIntoConstraints = false
+            imageView.layer.cornerRadius = 24
+            imageView.layer.masksToBounds = true
+            imageView.image = blockedImage
+            imageView.contentMode = .scaleAspectFill
+        return imageView
+    }()
+    
+    let blockedLabel: UILabel = {
+        let label = UILabel()
+            label.text = "Blocked"
+            label.translatesAutoresizingMaskIntoConstraints = false
+            label.font = UIFont(name: FONT_AVENIR_MEDIUM, size:  12.0)
+            label.textColor = UIColor.red
+            label.sizeToFit()
+        return label
+    }()
+
     lazy var profileImageView: UIImageView = {
         let imageView = UIImageView()
             imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -59,6 +95,7 @@ class UserCell: UITableViewCell {
         addSubview(profileImageView)
         addSubview(onlineImageView)
         addSubview(timeLabel)
+        addSubview(blockedUserContainerView)
         layoutUserCell()
     }
     
@@ -86,6 +123,26 @@ class UserCell: UITableViewCell {
         
         timeLabel.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -8).isActive = true
         timeLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 4).isActive = true
+        
+        blockedUserContainerView.isHidden = !isUserBlocked
+        
+        blockedUserContainerView.leftAnchor.constraint(equalTo: self.leftAnchor, constant: 64).isActive = true
+        blockedUserContainerView.topAnchor.constraint(equalTo: self.topAnchor).isActive = true
+        blockedUserContainerView.widthAnchor.constraint(equalToConstant: 80).isActive = true
+        blockedUserContainerView.heightAnchor.constraint(equalToConstant: 20).isActive = true
+        
+        blockedUserContainerView.addSubview(blockedUserImageView)
+        blockedUserContainerView.addSubview(blockedLabel)
+        
+        blockedUserImageView.leftAnchor.constraint(equalTo: blockedUserContainerView.leftAnchor).isActive = true
+        blockedUserImageView.centerYAnchor.constraint(equalTo: blockedUserContainerView.centerYAnchor).isActive = true
+        blockedUserImageView.widthAnchor.constraint(equalToConstant: 20).isActive = true
+        blockedUserImageView.heightAnchor.constraint(equalToConstant: 20).isActive = true
+        
+        blockedLabel.rightAnchor.constraint(equalTo: blockedUserContainerView.rightAnchor).isActive = true
+        blockedLabel.centerYAnchor.constraint(equalTo: blockedUserContainerView.centerYAnchor).isActive = true
+        blockedLabel.widthAnchor.constraint(equalToConstant: 60).isActive = true
+        blockedLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
     }
     
     private func formatDate(messageTimeStamp: Double) -> String{

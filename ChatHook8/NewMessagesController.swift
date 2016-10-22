@@ -49,55 +49,57 @@ class NewMessagesController: UITableViewController {
         usersArray2 = []
         usersArray3 = []
 
-        let searchLat = Int(CurrentUser._location.coordinate.latitude)
-        let searchLong = Int(CurrentUser._location.coordinate.longitude)
+        let searchLatInteger = Int(CurrentUser._location.coordinate.latitude)
+        let searchLongInteger = Int(CurrentUser._location.coordinate.longitude)
 
-        let ref = DataService.ds.REF_USERSONLINE.child("\(searchLat)").child("\(searchLong)")
+        let getMyLatitudeAndLongitudeRange = DataService.ds.REF_USERSONLINE.child("\(searchLatInteger)").child("\(searchLongInteger)")
         
         
-        ref.observe(.childAdded, with: { (snapshot) in
-            let userID = snapshot.key
-            var userLocation: CLLocation?
+        getMyLatitudeAndLongitudeRange.observe(.childAdded, with: { (snapshot) in
+            let theirUserID = snapshot.key
+            var theirUserLocation: CLLocation?
             
-            let latLongRef = ref.child(userID)
+            let individualUserInMyLatitudeAndLongitudeRange = getMyLatitudeAndLongitudeRange.child(theirUserID)
             
-            latLongRef.observeSingleEvent(of: .value, with: { (snapshot) in
+            individualUserInMyLatitudeAndLongitudeRange.observeSingleEvent(of: .value, with: { (snapshot) in
                 if let dictionary = snapshot.value as? [String: AnyObject]{
                     
-                    userLocation = CLLocation(latitude: dictionary["userLatitude"] as! Double,
+                    theirUserLocation = CLLocation(latitude: dictionary["userLatitude"] as! Double,
                                               longitude: dictionary["userLongitude"] as! Double)
                     
-                    let userRef = DataService.ds.REF_USERS.child(userID)
-                    userRef.observeSingleEvent(of: .value, with: { (snapshot) in
-                        if let dictionary = snapshot.value as? [String: AnyObject]{
-                            let userPostKey = snapshot.key
-                            let user = User(postKey: userPostKey, dictionary: dictionary)
-                                user.location = userLocation
-                            if let isBlockedUser = CurrentUser._blockedUsersArray?.contains(user.postKey){
-                                user.isBlocked = isBlockedUser
-                            }
+                    let getIndividualUserInformation = DataService.ds.REF_USERS.child(theirUserID)
+                    
+                        getIndividualUserInformation.observeSingleEvent(of: .value, with: { (snapshot) in
+                            if let dictionary = snapshot.value as? [String: AnyObject]{
+                                let theirUniqueID = snapshot.key
+                                let user = User(postKey: theirUniqueID, dictionary: dictionary)
+                                    user.location = theirUserLocation
+                                if let didIBlockThisUser = CurrentUser._blockedUsersArray?.contains(user.postKey){
+                                    user.isBlocked = didIBlockThisUser
+                                }
                             
-                            userRef.child("blocked_users").child(CurrentUser._postKey).observe(.value, with: { (snapshot) in
-                                    if let _ = snapshot.value as? NSNull{
+                    let didTheyBlockMe = getIndividualUserInformation.child("blocked_users").child(CurrentUser._postKey)
+                            
+                        didTheyBlockMe.observe(.value, with: { (snapshot) in
+                                if let _ = snapshot.value as? NSNull{ //They didn't block me so proceed
+                                    if user.postKey != CurrentUser._postKey{
+                                        let distanceFromMeDict = self.messagesController!.calculateDistance(otherLocation: user.location)
+                                        let distance = distanceFromMeDict["DistanceDouble"] as! Double
+                                        user.distance = distance
                                         
-                                        if user.postKey != CurrentUser._postKey{
-                                            let distanceFromMe = self.messagesController!.calculateDistance(otherLocation: user.location)
-                                            let distanceDouble = distanceFromMe["DistanceDouble"] as! Double
-                                            user.distance = distanceDouble
-                                            
-                                            self.loadDistanceArrays(distanceDouble: user.distance!, user: user)
-                                            
-                                            self.attemptLoadOfSections()
-                                            print("Past attempt to load sections")
-                                        }
+                                        self.loadDistanceArrays(distanceDouble: user.distance!, user: user)
                                         
-                                    }else{
-                                        print("\(user.userName) cock blocked me")
+                                        self.attemptLoadOfSections()
+                                        print("Past attempt to load sections")
                                     }
-                                }, withCancel: nil)
-                        }
-                        
-                    }, withCancel: nil)
+                                    
+                                }else{
+                                    print("\(user.userName) cock blocked me")
+                                }
+                            }, withCancel: nil)
+                    }
+                    
+                }, withCancel: nil)
                 }
                 }, withCancel: nil)
             

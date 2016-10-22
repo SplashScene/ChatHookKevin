@@ -33,10 +33,19 @@ class ProfileViewController: UIViewController {
         return backImageView
     }()
     
-    let addPhotoBlockUserButton: UIButton = {
+    let addPhotoButton: UIButton = {
         let addPicBtn = UIButton()
             addPicBtn.translatesAutoresizingMaskIntoConstraints = false
         return addPicBtn
+    }()
+    
+    let blockButton: UIButton = {
+        let button = UIButton()
+            button.translatesAutoresizingMaskIntoConstraints = false
+            button.titleEdgeInsets = UIEdgeInsetsMake(0, 8, 0, 0)
+            button.setTitleColor(UIColor.lightGray, for: .normal)
+            button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 18)
+        return button
     }()
     
     lazy var profileChatButton: UIButton = {
@@ -96,15 +105,17 @@ class ProfileViewController: UIViewController {
         super.viewDidLoad()
         navigationItem.rightBarButtonItem = nil
         setupMainView()
-        
+
         collectionView!.register(GalleryCollectionCell.self, forCellWithReuseIdentifier: "Cell")
         
-        checkUserAndSetupUI()
+        print("This user is blocked: \(selectedUser?.isBlocked)")
         setupBackgroundImageView()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        checkUserAndSetupUI()
+        setupBackgroundImageView()
     }
     
     override var preferredStatusBarStyle: UIStatusBarStyle{
@@ -138,7 +149,8 @@ class ProfileViewController: UIViewController {
         screenHeight = screenSize.height
         
         view.addSubview(backgroundImageView)
-        view.addSubview(addPhotoBlockUserButton)
+        view.addSubview(addPhotoButton)
+        view.addSubview(blockButton)
         view.addSubview(profileChatButton)
         
             if selectedUser != nil{
@@ -187,12 +199,17 @@ class ProfileViewController: UIViewController {
         distanceLabel.centerXAnchor.constraint(equalTo: backgroundImageView.centerXAnchor).isActive = true
         distanceLabel.topAnchor.constraint(equalTo: currentUserNameLabel.bottomAnchor, constant: 8).isActive = true
         
-        addPhotoBlockUserButton.centerXAnchor.constraint(equalTo: profileImageView.rightAnchor, constant: 24).isActive = true
-        addPhotoBlockUserButton.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor).isActive = true
-        addPhotoBlockUserButton.widthAnchor.constraint(equalToConstant: 40).isActive = true
-        addPhotoBlockUserButton.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        addPhotoButton.leftAnchor.constraint(equalTo: profileImageView.rightAnchor, constant: 8).isActive = true
+        addPhotoButton.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor).isActive = true
+        addPhotoButton.widthAnchor.constraint(equalToConstant: 40).isActive = true
+        addPhotoButton.heightAnchor.constraint(equalToConstant: 40).isActive = true
         
-        profileChatButton.centerXAnchor.constraint(equalTo: profileImageView.leftAnchor, constant: -24).isActive = true
+        blockButton.rightAnchor.constraint(equalTo: self.view.rightAnchor, constant: -8).isActive = true
+        blockButton.bottomAnchor.constraint(equalTo: profileImageView.topAnchor, constant: 8).isActive = true
+        blockButton.widthAnchor.constraint(equalToConstant: 100).isActive = true
+        blockButton.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        
+        profileChatButton.rightAnchor.constraint(equalTo: profileImageView.leftAnchor, constant: -8).isActive = true
         profileChatButton.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor).isActive = true
         profileChatButton.widthAnchor.constraint(equalToConstant: 54).isActive = true
         profileChatButton.heightAnchor.constraint(equalToConstant: 54).isActive = true
@@ -204,25 +221,31 @@ class ProfileViewController: UIViewController {
             self.profileImageView.loadImageUsingCacheWithUrlString(urlString: CurrentUser._profileImageUrl)
             self.currentUserNameLabel.text = CurrentUser._userName
             self.navigationItem.title = CurrentUser._userName
-            self.addPhotoBlockUserButton.setImage(btnImage, for: .normal)
-            self.addPhotoBlockUserButton.addTarget(self, action: #selector(handleAddPhotoButtonTapped), for: .touchUpInside)
+            self.addPhotoButton.setImage(btnImage, for: .normal)
+            self.addPhotoButton.addTarget(self, action: #selector(handleAddPhotoButtonTapped), for: .touchUpInside)
             self.profileChatButton.isHidden = true
+            self.blockButton.isHidden = true
             observeGallery(uid: CurrentUser._postKey)
-        }else if selectedUser?.isBlocked == false{
-            let btnImage = UIImage(named: "unblock")
+        }else if (selectedUser?.isBlocked)! == false{
+            blockButton.isHidden = false
+            let btnImage = UIImage(named: "blocker")
             setupSelectedUserProfile()
             observeGallery(uid: (selectedUser?.postKey)!)
             addPhotosToGalleryLabel.text = "No Photos in Gallery"
-            self.addPhotoBlockUserButton.setImage(btnImage, for: .normal)
-            self.addPhotoBlockUserButton.addTarget(self, action: #selector(handleBlockUserTapped), for: .touchUpInside)
+            blockButton.isHidden = false
+            blockButton.setTitle("Block", for: .normal)
+            blockButton.setImage(btnImage, for: .normal)
+            blockButton.addTarget(self, action: #selector(handleBlockUserTapped), for: .touchUpInside)
             self.profileChatButton.isHidden = false
         }else{
-            let btnImage = UIImage(named: "block")
+            blockButton.isHidden = false
+            let btnImage = UIImage(named: "unblocker")
             setupSelectedUserProfile()
             observeGallery(uid: (selectedUser?.postKey)!)
             addPhotosToGalleryLabel.text = "No Photos in Gallery"
-            self.addPhotoBlockUserButton.setImage(btnImage, for: .normal)
-            self.addPhotoBlockUserButton.addTarget(self, action: #selector(handleUnblockUserTapped), for: .touchUpInside)
+            blockButton.setTitle("Unblock", for: .normal)
+            blockButton.setImage(btnImage, for: .normal)
+            blockButton.addTarget(self, action: #selector(handleUnblockUserTapped), for: .touchUpInside)
             self.profileChatButton.isHidden = false
         }
     }
@@ -293,9 +316,11 @@ class ProfileViewController: UIViewController {
             let currentUserRef = DataService.ds.REF_USER_CURRENT
             let blockedUserID = self.selectedUser!.postKey
             currentUserRef.child("blocked_users").updateChildValues([blockedUserID: 1])
+            CurrentUser._blockedUsersArray?.append(blockedUserID)
             self.selectedUser?.isBlocked = true
-            self.addPhotoBlockUserButton.setImage(UIImage(named: "block"), for: .normal)
-            self.addPhotoBlockUserButton.addTarget(self, action: #selector(self.handleUnblockUserTapped), for: .touchUpInside)
+            self.blockButton.setImage(UIImage(named: "unblocker"), for: .normal)
+            self.blockButton.setTitle("Unblock", for: .normal)
+            self.blockButton.addTarget(self, action: #selector(self.handleUnblockUserTapped), for: .touchUpInside)
         })
         let cancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
         
@@ -314,8 +339,9 @@ class ProfileViewController: UIViewController {
             currentUserRef.child("blocked_users").child(blockedUserID).removeValue()
             CurrentUser._blockedUsersArray = CurrentUser._blockedUsersArray?.filter({$0 != blockedUserID})
             self.selectedUser?.isBlocked = false
-            self.addPhotoBlockUserButton.setImage(UIImage(named: "unblock"), for: .normal)
-            self.addPhotoBlockUserButton.addTarget(self, action: #selector(self.handleBlockUserTapped), for: .touchUpInside)
+            self.blockButton.setImage(UIImage(named: "blocker"), for: .normal)
+            self.blockButton.setTitle("Block", for: .normal)
+            self.blockButton.addTarget(self, action: #selector(self.handleBlockUserTapped), for: .touchUpInside)
         })
         
         let cancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)

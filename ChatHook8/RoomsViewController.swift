@@ -163,11 +163,7 @@ class RoomsViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let room: PublicRoom
         
-        if searchController.isActive && searchController.searchBar.text != "" {
-            room = filteredRooms[indexPath.row]
-        }else{
-            room = roomsArray[indexPath.row]
-        }
+        room = searchController.isActive && searchController.searchBar.text != "" ? filteredRooms[indexPath.row] : roomsArray[indexPath.row]
         
         showPostControllerForRoom(room: room)
     }

@@ -275,33 +275,35 @@ class ChatViewController: JSQMessagesViewController {
                 
                 let message = Message()
                 message.setValuesForKeys(dictionary)
-                self.rawMessages.append(message)
                 
-                //let senderName = self.observeUser(message.fromId!)
-                
-                switch (message.mediaType!){
-                    case "PHOTO":
-                        let url = NSURL(string: message.imageUrl!)
-                        let picData = NSData(contentsOf: url! as URL)
-                        let picture = UIImage(data: picData! as Data)
-                        let photo = JSQPhotoMediaItem(image: picture)
-                        self.messages.append(JSQMessage(senderId: message.fromId, displayName: self.senderDisplayName, media: photo))
-                        photo?.appliesMediaViewMaskAsOutgoing = message.fromId == CurrentUser._postKey ? true : false
-                        
-                    case "VIDEO":
-                        let video = NSURL(string: message.imageUrl!)
-                        let videoItem = JSQVideoMediaItem(fileURL: video as URL!, isReadyToPlay: true)
-                        self.messages.append(JSQMessage(senderId: message.fromId, displayName: self.senderDisplayName, media: videoItem))
-                        videoItem?.appliesMediaViewMaskAsOutgoing = message.fromId == CurrentUser._postKey ? true : false
-                        
-                    case "TEXT":
-                        self.messages.append(JSQMessage(senderId: message.fromId, displayName: self.senderDisplayName, text: message.text!))
-                        
-                    default:
-                        print("unknown data type")
+                 if let didIBlockThisUser = CurrentUser._blockedUsersArray?.contains(message.fromId!){
+                    if !didIBlockThisUser{
+                        self.rawMessages.append(message)
+                        //let senderName = self.observeUser(message.fromId!)
+                        switch (message.mediaType!){
+                            case "PHOTO":
+                                let url = NSURL(string: message.imageUrl!)
+                                let picData = NSData(contentsOf: url! as URL)
+                                let picture = UIImage(data: picData! as Data)
+                                let photo = JSQPhotoMediaItem(image: picture)
+                                self.messages.append(JSQMessage(senderId: message.fromId, displayName: self.senderDisplayName, media: photo))
+                                photo?.appliesMediaViewMaskAsOutgoing = message.fromId == CurrentUser._postKey ? true : false
+                                
+                            case "VIDEO":
+                                let video = NSURL(string: message.imageUrl!)
+                                let videoItem = JSQVideoMediaItem(fileURL: video as URL!, isReadyToPlay: true)
+                                self.messages.append(JSQMessage(senderId: message.fromId, displayName: self.senderDisplayName, media: videoItem))
+                                videoItem?.appliesMediaViewMaskAsOutgoing = message.fromId == CurrentUser._postKey ? true : false
+                                
+                            case "TEXT":
+                                self.messages.append(JSQMessage(senderId: message.fromId, displayName: self.senderDisplayName, text: message.text!))
+                                
+                            default:
+                                print("unknown data type")
+                        }
+                        self.finishReceivingMessage(animated: true)
                     }
-                
-                    self.finishReceivingMessage(animated: true)
+                 }
                 },
                 withCancel: nil)
             }, withCancel: nil)

@@ -92,8 +92,6 @@ class PostsVC: UIViewController{
         postTableView.delegate = self
         postTableView.dataSource = self
         postTableView.register(testPostCell.self, forCellReuseIdentifier: "cellID")
-        //postTableView.rowHeight = UITableViewAutomaticDimension
-        //postTableView.estimatedRowHeight = 140
         postTableView.estimatedRowHeight = 400
         postTextField.delegate = self
         
@@ -269,13 +267,13 @@ class PostsVC: UIViewController{
         let profileViewPosition = profileView.convert(CGPoint(x: 0, y: 0), to: self.postTableView)
         if let indexPath = self.postTableView.indexPathForRow(at: profileViewPosition){
             let userPost = postsArray[indexPath.row]
-            let ref = DataService.ds.REF_USERS.child(userPost.fromId!)
+            let getUserInformationFromDatabase = DataService.ds.REF_USERS.child(userPost.fromId!)
                 
-                ref.observeSingleEvent(of: .value, with: { (snapshot) in
+                getUserInformationFromDatabase.observeSingleEvent(of: .value, with: { (snapshot) in
                     guard let dictionary = snapshot.value as? [String : AnyObject] else { return }
                     let user = User(postKey: snapshot.key, dictionary: dictionary)
                     self.showProfileControllerForUser(user: user)
-                    }, withCancel: nil)
+                }, withCancel: nil)
         }
     }
     
@@ -312,14 +310,14 @@ class PostsVC: UIViewController{
 
     //MARK: - Observe Methods
     func observePosts(){
-        guard let roomID = parentRoom?.postKey else { return }
-        let roomPostsRef = DataService.ds.REF_POSTSPERROOM.child(roomID)
+        guard let parentRoomID = parentRoom?.postKey else { return }
+        let getParentRoomFromDatabase = DataService.ds.REF_POSTSPERROOM.child(parentRoomID)
         
-        roomPostsRef.observe(.childAdded, with: { (snapshot) in
+        getParentRoomFromDatabase.observe(.childAdded, with: { (snapshot) in
             let postID = snapshot.key
-            let postsRef = DataService.ds.REF_POSTS.child(postID)
+            let getFullPostFromDatabase = DataService.ds.REF_POSTS.child(postID)
             
-            postsRef.observeSingleEvent(of: .value, with: { (snapshot) in
+            getFullPostFromDatabase.observeSingleEvent(of: .value, with: { (snapshot) in
                 guard let dictionary = snapshot.value as? [String: AnyObject] else { return }
                 
                 let post = UserPost(key: snapshot.key)
@@ -332,14 +330,20 @@ class PostsVC: UIViewController{
                 withCancel: nil)
             }, withCancel: nil)
         
-        roomPostsRef.observe(.childRemoved, with: { (snapshot) in
+        getParentRoomFromDatabase.observe(.childRemoved, with: { (snapshot) in
             guard let dictionary = snapshot.value as? [String: AnyObject] else { return }
             
             let post = UserPost(key: snapshot.key)
                 post.setValuesForKeys(dictionary)
             
-            self.postsArray.insert(post, at: 0)
+            let getAllPostersBlockedUsers = DataService.ds.REF_USERS.child(post.fromId!).child("blocked_users")
             
+                getAllPostersBlockedUsers.child(CurrentUser._postKey).observe(.value, with: { (snapshot) in
+                        if let _ = snapshot.value as? NSNull {// Can't find value so not blocked
+                            self.postsArray.insert(post, at: 0)
+                        }
+                    }, withCancel: nil)
+
             self.attemptReloadOfTable()
             
             }, withCancel: nil)

@@ -173,8 +173,10 @@ class testPostCell: UITableViewCell {
             descripTextView.translatesAutoresizingMaskIntoConstraints = false
             descripTextView.font = UIFont(name: FONT_AVENIR_MEDIUM, size:  14.0)
             descripTextView.textColor = UIColor.darkGray
+            //descripTextView.backgroundColor = UIColor.lightGray
             descripTextView.sizeToFit()
             descripTextView.isScrollEnabled = false
+            descripTextView.isEditable = false
         return descripTextView
     }()
 

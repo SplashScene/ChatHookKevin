@@ -149,9 +149,11 @@ class GetLocation1: UIViewController {
     //MARK: - Observe Methods
     func fetchCurrentUser(userLocation: CLLocation){
         print("In fetchCurrentUser")
+        
         currentUserRef.observeSingleEvent(of: .value, with: { (snapshot) in
             print("The current user ref is: \(self.currentUserRef)")
             if let dictionary = snapshot.value as? [String: AnyObject]{
+                CurrentUser._blockedUsersArray = []
                 CurrentUser._postKey = snapshot.key
                 CurrentUser._userName = dictionary["UserName"] as! String
                 CurrentUser._location = userLocation
@@ -162,8 +164,9 @@ class GetLocation1: UIViewController {
                         if let snapshots = snapshot.children.allObjects as? [FIRDataSnapshot]{
                             for snap in snapshots{
                                 let blockedUserID = snap.key
-                                self.blockedUsers.append(blockedUserID)
-                                self.handleLoadingBlockedUsers()
+                                CurrentUser._blockedUsersArray?.append(blockedUserID)
+//                                self.blockedUsers.append(blockedUserID)
+//                                self.handleLoadingBlockedUsers()
                             }
                         }
                     },

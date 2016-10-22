@@ -64,8 +64,7 @@ class NewMessagesController: UITableViewController {
             individualUserInMyLatitudeAndLongitudeRange.observeSingleEvent(of: .value, with: { (snapshot) in
                 if let dictionary = snapshot.value as? [String: AnyObject]{
                     
-                    theirUserLocation = CLLocation(latitude: dictionary["userLatitude"] as! Double,
-                                              longitude: dictionary["userLongitude"] as! Double)
+                    theirUserLocation = CLLocation(latitude: dictionary["userLatitude"] as! Double,longitude: dictionary["userLongitude"] as! Double)
                     
                     let getIndividualUserInformation = DataService.ds.REF_USERS.child(theirUserID)
                     
@@ -208,9 +207,9 @@ class NewMessagesController: UITableViewController {
             }
             
                 if user.isBlocked == true{
-                    cell.backgroundColor = UIColor(r: 255, g: 99, b: 71)
+                    cell.blockedUserContainerView.isHidden = false
                 }else{
-                    cell.backgroundColor = UIColor.white
+                    cell.blockedUserContainerView.isHidden = true
                 }
             
             cell.textLabel?.text = user.userName

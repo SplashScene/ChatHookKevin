@@ -15,6 +15,9 @@ class RoomsViewController: UITableViewController {
     var chosenRoom: PublicRoom?
     let cellID = "cellID"
     let searchController = UISearchController(searchResultsController: nil)
+    var timer: Timer?
+    let getAllChatRooms = DataService.ds.REF_CHATROOMS
+    let getAllUsers = DataService.ds.REF_USERS
 
     //MARK: - View Methods
     override func viewDidLoad() {
@@ -32,7 +35,6 @@ class RoomsViewController: UITableViewController {
         searchController.dimsBackgroundDuringPresentation = false
         definesPresentationContext = true
         tableView.tableHeaderView = searchController.searchBar
-        
         observeRooms()
     }
     
@@ -43,26 +45,40 @@ class RoomsViewController: UITableViewController {
     
     //MARK: - Observe Methods
     func observeRooms(){
-        DataService.ds.REF_CHATROOMS.observe(.value, with: {
-            snapshot in
-            
+        getAllChatRooms.observe(.value, with: { snapshot in
+            print("Inside get all rooms")
             self.roomsArray = []
     
-                if let snapshots = snapshot.children.allObjects as? [FIRDataSnapshot]{
-                    for snap in snapshots{
-                        if let postDict = snap.value as? Dictionary<String, AnyObject>{
-                            let post = PublicRoom(key: snap.key)
-                                post.setValuesForKeys(postDict)
-                            self.roomsArray.insert(post, at: 0)
-                        }
+            if let listOfChatRooms = snapshot.children.allObjects as? [FIRDataSnapshot]{
+                for eachRoom in listOfChatRooms{
+                    print("Inside each room")
+                    if let roomDict = eachRoom.value as? Dictionary<String, AnyObject>{
+                        let roomObject = PublicRoom(key: eachRoom.key)
+                            roomObject.setValuesForKeys(roomDict)
+                        
+                        let roomAuthorBlockedUsersAmIThere = self.getAllUsers.child(roomObject.AuthorID!).child("blocked_users").child(CurrentUser._postKey)
+                        
+                        roomAuthorBlockedUsersAmIThere.observe(.value, with: { (snapshot) in
+                            print("inside checking if I am blocked")
+                                if let _ = snapshot.value as? NSNull{
+                                    print("I am not blocked")
+                                    self.roomsArray.insert(roomObject, at: 0)
+                                    self.attemptReloadOfTable()
+                                }
+                            }, withCancel: nil)
                     }
                 }
-            self.handleReloadData()
+            }
+            //self.handleReloadData()
         })
     }
     
     //MARK: - Handler Methods
-    
+    private func attemptReloadOfTable(){
+        self.timer?.invalidate()
+        self.timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.handleReloadData), userInfo: nil, repeats: false)
+    }
+
     func handleReloadData(){
         DispatchQueue.main.async{
             self.tableView.reloadData()
@@ -89,10 +105,10 @@ class RoomsViewController: UITableViewController {
     func postToFirebase(roomName: String?){
         let timestamp: Int = Int(NSDate().timeIntervalSince1970)
         let authorID = UserDefaults.standard.value(forKey: KEY_UID) as! String
-        let firebasePost = DataService.ds.REF_CHATROOMS.childByAutoId()
+        let postToPublicRoomsOnFirebaseWithUniqueID = DataService.ds.REF_CHATROOMS.childByAutoId()
         
         if let unwrappedRoomName = roomName{
-            let post: Dictionary<String, AnyObject> =
+            let roomProperties: Dictionary<String, AnyObject> =
         
                 ["RoomName": unwrappedRoomName as AnyObject,
                  "Author": CurrentUser._userName as AnyObject,
@@ -101,25 +117,24 @@ class RoomsViewController: UITableViewController {
                  "posts": 0 as AnyObject,
                  "AuthorID" : authorID as AnyObject]
 
-            firebasePost.setValue(post)
+            postToPublicRoomsOnFirebaseWithUniqueID.setValue(roomProperties)
             
             handleReloadData()
         }
     }
     
     func showPostControllerForRoom(room: PublicRoom){
-//        let feedController = FeedVC()
-//            feedController.roomsController = self
-//            feedController.parentRoom = room
         
         let postController = PostsVC()
             postController.roomsController = self
             postController.parentRoom = room
         
             var img: UIImage?
+        
             if let url = room.AuthorPic{
                 img = imageCache.object(forKey: url as NSString) as UIImage?
             }
+        
             postController.messageImage = img
         
             navigationController?.pushViewController(postController, animated: true)
@@ -129,16 +144,16 @@ class RoomsViewController: UITableViewController {
     //MARK: - TableView Methods
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         //let post = roomsArray[indexPath.row]
-        let post: PublicRoom
+        let chatRoom: PublicRoom
         
         if searchController.isActive && searchController.searchBar.text != "" {
-            post = filteredRooms[indexPath.row]
+            chatRoom = filteredRooms[indexPath.row]
         } else {
-            post = roomsArray[indexPath.row]
+            chatRoom = roomsArray[indexPath.row]
         }
         
         if let cell = tableView.dequeueReusableCell(withIdentifier: cellID) as? PublicRoomCell{
-            cell.publicRoom = post
+            cell.publicRoom = chatRoom
             return cell
         }else{
             return PublicRoomCell()

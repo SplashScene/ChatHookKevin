@@ -20,6 +20,7 @@ class MessagesController: UITableViewController {
     var timer: Timer?
     var userLat: Double?
     var userLong: Double?
+   
     
     //MARK: - View Methods
     override func viewDidLoad() {
@@ -116,6 +117,7 @@ class MessagesController: UITableViewController {
                 if let dictionary = snapshot.value as? [String: AnyObject]{
                     let message = Message()
                         message.setValuesForKeys(dictionary)
+                    
                     self.messagesArray.append(message)
                     
                     if let chatPartnerID = message.chatPartnerID(){

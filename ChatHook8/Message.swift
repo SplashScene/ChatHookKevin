@@ -17,6 +17,7 @@ class Message: NSObject {
     var imageUrl: String?
     var mediaType: String?
     var thumbnailUrl: String?
+    var isFromBlockedUser: Bool?
     
     func chatPartnerID() -> String?{
         return fromId == FIRAuth.auth()?.currentUser?.uid ? toId! : fromId!

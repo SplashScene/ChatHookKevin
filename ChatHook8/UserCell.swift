@@ -9,7 +9,7 @@
 import UIKit
 import Firebase
 
-var isUserBlocked:Bool = false
+
 
 class UserCell: UITableViewCell {
     var message: Message?{
@@ -25,12 +25,10 @@ class UserCell: UITableViewCell {
                 }
             }
             timeLabel.text = formatDate(messageTimeStamp: (message?.timestamp?.doubleValue)!)
-            
-            if let didIBlockThisUser = CurrentUser._blockedUsersArray?.contains((message?.fromId)!){
-                isUserBlocked = didIBlockThisUser
+            if let didIBlockThisUser = CurrentUser._blockedUsersArray?.contains((message?.chatPartnerID()!)!){
+                message?.isFromBlockedUser = didIBlockThisUser
+                blockedUserContainerView.isHidden = !didIBlockThisUser
             }
-            
-
         }
     }
     
@@ -38,6 +36,7 @@ class UserCell: UITableViewCell {
         let profileNameView = UIView()
             profileNameView.translatesAutoresizingMaskIntoConstraints = false
             profileNameView.backgroundColor = UIColor.clear
+        
         return profileNameView
     }()
     
@@ -97,6 +96,7 @@ class UserCell: UITableViewCell {
         addSubview(timeLabel)
         addSubview(blockedUserContainerView)
         layoutUserCell()
+        
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -124,8 +124,6 @@ class UserCell: UITableViewCell {
         timeLabel.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -8).isActive = true
         timeLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 4).isActive = true
         
-        blockedUserContainerView.isHidden = !isUserBlocked
-        
         blockedUserContainerView.leftAnchor.constraint(equalTo: self.leftAnchor, constant: 64).isActive = true
         blockedUserContainerView.topAnchor.constraint(equalTo: self.topAnchor).isActive = true
         blockedUserContainerView.widthAnchor.constraint(equalToConstant: 80).isActive = true
@@ -143,6 +141,10 @@ class UserCell: UITableViewCell {
         blockedLabel.centerYAnchor.constraint(equalTo: blockedUserContainerView.centerYAnchor).isActive = true
         blockedLabel.widthAnchor.constraint(equalToConstant: 60).isActive = true
         blockedLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
+    }
+    
+    func addBlockedContainer(){
+        
     }
     
     private func formatDate(messageTimeStamp: Double) -> String{

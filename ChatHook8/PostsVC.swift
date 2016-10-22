@@ -104,7 +104,6 @@ class PostsVC: UIViewController{
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        handleReloadPosts()
     }
     
     //MARK: - Handler Methods
@@ -341,6 +340,7 @@ class PostsVC: UIViewController{
                 getAllPostersBlockedUsers.child(CurrentUser._postKey).observe(.value, with: { (snapshot) in
                         if let _ = snapshot.value as? NSNull {// Can't find value so not blocked
                             self.postsArray.insert(post, at: 0)
+                            self.attemptReloadOfTable()
                         }
                     }, withCancel: nil)
 

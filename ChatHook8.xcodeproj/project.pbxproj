@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		5DAB8CAC41D9568BD31D51D3 /* Pods_ChatHook8.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C80371A829201E16C2475201 /* Pods_ChatHook8.framework */; };
 		843F94421DB2E898001E9D2B /* PostsVCLayouts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843F94411DB2E898001E9D2B /* PostsVCLayouts.swift */; };
-		84913C761DB65CB40044B02B /* PostCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84913C751DB65CB40044B02B /* PostCollectionView.swift */; };
 		84913C781DB661700044B02B /* FeedVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84913C771DB661700044B02B /* FeedVC.swift */; };
 		84913C7A1DB661B20044B02B /* FeedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84913C791DB661B20044B02B /* FeedCell.swift */; };
 		84913C7C1DB666230044B02B /* FeedVCLayouts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84913C7B1DB666230044B02B /* FeedVCLayouts.swift */; };
@@ -64,7 +63,6 @@
 /* Begin PBXFileReference section */
 		528C9B2D1B4A074D383E8622 /* Pods-ChatHook8.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ChatHook8.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ChatHook8/Pods-ChatHook8.debug.xcconfig"; sourceTree = "<group>"; };
 		843F94411DB2E898001E9D2B /* PostsVCLayouts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PostsVCLayouts.swift; sourceTree = "<group>"; };
-		84913C751DB65CB40044B02B /* PostCollectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PostCollectionView.swift; sourceTree = "<group>"; };
 		84913C771DB661700044B02B /* FeedVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedVC.swift; sourceTree = "<group>"; };
 		84913C791DB661B20044B02B /* FeedCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedCell.swift; sourceTree = "<group>"; };
 		84913C7B1DB666230044B02B /* FeedVCLayouts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedVCLayouts.swift; sourceTree = "<group>"; };
@@ -230,7 +228,6 @@
 				84FB04791DA2F35E0061D5C2 /* CommentPostView.swift */,
 				84FB047B1DA53FCA0061D5C2 /* CommentViewCell.swift */,
 				84A64F361DA819760076C95E /* GradientView.swift */,
-				84913C751DB65CB40044B02B /* PostCollectionView.swift */,
 				84913C791DB661B20044B02B /* FeedCell.swift */,
 			);
 			name = Views;
@@ -429,7 +426,6 @@
 				84D3AF1C1D9AF23500EE54CF /* RoomsViewController.swift in Sources */,
 				84D3ACA11D9AD5A100EE54CF /* AppDelegate.swift in Sources */,
 				84D3ACE91D9AE08D00EE54CF /* MaterialView.swift in Sources */,
-				84913C761DB65CB40044B02B /* PostCollectionView.swift in Sources */,
 				84D3ACD81D9ADFC800EE54CF /* UserPost.swift in Sources */,
 				84D3ACEC1D9AE08D00EE54CF /* testPostCell.swift in Sources */,
 				84D3AF1A1D9AF04200EE54CF /* FinishRegisterController.swift in Sources */,

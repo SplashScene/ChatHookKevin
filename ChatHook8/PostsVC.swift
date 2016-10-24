@@ -77,7 +77,7 @@ class PostsVC: UIViewController{
         let ptv = UITableView()
             ptv.translatesAutoresizingMaskIntoConstraints = false
             ptv.backgroundColor = UIColor(r: 220, g: 220, b: 220)
-            ptv.allowsSelection = false
+            //ptv.allowsSelection = false
         return ptv
     }()
     
@@ -399,44 +399,45 @@ class PostsVC: UIViewController{
     
     func performZoomInForStartingImageView(startingImageView: UIImageView){
         
-        startingFrame = startingImageView.superview?.convert(startingImageView.frame, to: nil)
-        
-        let zoomingView = UIImageView(frame: startingFrame!)
-            zoomingView.backgroundColor = UIColor.red
-            zoomingView.image = startingImageView.image
-            zoomingView.isUserInteractionEnabled = true
-            zoomingView.contentMode = .scaleAspectFill
-            zoomingView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleZoomOut)))
-        
-        if let keyWindow = UIApplication.shared.keyWindow{
-            keyWindow.addSubview(zoomingView)
+            startingFrame = startingImageView.superview?.convert(startingImageView.frame, to: nil)
             
-            blackBackgroundView = UIView(frame: keyWindow.frame)
-            blackBackgroundView?.backgroundColor = UIColor.black
-            blackBackgroundView?.alpha = 0
-            keyWindow.addSubview(blackBackgroundView!)
+            let zoomingView = UIImageView(frame: startingFrame!)
+                zoomingView.backgroundColor = UIColor.red
+                zoomingView.image = startingImageView.image
+                zoomingView.isUserInteractionEnabled = true
+                zoomingView.contentMode = .scaleAspectFill
+                zoomingView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleZoomOut)))
             
-            keyWindow.addSubview(zoomingView)
+            if let keyWindow = UIApplication.shared.keyWindow{
+                keyWindow.addSubview(zoomingView)
                 
-            UIView.animate(withDuration: 0.5,
-                           delay: 0,
-                           usingSpringWithDamping: 1,
-                           initialSpringVelocity: 1,
-                           options: .curveEaseOut,
-                           animations: {
+                blackBackgroundView = UIView(frame: keyWindow.frame)
+                blackBackgroundView?.backgroundColor = UIColor.black
+                blackBackgroundView?.alpha = 0
+                keyWindow.addSubview(blackBackgroundView!)
+                
+                keyWindow.addSubview(zoomingView)
+                
+                UIView.animate(withDuration: 0.5,
+                               delay: 0,
+                               usingSpringWithDamping: 1,
+                               initialSpringVelocity: 1,
+                               options: .curveEaseOut,
+                               animations: {
                                 self.blackBackgroundView!.alpha = 1
                                 self.startingView?.isHidden = true
-
+                                
                                 let height = self.startingFrame!.height / self.startingFrame!.width * keyWindow.frame.width
-        
+                                
                                 zoomingView.frame = CGRect(x: 0,
                                                            y: 0,
                                                            width: keyWindow.frame.width,
                                                            height: height)
                                 zoomingView.center = keyWindow.center
-                            },
-                           completion: nil)
-        }
+                    },
+                               completion: nil)
+            }
+
     }
 
     func handleZoomOut(tapGesture: UITapGestureRecognizer){
@@ -455,6 +456,7 @@ class PostsVC: UIViewController{
                             },
                            completion: { (completed) in
                                 zoomOutImageView.removeFromSuperview()
+                                self.blackBackgroundView?.removeFromSuperview()
                                 self.startingView?.isHidden = false
                             })
         }
@@ -472,6 +474,7 @@ class PostsVC: UIViewController{
         self.playButton = sender
              playButton!.isHidden = true
         self.activityIndicator = cell?.showcaseImageView.subviews[0] as? UIActivityIndicatorView
+        self.activityIndicator?.isHidden = false
         self.activityIndicator!.startAnimating()
         
         let url = NSURL(string: post.showcaseUrl!)
@@ -502,11 +505,20 @@ extension PostsVC:UITableViewDelegate, UITableViewDataSource{
     
      func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         let customCell:testPostCell = cell as! testPostCell
-            customCell.backgroundColor = UIColor.clear
+            customCell.backgroundColor = UIColor.white
+
         if !preventAnimation.contains(indexPath as NSIndexPath){
             preventAnimation.insert(indexPath as NSIndexPath)
             TipInCellAnimator.animate(cell: customCell)
         }
+    }
+    
+    func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        let customCell:testPostCell = cell as! testPostCell
+        customCell.backgroundColor = UIColor.white
+        playerLayer?.removeFromSuperlayer()
+        player?.pause()
+        playButton?.isHidden = false
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -514,10 +526,10 @@ extension PostsVC:UITableViewDelegate, UITableViewDataSource{
         let post = postsArray[indexPath.row]
             cell.userPost = post
             cell.postViewController = self
-        //startingFrame = startingImageView.superview?.convert(startingImageView.frame, to: nil)
-        let descripFrame = cell.descriptionText.superview?.convert(cell.descriptionText.frame, to: nil)
         
+        let descripFrame = cell.descriptionText.superview?.convert(cell.descriptionText.frame, to: nil)
         print("The descripFrame is: \(descripFrame?.height)")
+    
         return cell
     }
     
@@ -561,6 +573,37 @@ extension PostsVC:UITableViewDelegate, UITableViewDataSource{
         }
         let noTextHeight:CGFloat = 50 + 205 + 16 + 35 + 9 + 50
         return noTextHeight
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let cell = postTableView.cellForRow(at: indexPath) as? testPostCell
+            cell?.selectionStyle = UITableViewCellSelectionStyle.none
+        let getPostAtIndexPath = postsArray[indexPath.row]
+        
+        if getPostAtIndexPath.mediaType == "VIDEO"{
+            activityIndicator = cell!.showcaseImageView.subviews[0] as? UIActivityIndicatorView
+            playButton = cell!.showcaseImageView.subviews[1] as? UIButton
+            playButton?.isHidden = true
+            activityIndicator?.isHidden = false
+            
+            activityIndicator?.startAnimating()
+            let movieURL = URL(string: getPostAtIndexPath.showcaseUrl!)
+            player = AVPlayer(url: movieURL!)
+            playerLayer = AVPlayerLayer(player: player)
+            playerLayer!.videoGravity = AVLayerVideoGravityResize
+            playerLayer!.masksToBounds = true
+            
+            
+            cell!.showcaseImageView.layer.addSublayer(playerLayer!)
+            playerLayer!.frame = cell!.showcaseImageView.bounds
+            player!.play()
+            
+            NotificationCenter.default.addObserver(self, selector: #selector(playerDidFinishPlaying), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: player!.currentItem)
+        }
+        
+        if getPostAtIndexPath.mediaType == "PHOTO"{
+            performZoomInForStartingImageView(startingImageView: (cell?.showcaseImageView)!)
+        }
     }
 }//end extension
 
@@ -703,7 +746,7 @@ extension PostsVC{
         self.postButton.isUserInteractionEnabled = false
         self.postButton.alpha = 0.5
         adjustPostsNumberOfParentRoom()
-        handleReloadPosts()
+        //handleReloadPosts()
         
     }
     

@@ -66,7 +66,6 @@ class testPostCell: UITableViewCell {
                                 }
                             }
                             
-                            
                             if let profileImageUrl = dictionary["authorPic"] as? String {
                                 self.profileImageView.loadImageUsingCacheWithUrlString(urlString: profileImageUrl)
                             }
@@ -84,16 +83,13 @@ class testPostCell: UITableViewCell {
                                     
                                     case "PHOTO":
                                         guard let picImage = dictionary["showcaseUrl"] as? String else { return }
-                                        self.setupStatusImageViewLoader()
                                         self.showcaseImageView.loadImageUsingCacheWithUrlString(urlString: picImage)
-                                        self.loader.stopAnimating()
-                                        self.showcaseImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(self.handleZoom)))
-//                                            if self.showcaseImageView.subviews.count == 0{
-//                                                
-////                                                for view in (self.showcaseImageView.subviews){
-////                                                    view.removeFromSuperview()
-////                                                }
-//                                            }
+                                        //self.showcaseImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(self.handleZoom)))
+                                            if self.showcaseImageView.subviews.count == 0{
+                                                for view in (self.showcaseImageView.subviews){
+                                                    view.removeFromSuperview()
+                                                }
+                                            }
                                     default:
                                         self.showcaseImageView.image = nil
                                         self.showcaseImageView.isUserInteractionEnabled = false
@@ -195,6 +191,21 @@ class testPostCell: UITableViewCell {
         return imageView
     }()
     
+    lazy var playButton: UIButton = {
+        let image = UIImage(named: "playButton")
+        let button = UIButton()
+            button.translatesAutoresizingMaskIntoConstraints = false
+            button.setImage(image, for: .normal)
+            button.addTarget(self, action: #selector(handlePostVideoPlay), for: .touchUpInside)
+        return button
+    }()
+    
+    let activityIndicator: UIActivityIndicatorView = {
+        let actIndicator = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
+            actIndicator.translatesAutoresizingMaskIntoConstraints = false
+        return actIndicator
+    }()
+    
     let separatorLineView: UIView = {
         let sepLineView = UIView()
             sepLineView.translatesAutoresizingMaskIntoConstraints = false
@@ -229,18 +240,69 @@ class testPostCell: UITableViewCell {
         commentButton.addTarget(self, action: #selector(handleCommentTapped), for: .touchUpInside)
         shareButton.addTarget(self, action: #selector(handleShare), for: .touchUpInside)
         deleteButton.addTarget(self, action: #selector(handlePostDelete), for: .touchUpInside)
-        showcaseImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleZoom)))
+        
+        if showcaseImageView.isUserInteractionEnabled == true{
+            print("User Interaction is enabled")
+        }else{
+            print("User Interation is NOT enabled")
+        }
     }
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
     
+    //MARK: - Handle Methods
+    func handleLikeButtonTapped(sender: UIButton){
+        likeRef.observeSingleEvent(of: .value, with: { snapshot in
+            if let _ = snapshot.value as? NSNull{
+                //This means that we have not liked this specific post
+                self.userPost!.adjustLikes(addLike: true)
+                self.likeRef.setValue(true)
+                sender.tag = 1
+                self.postViewController!.adjustLikesInArrayDisplay(sender: sender)
+            }else{
+                self.userPost!.adjustLikes(addLike: false)
+                self.likeRef.removeValue()
+                sender.tag = 0
+                self.postViewController!.adjustLikesInArrayDisplay(sender: sender)
+            }
+        })
+    }
+    
+//    func handleZoom(tapGesture: UITapGestureRecognizer){
+//        if let imageView = tapGesture.view as? UIImageView{
+//            //postViewController?.performZoomInForStartingImageView(startingImageView: imageView)
+//            print("I tapped in the picture for zooming")
+//        }
+//    }
+    
+    func handleShare(sender: UIButton){
+        postViewController?.handleShare(sender: sender)
+    }
+    
+    func handleProfileViewTapped(tapGesture: UITapGestureRecognizer){
+        postViewController?.handleProfile(profileView: tapGesture.view!)
+    }
+    
+    func handlePostVideoPlay(sender: UIButton) {
+        print("Inside video play - VIEW")
+        postViewController?.handlePlayPostVideo(sender: sender)
+    }
+    
+    func handleCommentTapped(sender: UIButton){
+        postViewController?.handleCommentTapped(sender: sender)
+    }
+    
+    func handlePostDelete(sender: UIButton){
+        postViewController?.handleDeletePost(sender: sender)
+    }
+    
     //MARK: - Setup Methods
     func setupCellContainerView(){
         cellContainerView.addSubview(profilePictureUserNameContainerView)
-            profilePictureUserNameContainerView.addSubview(profileImageView)
-            profilePictureUserNameContainerView.addSubview(userNameLabel)
+        profilePictureUserNameContainerView.addSubview(profileImageView)
+        profilePictureUserNameContainerView.addSubview(userNameLabel)
         cellContainerView.addSubview(deleteButton)
         cellContainerView.addSubview(descriptionText)
         cellContainerView.addSubview(showcaseImageView)
@@ -277,17 +339,17 @@ class testPostCell: UITableViewCell {
         descriptionText.centerXAnchor.constraint(equalTo: cellContainerView.centerXAnchor).isActive = true
         descriptionText.topAnchor.constraint(equalTo: profilePictureUserNameContainerView.bottomAnchor).isActive = true
         descriptionText.widthAnchor.constraint(equalTo: cellContainerView.widthAnchor, constant: -16).isActive = true
-
+        
         let sizeThatShouldFitTheContent = descriptionText.sizeThatFits(descriptionText.frame.size)
         print("The height of the descrip text is: \(sizeThatShouldFitTheContent.height)")
-
+        
         
         showcaseImageView.centerXAnchor.constraint(equalTo: cellContainerView.centerXAnchor).isActive = true
         showcaseImageView.topAnchor.constraint(equalTo: descriptionText.bottomAnchor).isActive = true
         showcaseImageView.widthAnchor.constraint(equalTo: cellContainerView.widthAnchor, constant: -16).isActive = true
         showcaseImageView.heightAnchor.constraint(equalToConstant: 205).isActive = true
         
-
+        
         contentView.addSubview(cellContainerView)
         
         cellContainerView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor).isActive = true
@@ -322,34 +384,26 @@ class testPostCell: UITableViewCell {
     }
     
     func setupVideoPostCell(){
-        let playButton = PlayButton()
-            playButton.addTarget(self, action: #selector(self.handlePostVideoPlay), for: .touchUpInside)
-        
-        let activityIndicatorView = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
-            activityIndicatorView.translatesAutoresizingMaskIntoConstraints = false
-            activityIndicatorView.hidesWhenStopped = true
-        
-        self.showcaseImageView.addSubview(activityIndicatorView)
-        self.showcaseImageView.addSubview(playButton)
-        
+        showcaseImageView.addSubview(activityIndicator)
+        showcaseImageView.addSubview(playButton)
         
         playButton.centerXAnchor.constraint(equalTo: self.showcaseImageView.centerXAnchor).isActive = true
         playButton.centerYAnchor.constraint(equalTo: self.showcaseImageView.centerYAnchor).isActive = true
         playButton.widthAnchor.constraint(equalToConstant: 50).isActive = true
         playButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
-        activityIndicatorView.centerXAnchor.constraint(equalTo: self.showcaseImageView.centerXAnchor).isActive = true
-        activityIndicatorView.centerYAnchor.constraint(equalTo: self.showcaseImageView.centerYAnchor).isActive = true
-        activityIndicatorView.widthAnchor.constraint(equalToConstant: 50).isActive = true
-        activityIndicatorView.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        activityIndicator.centerXAnchor.constraint(equalTo: self.showcaseImageView.centerXAnchor).isActive = true
+        activityIndicator.centerYAnchor.constraint(equalTo: self.showcaseImageView.centerYAnchor).isActive = true
+        activityIndicator.widthAnchor.constraint(equalToConstant: 50).isActive = true
+        activityIndicator.heightAnchor.constraint(equalToConstant: 50).isActive = true
     }
     
     let loader = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
     
     func setupStatusImageViewLoader() {
-            loader.hidesWhenStopped = true
-            loader.startAnimating()
-            loader.color = UIColor.black
+        loader.hidesWhenStopped = true
+        loader.startAnimating()
+        loader.color = UIColor.black
         self.showcaseImageView.addSubview(loader)
         loader.centerXAnchor.constraint(equalTo: self.showcaseImageView.centerXAnchor).isActive = true
         loader.centerYAnchor.constraint(equalTo: self.showcaseImageView.centerYAnchor).isActive = true
@@ -357,50 +411,5 @@ class testPostCell: UITableViewCell {
         loader.heightAnchor.constraint(equalToConstant: 50).isActive = true
     }
 
-    //MARK: - Handle Methods
-    func handleLikeButtonTapped(sender: UIButton){
-        likeRef.observeSingleEvent(of: .value, with: { snapshot in
-            if let _ = snapshot.value as? NSNull{
-                //This means that we have not liked this specific post
-                self.userPost!.adjustLikes(addLike: true)
-                self.likeRef.setValue(true)
-                sender.tag = 1
-                self.postViewController!.adjustLikesInArrayDisplay(sender: sender)
-            }else{
-                self.userPost!.adjustLikes(addLike: false)
-                self.likeRef.removeValue()
-                sender.tag = 0
-                self.postViewController!.adjustLikesInArrayDisplay(sender: sender)
-            }
-        })
-    }
-    
-    func handleZoom(tapGesture: UITapGestureRecognizer){
-        if let imageView = tapGesture.view as? UIImageView{
-            postViewController?.performZoomInForStartingImageView(startingImageView: imageView)
-        }
-    }
-    
-    func handleShare(sender: UIButton){
-        postViewController?.handleShare(sender: sender)
-    }
-    
-    func handleProfileViewTapped(tapGesture: UITapGestureRecognizer){
-        postViewController?.handleProfile(profileView: tapGesture.view!)
-    }
-    
-    func handlePostVideoPlay(sender: UIButton) {
-        print("Inside video play - VIEW")
-        postViewController?.handlePlayPostVideo(sender: sender)
-    }
-    
-    func handleCommentTapped(sender: UIButton){
-        postViewController?.handleCommentTapped(sender: sender)
-    }
-    
-    func handlePostDelete(sender: UIButton){
-        postViewController?.handleDeletePost(sender: sender)
-    }
-    
 }
 

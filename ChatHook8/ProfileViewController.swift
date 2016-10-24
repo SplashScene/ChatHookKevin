@@ -108,7 +108,14 @@ class ProfileViewController: UIViewController {
         setupMainView()
         selectedUser?.didIBlockThisUser(selectedUser: selectedUser!)
         collectionView!.register(GalleryCollectionCell.self, forCellWithReuseIdentifier: "Cell")
-        print("This user is blocked: \(selectedUser?.isBlocked)")
+        if let userIsBlocked = selectedUser?.isBlocked{
+            print("inside userIsBlocked: \(userIsBlocked)")
+            if userIsBlocked == true {
+                profileChatButton.isHidden = true
+            }else{
+                didUserBlockMe(selectedUser: selectedUser!)
+            }
+        }
         print("The user blocked me: \(CurrentUser._amIBlocked)")
         checkUserAndSetupUI()
         setupBackgroundImageView()
@@ -117,7 +124,7 @@ class ProfileViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        didUserBlockMe(selectedUser: selectedUser!)
+        
     }
     
     override var preferredStatusBarStyle: UIStatusBarStyle{
@@ -229,7 +236,7 @@ class ProfileViewController: UIViewController {
             self.blockButton.isHidden = true
             observeGallery(uid: CurrentUser._postKey)
         }else if (selectedUser?.isBlocked)! == false{
-            self.profileChatButton.isHidden = false
+            //self.profileChatButton.isHidden = false
             let btnImage = UIImage(named: "blocker")
             blockButton.isHidden = false
             blockButton.setTitle("Block", for: .normal)
@@ -238,9 +245,9 @@ class ProfileViewController: UIViewController {
             setupSelectedUserProfile()
             observeGallery(uid: (selectedUser?.postKey)!)
             addPhotosToGalleryLabel.text = "No Photos in Gallery"
-            didUserBlockMe(selectedUser: selectedUser!)
+            //didUserBlockMe(selectedUser: selectedUser!)
         }else{
-            self.profileChatButton.isHidden = true
+            //self.profileChatButton.isHidden = true
             let btnImage = UIImage(named: "unblocker")
             blockButton.isHidden = false
             blockButton.setTitle("Unblock", for: .normal)
@@ -249,9 +256,8 @@ class ProfileViewController: UIViewController {
             setupSelectedUserProfile()
             observeGallery(uid: (selectedUser?.postKey)!)
             addPhotosToGalleryLabel.text = "No Photos in Gallery"
-            didUserBlockMe(selectedUser: selectedUser!)
+            //didUserBlockMe(selectedUser: selectedUser!)
         }
-        
     }
     
     func setupSelectedUserProfile(){
@@ -341,6 +347,7 @@ class ProfileViewController: UIViewController {
             self.blockButton.setTitle("Unblock", for: .normal)
             self.blockButton.removeTarget(self, action: #selector(self.handleBlockUserTapped), for: .touchUpInside)
             self.blockButton.addTarget(self, action: #selector(self.handleUnblockUserTapped), for: .touchUpInside)
+            self.profileChatButton.isHidden = true
         })
         let cancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
         
@@ -363,6 +370,7 @@ class ProfileViewController: UIViewController {
             self.blockButton.setTitle("Block", for: .normal)
             self.blockButton.removeTarget(self, action: #selector(self.handleUnblockUserTapped), for: .touchUpInside)
             self.blockButton.addTarget(self, action: #selector(self.handleBlockUserTapped), for: .touchUpInside)
+            self.profileChatButton.isHidden = false
         })
         
         let cancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)

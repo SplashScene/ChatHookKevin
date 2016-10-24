@@ -11,6 +11,7 @@ import Firebase
 import FirebaseStorage
 import MobileCoreServices
 import AVFoundation
+import AVKit
 import Social
 import CoreLocation
 
@@ -463,7 +464,7 @@ class PostsVC: UIViewController{
     }
     
     //MARK: - Video Player Methods
-    
+    /*
     func handlePlayPostVideo(sender: UIButton){
         print("Inside post video play - CONTROLLER")
         let buttonPosition = sender.convert(CGPoint(x: 0, y: 0), to: self.postTableView)
@@ -473,30 +474,36 @@ class PostsVC: UIViewController{
         
         self.playButton = sender
              playButton!.isHidden = true
-        self.activityIndicator = cell?.showcaseImageView.subviews[0] as? UIActivityIndicatorView
+       self.activityIndicator = cell?.showcaseImageView.subviews[0] as? UIActivityIndicatorView
         self.activityIndicator?.isHidden = false
         self.activityIndicator!.startAnimating()
         
         let url = NSURL(string: post.showcaseUrl!)
         player = AVPlayer(url: url! as URL)
         playerLayer = AVPlayerLayer(player: player)
+        let playerController = AVPlayerViewController()
+            playerController.player = player
+        present(playerController, animated: true){
+            playerController.player!.play()
+        }
         playerLayer!.videoGravity = AVLayerVideoGravityResizeAspectFill
         playerLayer!.masksToBounds = true
-        
+ 
         cell!.showcaseImageView.layer.addSublayer(playerLayer!)
         playerLayer!.frame = cell!.showcaseImageView.bounds
-        player!.play()
+        //player!.play()
         
         NotificationCenter.default.addObserver(self, selector: #selector(playerDidFinishPlaying), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: player!.currentItem)
     }
+ */
     
     func playerDidFinishPlaying(note: NSNotification){
         DispatchQueue.main.async {
             self.player!.pause()
-            self.playerLayer!.removeFromSuperlayer()
+            //self.playerLayer!.removeFromSuperlayer()
         }
-        self.playButton!.isHidden = false
-        self.activityIndicator!.isHidden = true
+//        self.playButton!.isHidden = false
+//        self.activityIndicator!.isHidden = true
     }
 
 }//end class
@@ -505,7 +512,7 @@ extension PostsVC:UITableViewDelegate, UITableViewDataSource{
     
      func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         let customCell:testPostCell = cell as! testPostCell
-            customCell.backgroundColor = UIColor.white
+            customCell.backgroundColor = UIColor.clear
 
         if !preventAnimation.contains(indexPath as NSIndexPath){
             preventAnimation.insert(indexPath as NSIndexPath)
@@ -540,8 +547,6 @@ extension PostsVC:UITableViewDelegate, UITableViewDataSource{
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return postsArray.count
     }
-    
-    
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         
@@ -581,22 +586,29 @@ extension PostsVC:UITableViewDelegate, UITableViewDataSource{
         let getPostAtIndexPath = postsArray[indexPath.row]
         
         if getPostAtIndexPath.mediaType == "VIDEO"{
-            activityIndicator = cell!.showcaseImageView.subviews[0] as? UIActivityIndicatorView
-            playButton = cell!.showcaseImageView.subviews[1] as? UIButton
-            playButton?.isHidden = true
-            activityIndicator?.isHidden = false
-            
-            activityIndicator?.startAnimating()
+//            activityIndicator = cell!.showcaseImageView.subviews[0] as? UIActivityIndicatorView
+//            playButton = cell!.showcaseImageView.subviews[1] as? UIButton
+//            playButton?.isHidden = true
+//            activityIndicator?.isHidden = false
+//            
+//            activityIndicator?.startAnimating()
             let movieURL = URL(string: getPostAtIndexPath.showcaseUrl!)
             player = AVPlayer(url: movieURL!)
             playerLayer = AVPlayerLayer(player: player)
-            playerLayer!.videoGravity = AVLayerVideoGravityResize
-            playerLayer!.masksToBounds = true
             
+            let playerController = AVPlayerViewController()
+                playerController.player = player
             
-            cell!.showcaseImageView.layer.addSublayer(playerLayer!)
-            playerLayer!.frame = cell!.showcaseImageView.bounds
-            player!.play()
+            present(playerController, animated: true){
+                playerController.player!.play()
+            }
+//            playerLayer!.videoGravity = AVLayerVideoGravityResize
+//            playerLayer!.masksToBounds = true
+//            
+//            
+//            cell!.showcaseImageView.layer.addSublayer(playerLayer!)
+//            playerLayer!.frame = cell!.showcaseImageView.bounds
+//            player!.play()
             
             NotificationCenter.default.addObserver(self, selector: #selector(playerDidFinishPlaying), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: player!.currentItem)
         }

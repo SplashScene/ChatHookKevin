@@ -16,10 +16,8 @@ class testPostCell: UITableViewCell {
     //MARK: - Properties
     var userPost: UserPost?{
         didSet{
+            for views in self.showcaseImageView.subviews{ views.removeFromSuperview() }
             
-            for views in self.showcaseImageView.subviews{
-                views.removeFromSuperview()
-            }
                 self.showcaseImageView.image = nil
                 deleteButton.isHidden = CurrentUser._postKey != userPost?.fromId
                 likeRef = DataService.ds.REF_USER_CURRENT.child("Likes").child(userPost!.postKey!)
@@ -196,7 +194,7 @@ class testPostCell: UITableViewCell {
         let button = UIButton()
             button.translatesAutoresizingMaskIntoConstraints = false
             button.setImage(image, for: .normal)
-            button.addTarget(self, action: #selector(handlePostVideoPlay), for: .touchUpInside)
+            //button.addTarget(self, action: #selector(handlePostVideoPlay), for: .touchUpInside)
         return button
     }()
     
@@ -285,10 +283,10 @@ class testPostCell: UITableViewCell {
         postViewController?.handleProfile(profileView: tapGesture.view!)
     }
     
-    func handlePostVideoPlay(sender: UIButton) {
-        print("Inside video play - VIEW")
-        postViewController?.handlePlayPostVideo(sender: sender)
-    }
+//    func handlePostVideoPlay(sender: UIButton) {
+//        print("Inside video play - VIEW")
+//        postViewController?.handlePlayPostVideo(sender: sender)
+//    }
     
     func handleCommentTapped(sender: UIButton){
         postViewController?.handleCommentTapped(sender: sender)

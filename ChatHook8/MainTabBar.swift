@@ -15,7 +15,6 @@ class MainTabBar: UITabBarController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        //set up our custom view controllers
         
         let mapViewController = GetLocation1()
         let messagesViewController = MessagesController()
@@ -26,7 +25,6 @@ class MainTabBar: UITabBarController {
         let peepsNavController = UINavigationController(rootViewController: peopleViewController)
         let postsNavController = UINavigationController(rootViewController: postsViewController)
         let profileNavController = UINavigationController(rootViewController: profileViewController)
-        
         
         mapViewController.title = "Home"
         mapViewController.tabBarItem.image = UIImage(named: "GlobeIcon25")
@@ -47,7 +45,8 @@ class MainTabBar: UITabBarController {
         profileViewController.title = "Profile"
         profileViewController.tabBarItem.image = UIImage(named: "ProfileIcon25")
         profileViewController.tabBarItem.isEnabled = false
-        viewControllers = [mapViewController, chatNavController, peepsNavController, postsNavController, profileNavController]
+        
+        viewControllers = [mapViewController, peepsNavController, chatNavController, postsNavController, profileNavController]
     }
     
     override func viewWillAppear(_ animated: Bool) {

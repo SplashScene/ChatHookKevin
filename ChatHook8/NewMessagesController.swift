@@ -108,13 +108,13 @@ class NewMessagesController: UITableViewController {
     //MARK: - Load Handlers
     func loadDistanceArrays(distanceDouble: Double, user: User){
         switch distanceDouble{
-            case 0...1.099:
+            case 0...0.099:
                 self.usersArray1.append(user)
                 print("Added to UsersArray1")
                 self.usersArray1.sort(by: { (user1, user2) -> Bool in
                     return user1.distance! < user2.distance!
                 })
-            case 1.1...5.0:
+            case 1.0...5.0:
                 self.usersArray2.append(user)
                 self.usersArray2.sort(by: { (user1, user2) -> Bool in
                     return user1.distance! < user2.distance!

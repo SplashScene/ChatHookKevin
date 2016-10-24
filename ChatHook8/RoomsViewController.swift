@@ -51,7 +51,6 @@ class RoomsViewController: UITableViewController {
     
             if let listOfChatRooms = snapshot.children.allObjects as? [FIRDataSnapshot]{
                 for eachRoom in listOfChatRooms{
-                    print("Inside each room")
                     if let roomDict = eachRoom.value as? Dictionary<String, AnyObject>{
                         let roomObject = PublicRoom(key: eachRoom.key)
                             roomObject.setValuesForKeys(roomDict)

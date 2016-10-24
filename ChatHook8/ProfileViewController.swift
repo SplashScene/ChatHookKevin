@@ -20,6 +20,7 @@ class ProfileViewController: UIViewController {
     var galleryArray = [GalleryImage]()
     var timer: Timer?
     var selectedUser: User?
+    var selectedUserIsBlocked: Bool?
     var startingFrame: CGRect?
     var blackBackgroundView: UIView?
     var startingView: UIView?
@@ -105,17 +106,16 @@ class ProfileViewController: UIViewController {
         super.viewDidLoad()
         navigationItem.rightBarButtonItem = nil
         setupMainView()
-
+        selectedUser?.didIBlockThisUser(selectedUser: selectedUser!)
         collectionView!.register(GalleryCollectionCell.self, forCellWithReuseIdentifier: "Cell")
         
         print("This user is blocked: \(selectedUser?.isBlocked)")
+        checkUserAndSetupUI()
         setupBackgroundImageView()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        checkUserAndSetupUI()
-        setupBackgroundImageView()
     }
     
     override var preferredStatusBarStyle: UIStatusBarStyle{
@@ -216,7 +216,7 @@ class ProfileViewController: UIViewController {
     }
     
     func checkUserAndSetupUI(){
-        if selectedUser == nil{
+        if selectedUser == nil || selectedUser?.postKey == CurrentUser._postKey{
             let btnImage = UIImage(named: "add_photo_btn")
             self.profileImageView.loadImageUsingCacheWithUrlString(urlString: CurrentUser._profileImageUrl)
             self.currentUserNameLabel.text = CurrentUser._userName
@@ -250,6 +250,7 @@ class ProfileViewController: UIViewController {
         }
     }
     
+        
     func setupSelectedUserProfile(){
         self.profileImageView.loadImageUsingCacheWithUrlString(urlString: (self.selectedUser?.profileImageUrl)!)
         self.currentUserNameLabel.text = self.selectedUser?.userName
@@ -320,6 +321,7 @@ class ProfileViewController: UIViewController {
             self.selectedUser?.isBlocked = true
             self.blockButton.setImage(UIImage(named: "unblocker"), for: .normal)
             self.blockButton.setTitle("Unblock", for: .normal)
+            self.blockButton.removeTarget(self, action: #selector(self.handleBlockUserTapped), for: .touchUpInside)
             self.blockButton.addTarget(self, action: #selector(self.handleUnblockUserTapped), for: .touchUpInside)
         })
         let cancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
@@ -341,6 +343,7 @@ class ProfileViewController: UIViewController {
             self.selectedUser?.isBlocked = false
             self.blockButton.setImage(UIImage(named: "blocker"), for: .normal)
             self.blockButton.setTitle("Block", for: .normal)
+            self.blockButton.removeTarget(self, action: #selector(self.handleUnblockUserTapped), for: .touchUpInside)
             self.blockButton.addTarget(self, action: #selector(self.handleBlockUserTapped), for: .touchUpInside)
         })
         

@@ -97,6 +97,7 @@ class UserCell: UITableViewCell {
         addSubview(blockedUserContainerView)
         layoutUserCell()
         
+        
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -157,11 +158,11 @@ class UserCell: UITableViewCell {
     private func setupNameAndProfileImage(){
         if let id = message?.chatPartnerID(){
             checkIfUserIsOnline(userID: id)
-            let ref = DataService.ds.REF_USERS.child(id)
-            ref.observeSingleEvent(of: .value, with: { (snapshot) in
-                if let dictionary = snapshot.value as? [String: AnyObject]{
-                    self.textLabel?.text = dictionary["UserName"] as? String
-                    if let profileImageUrl = dictionary["ProfileImage"] as? String{
+            let getUserFromChatPartnerID = DataService.ds.REF_USERS.child(id)
+            getUserFromChatPartnerID.observeSingleEvent(of: .value, with: { (snapshot) in
+                if let userInfoDict = snapshot.value as? [String: AnyObject]{
+                    self.textLabel?.text = userInfoDict["UserName"] as? String
+                    if let profileImageUrl = userInfoDict["ProfileImage"] as? String{
                         self.profileImageView.loadImageUsingCacheWithUrlString(urlString: profileImageUrl)
                     }
                 }

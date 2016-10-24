@@ -57,5 +57,13 @@ class User{
         }
     }
     
+    func didIBlockThisUser(selectedUser: User){
+        if let didIBlockThisUser = CurrentUser._blockedUsersArray?.contains(selectedUser.postKey){
+            isBlocked = didIBlockThisUser
+        }
+        
+    }
+
+    
 
 }

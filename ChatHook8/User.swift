@@ -64,6 +64,4 @@ class User{
         
     }
 
-    
-
-}
+}//end user class

@@ -285,8 +285,6 @@ class ChatViewController: JSQMessagesViewController {
                 let message = Message()
                 message.setValuesForKeys(dictionary)
                 
-                 if let didIBlockThisUser = CurrentUser._blockedUsersArray?.contains(message.fromId!){
-                    if !didIBlockThisUser{
                         self.rawMessages.append(message)
                         //let senderName = self.observeUser(message.fromId!)
                         switch (message.mediaType!){
@@ -311,8 +309,6 @@ class ChatViewController: JSQMessagesViewController {
                                 print("unknown data type")
                         }
                         self.finishReceivingMessage(animated: true)
-                    }
-                 }
                 },
                 withCancel: nil)
             }, withCancel: nil)

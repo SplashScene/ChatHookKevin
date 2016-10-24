@@ -165,8 +165,6 @@ class GetLocation1: UIViewController {
                             for snap in snapshots{
                                 let blockedUserID = snap.key
                                 CurrentUser._blockedUsersArray?.append(blockedUserID)
-//                                self.blockedUsers.append(blockedUserID)
-//                                self.handleLoadingBlockedUsers()
                             }
                         }
                     },

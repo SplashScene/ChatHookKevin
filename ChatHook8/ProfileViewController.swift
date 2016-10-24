@@ -20,7 +20,7 @@ class ProfileViewController: UIViewController {
     var galleryArray = [GalleryImage]()
     var timer: Timer?
     var selectedUser: User?
-    var selectedUserIsBlocked: Bool?
+    var amIBlocked: Bool?
     var startingFrame: CGRect?
     var blackBackgroundView: UIView?
     var startingView: UIView?
@@ -108,14 +108,16 @@ class ProfileViewController: UIViewController {
         setupMainView()
         selectedUser?.didIBlockThisUser(selectedUser: selectedUser!)
         collectionView!.register(GalleryCollectionCell.self, forCellWithReuseIdentifier: "Cell")
-        
         print("This user is blocked: \(selectedUser?.isBlocked)")
+        print("The user blocked me: \(CurrentUser._amIBlocked)")
         checkUserAndSetupUI()
         setupBackgroundImageView()
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        didUserBlockMe(selectedUser: selectedUser!)
     }
     
     override var preferredStatusBarStyle: UIStatusBarStyle{
@@ -217,40 +219,41 @@ class ProfileViewController: UIViewController {
     
     func checkUserAndSetupUI(){
         if selectedUser == nil || selectedUser?.postKey == CurrentUser._postKey{
+            self.profileChatButton.isHidden = true
             let btnImage = UIImage(named: "add_photo_btn")
             self.profileImageView.loadImageUsingCacheWithUrlString(urlString: CurrentUser._profileImageUrl)
             self.currentUserNameLabel.text = CurrentUser._userName
             self.navigationItem.title = CurrentUser._userName
             self.addPhotoButton.setImage(btnImage, for: .normal)
             self.addPhotoButton.addTarget(self, action: #selector(handleAddPhotoButtonTapped), for: .touchUpInside)
-            self.profileChatButton.isHidden = true
             self.blockButton.isHidden = true
             observeGallery(uid: CurrentUser._postKey)
         }else if (selectedUser?.isBlocked)! == false{
-            blockButton.isHidden = false
+            self.profileChatButton.isHidden = false
             let btnImage = UIImage(named: "blocker")
-            setupSelectedUserProfile()
-            observeGallery(uid: (selectedUser?.postKey)!)
-            addPhotosToGalleryLabel.text = "No Photos in Gallery"
             blockButton.isHidden = false
             blockButton.setTitle("Block", for: .normal)
             blockButton.setImage(btnImage, for: .normal)
             blockButton.addTarget(self, action: #selector(handleBlockUserTapped), for: .touchUpInside)
-            self.profileChatButton.isHidden = false
-        }else{
-            blockButton.isHidden = false
-            let btnImage = UIImage(named: "unblocker")
             setupSelectedUserProfile()
             observeGallery(uid: (selectedUser?.postKey)!)
             addPhotosToGalleryLabel.text = "No Photos in Gallery"
+            didUserBlockMe(selectedUser: selectedUser!)
+        }else{
+            self.profileChatButton.isHidden = true
+            let btnImage = UIImage(named: "unblocker")
+            blockButton.isHidden = false
             blockButton.setTitle("Unblock", for: .normal)
             blockButton.setImage(btnImage, for: .normal)
             blockButton.addTarget(self, action: #selector(handleUnblockUserTapped), for: .touchUpInside)
-            self.profileChatButton.isHidden = false
+            setupSelectedUserProfile()
+            observeGallery(uid: (selectedUser?.postKey)!)
+            addPhotosToGalleryLabel.text = "No Photos in Gallery"
+            didUserBlockMe(selectedUser: selectedUser!)
         }
+        
     }
     
-        
     func setupSelectedUserProfile(){
         self.profileImageView.loadImageUsingCacheWithUrlString(urlString: (self.selectedUser?.profileImageUrl)!)
         self.currentUserNameLabel.text = self.selectedUser?.userName
@@ -259,6 +262,21 @@ class ProfileViewController: UIViewController {
                 self.distanceLabel.text = "\(unwrappedString) miles away"
             }
         self.navigationItem.title = self.selectedUser?.userName
+    }
+    
+    func didUserBlockMe(selectedUser: User){
+        print("Inside didUserBlockMe")
+        let getUserInfoWithSelectedUserID = DataService.ds.REF_USERS.child(selectedUser.postKey)
+        let usersListOfBlockedUsers = getUserInfoWithSelectedUserID.child("blocked_users")
+        let amIInTheList = usersListOfBlockedUsers.child(CurrentUser._postKey)
+        
+        amIInTheList.observe(.value, with: { (snapshot) in
+            if let _ = snapshot.value as? NSNull{ //Not Blocked
+                self.profileChatButton.isHidden = false
+            }else{
+                self.profileChatButton.isHidden = true
+            }
+        }, withCancel: nil)
     }
 
     //MARK: - Handlers

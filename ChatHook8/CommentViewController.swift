@@ -21,6 +21,7 @@ class CommentViewController: UIViewController{
     var geocoder: CLGeocoder?
     var postCityAndState: String?
     var cellID = "cellID"
+    var postID = "postID"
     var postedText: String?
     var timer: Timer?
     var navBar: UINavigationBar = UINavigationBar()
@@ -49,19 +50,6 @@ class CommentViewController: UIViewController{
         return pb
     }()
     
-     let postView: UIView = {
-        let view = UIView()
-            view.translatesAutoresizingMaskIntoConstraints = false
-            view.backgroundColor = UIColor.clear
-        return view
-    }()
-    
-    let postedForComment: CommentPostView = {
-        let view = CommentPostView()
-            view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
     let postTableView: UITableView = {
         let ptv = UITableView()
             ptv.translatesAutoresizingMaskIntoConstraints = false
@@ -76,19 +64,16 @@ class CommentViewController: UIViewController{
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(handleBack))
         view.backgroundColor = UIColor(r: 220, g: 220, b: 220)
         view.addSubview(topView)
-        view.addSubview(postView)
-        postedForComment.userPost = postForComment
-        postView.addSubview(postedForComment)
         view.addSubview(postTableView)
         title = "Post Comments"
         
         postTableView.delegate = self
         postTableView.dataSource = self
         postTableView.register(CommentViewCell.self, forCellReuseIdentifier: "cellID")
-
+        postTableView.register(testPostCell.self, forCellReuseIdentifier: "postID")
         setupTopView()
         setupPostTableView()
-        setupPostView()
+        
         
         observeComments()
         handleCityAndState()
@@ -123,24 +108,9 @@ class CommentViewController: UIViewController{
         commmentButton.heightAnchor.constraint(equalTo: topView.heightAnchor, constant: -16).isActive = true
     }
     
-    func setupPostView(){
-        postView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        postView.topAnchor.constraint(equalTo: topView.bottomAnchor).isActive = true
-        postView.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
-            if postForComment?.showcaseUrl == nil {
-                postView.bottomAnchor.constraint(equalTo: view.centerYAnchor, constant: -40).isActive = true
-            }else{
-                postView.heightAnchor.constraint(equalToConstant: 350).isActive = true
-            }
-        postedForComment.centerXAnchor.constraint(equalTo: postView.centerXAnchor).isActive = true
-        postedForComment.centerYAnchor.constraint(equalTo: postView.centerYAnchor).isActive = true
-        postedForComment.widthAnchor.constraint(equalTo: postView.widthAnchor, constant: -16).isActive = true
-        postedForComment.heightAnchor.constraint(equalTo: postView.heightAnchor, constant: -16).isActive = true
-    }
-    
     func setupPostTableView(){
         postTableView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        postTableView.topAnchor.constraint(equalTo: postView.bottomAnchor).isActive = true
+        postTableView.topAnchor.constraint(equalTo: topView.bottomAnchor, constant: 8).isActive = true
         postTableView.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -16).isActive = true
         postTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -8).isActive = true
     }
@@ -287,22 +257,44 @@ class CommentViewController: UIViewController{
 
 extension CommentViewController:UITableViewDelegate, UITableViewDataSource{
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        let customCell:CommentViewCell = cell as! CommentViewCell
-            customCell.backgroundColor = UIColor.clear
-        
+        if indexPath.row == 0 {
+            let customCell: testPostCell = cell as! testPostCell
+                customCell.backgroundColor = UIColor(r: 240, g: 248, b: 255)
+        }else{
+            let customCell:CommentViewCell = cell as! CommentViewCell
+                customCell.backgroundColor = UIColor.clear
+        }
         
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: cellID, for: indexPath as IndexPath) as! CommentViewCell
-        let comment = commentsArray[indexPath.row]
-            cell.userComment = comment
-
-        return cell
+       
+        if indexPath.row == 0{
+            if let userPost = postForComment{
+                let cell = tableView.dequeueReusableCell(withIdentifier: postID, for: indexPath as IndexPath) as! testPostCell
+                    cell.userPost = userPost
+                return cell
+            }else{
+                let cell = testPostCell()
+                return cell
+            }
+            
+        }else{
+            let cell = tableView.dequeueReusableCell(withIdentifier: cellID, for: indexPath as IndexPath) as! CommentViewCell
+            let indexPathAdjustment = indexPath.row - 1
+            let comment = commentsArray[indexPathAdjustment]
+                cell.userComment = comment
+            return cell
+        }
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let comment = commentsArray[indexPath.row]
+        if indexPath.row == 0 { return }
+        let cell = postTableView.cellForRow(at: indexPath) as? CommentViewCell
+            cell?.selectionStyle = UITableViewCellSelectionStyle.none
+
+        let indexPathAdjustment = indexPath.row - 1
+        let comment = commentsArray[indexPathAdjustment]
         let ref = DataService.ds.REF_USERS.child(comment.fromId!)
         
             ref.observeSingleEvent(of: .value, with: { (snapshot) in
@@ -317,23 +309,60 @@ extension CommentViewController:UITableViewDelegate, UITableViewDataSource{
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.commentsArray.count
+        return self.commentsArray.count + 1
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        var commentRowHeight: CGFloat = 0.0
-            if let statusText = commentsArray[indexPath.row].commentText{
+        if indexPath.row == 0 {
+            if let statusText = postForComment?.postText{
                 let rect = NSString(string: statusText).boundingRect(with: CGSize(width: view.frame.width, height: 1000), options: NSStringDrawingOptions.usesFontLeading.union(NSStringDrawingOptions.usesLineFragmentOrigin), attributes: [NSFontAttributeName: UIFont.systemFont(ofSize: 14)], context: nil)
-                    print("My comment rect height is: \(rect.height)")
-                switch(rect.height){
+                
+                if let _ = postForComment?.showcaseUrl{
+                    let knownHeight: CGFloat = 50 + 205 + 16 + 35 + 9 + 30
+                    print("The rect height is: \(rect.height)")
+                        switch(rect.height){
+                            case 50...99: return rect.height + knownHeight + 40
+                            case 100...149: return rect.height + knownHeight + 70
+                            case 150...199: return rect.height + knownHeight + 90
+                            case 200...299:  return rect.height + knownHeight + 175
+                            case 300...399:  return rect.height + knownHeight + 225
+                            default: return rect.height + knownHeight + 15
+                        }
+                }else{
+                    let knownHeight: CGFloat = 50 + 16 + 35 + 9 + 30
+                    print("The rect height with no picture is: \(rect.height)")
+                        switch(rect.height){
+                            case 50...99: return rect.height + knownHeight + 40
+                            case 100...149: return rect.height + knownHeight + 60
+                            case 150...199: return rect.height + knownHeight + 80
+                            case 200...300:  return rect.height + knownHeight + 100
+                            case 300...399:  return rect.height + knownHeight + 140
+                            default: return rect.height + knownHeight + 15
+                        }
+                }
+            }
+            let noTextHeight:CGFloat = 50 + 205 + 16 + 35 + 9 + 50
+            return noTextHeight            
+           
+        } else {
+            let indexPathAdjustment = indexPath.row - 1
+            var commentRowHeight: CGFloat = 0.0
+            
+            if let statusText = commentsArray[indexPathAdjustment].commentText{
+                let rect = NSString(string: statusText).boundingRect(with: CGSize(width: view.frame.width, height: 1000), options: NSStringDrawingOptions.usesFontLeading.union(NSStringDrawingOptions.usesLineFragmentOrigin), attributes: [NSFontAttributeName: UIFont.systemFont(ofSize: 14)], context: nil)
+                print("My comment rect height is: \(rect.height)")
+                    switch(rect.height){
                     case 50...99: commentRowHeight = rect.height + 80
                     case 100...149: commentRowHeight = rect.height + 140
                     case 150...199: commentRowHeight = rect.height + 165
                     case 200...300:  commentRowHeight = rect.height + 285
                     default: commentRowHeight = 92
-                }
+                    }
+                
             }
-       return commentRowHeight
+            
+            return commentRowHeight
+        }
     }
     
 }//end extension

@@ -572,6 +572,7 @@ extension PostsVC:UITableViewDelegate, UITableViewDataSource{
                         case 100...149: return rect.height + knownHeight + 60
                         case 150...199: return rect.height + knownHeight + 80
                         case 200...300:  return rect.height + knownHeight + 100
+                        case 300...399:  return rect.height + knownHeight + 140
                         default: return rect.height + knownHeight + 15
                     }
             }
@@ -586,12 +587,7 @@ extension PostsVC:UITableViewDelegate, UITableViewDataSource{
         let getPostAtIndexPath = postsArray[indexPath.row]
         
         if getPostAtIndexPath.mediaType == "VIDEO"{
-//            activityIndicator = cell!.showcaseImageView.subviews[0] as? UIActivityIndicatorView
-//            playButton = cell!.showcaseImageView.subviews[1] as? UIButton
-//            playButton?.isHidden = true
-//            activityIndicator?.isHidden = false
-//            
-//            activityIndicator?.startAnimating()
+
             let movieURL = URL(string: getPostAtIndexPath.showcaseUrl!)
             player = AVPlayer(url: movieURL!)
             playerLayer = AVPlayerLayer(player: player)

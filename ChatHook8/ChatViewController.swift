@@ -51,6 +51,8 @@ class ChatViewController: JSQMessagesViewController {
 
     var usersTypingQuery: FIRDatabaseQuery!
     
+    //MARK: View Methods
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupBubbles()
@@ -61,6 +63,8 @@ class ChatViewController: JSQMessagesViewController {
         automaticallyScrollsToMostRecentMessage = true
         setupNavBarWithUserOrProgress(progress: nil)
         observeMessages()
+        JSQMessagesCollectionViewCell.registerMenuAction(#selector(delete))
+        
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -121,7 +125,6 @@ class ChatViewController: JSQMessagesViewController {
         self.navigationItem.titleView = titleView
     }
 
-    
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
        
@@ -157,6 +160,7 @@ class ChatViewController: JSQMessagesViewController {
     
     //var cell:JSQMessagesCollectionViewCell?
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        
         let cell = super.collectionView(collectionView, cellForItemAt: indexPath as IndexPath) as! JSQMessagesCollectionViewCell
         cell.delegate = self
         message = messages[indexPath.item]
@@ -169,6 +173,7 @@ class ChatViewController: JSQMessagesViewController {
         }
         
         cell.textView?.textColor = message!.senderId == CurrentUser._postKey ? UIColor.white : UIColor.black
+        
         return cell
     }
        
@@ -447,7 +452,32 @@ extension ChatViewController: JSQMessagesCollectionViewCellDelegate{
         }
     }
     
+    override func collectionView(_ collectionView: JSQMessagesCollectionView!, layout collectionViewLayout: JSQMessagesCollectionViewFlowLayout!, heightForCellTopLabelAt indexPath: IndexPath!) -> CGFloat {
+        return CGFloat(20)
+    }
     
+    override func collectionView(_ collectionView: JSQMessagesCollectionView!, attributedTextForCellTopLabelAt indexPath: IndexPath!) -> NSAttributedString! {
+        let rawMessage = rawMessages[indexPath.row]
+            if let seconds = rawMessage.timestamp?.doubleValue{
+                let timestampDate = NSDate(timeIntervalSince1970: seconds)
+                let dateFormatter = DateFormatter()
+                    dateFormatter.dateFormat = "MMM d, hh:mm a"
+                let timeStamp = dateFormatter.string(from: timestampDate as Date)
+               
+            return NSAttributedString(string: timeStamp)
+            }
+        return NSAttributedString(string: "")
+    }
+    
+    override func collectionView(_ collectionView: UICollectionView, shouldShowMenuForItemAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+    
+    override func collectionView(_ collectionView: UICollectionView, canPerformAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) -> Bool {
+        print("Inside collectionView canPerformAction")
+        return action == #selector(delete)
+    }
+        
     func handleVideoZoom(){
         print("Tapped to expand video")
     }
@@ -470,6 +500,41 @@ extension ChatViewController: JSQMessagesCollectionViewCellDelegate{
     
     func messagesCollectionViewCell(_ cell: JSQMessagesCollectionViewCell!, didPerformAction action: Selector!, withSender sender: Any!) {
         print("Inside didPerformAction")
+        if action == #selector(delete){
+
+            let messageDeletePosition = (sender as AnyObject).convert(CGPoint(x: 0, y: 0), to: self.collectionView)
+            
+                if let indexPath = self.collectionView.indexPathForItem(at: messageDeletePosition){
+                    print("inside indexPath loop")
+                    let indexPosition = indexPath.item
+                    let rawMessageItem = rawMessages[indexPosition]
+                    let userMessagesRef = DataService.ds.REF_MESSAGES
+                    let messageFromTimeStamp = userMessagesRef.queryOrdered(byChild: "timestamp").queryEqual(toValue: rawMessageItem.timestamp)
+                        messageFromTimeStamp.observe(.childAdded, with: { (snapshot) in
+                            let messageID = snapshot.key
+                            userMessagesRef.child(messageID).removeValue()
+
+                                if rawMessageItem.fromId == CurrentUser._postKey{
+                                    DataService.ds.REF_USERMESSAGES.child(CurrentUser._postKey).child(rawMessageItem.toId!).child(messageID).removeValue()
+                                }else{
+                                    DataService.ds.REF_USERMESSAGES.child(rawMessageItem.toId!).child(rawMessageItem.fromId!).child(messageID).removeValue()
+                                }
+                            
+                        })
+                   
+                    messages.remove(at: indexPosition)
+                    rawMessages.remove(at: indexPosition)
+                    print("removed from arrays")
+                    collectionView!.deleteItems(at: [indexPath] as [IndexPath])
+                    handleReloadGallery()
+                }
+        }
+    }
+    
+    func handleReloadGallery(){
+        DispatchQueue.main.async{
+            self.collectionView.reloadData()
+        }
     }
  
 }

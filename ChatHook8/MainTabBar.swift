@@ -10,7 +10,7 @@ import UIKit
 
 class MainTabBar: UITabBarController {
     
-    var registerViewController = FinishRegisterController()
+    
     var introViewController = IntroViewController()
 
     override func viewDidLoad() {

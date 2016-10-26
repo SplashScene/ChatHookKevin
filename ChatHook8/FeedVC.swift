@@ -148,7 +148,7 @@ class FeedVC: UIViewController{
         
         let nameLabel = UILabel()
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
-        nameLabel.font = UIFont(name: "Avenir-Medium", size: 14.0)
+        nameLabel.font = UIFont(name: FONT_AVENIR_MEDIUM, size: 14.0)
         
         if let progressText = progress{
             nameLabel.text = "Upload: \(progressText)"

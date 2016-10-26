@@ -14,7 +14,6 @@ import Firebase
 
 class GetLocation1: UIViewController {
     
-    var registerViewController: FinishRegisterController?
     var locationManager:CLLocationManager? = nil
     let regionRadius:CLLocationDistance = 5000
     var userLocation: CLLocation?

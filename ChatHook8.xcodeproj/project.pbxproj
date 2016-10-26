@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		5DAB8CAC41D9568BD31D51D3 /* Pods_ChatHook8.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C80371A829201E16C2475201 /* Pods_ChatHook8.framework */; };
 		843F94421DB2E898001E9D2B /* PostsVCLayouts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843F94411DB2E898001E9D2B /* PostsVCLayouts.swift */; };
+		847866EE1DC0E1A500E9FA69 /* ProfileVCLayouts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847866ED1DC0E1A500E9FA69 /* ProfileVCLayouts.swift */; };
+		847866F01DC0E59500E9FA69 /* IntroVCLayouts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847866EF1DC0E59500E9FA69 /* IntroVCLayouts.swift */; };
 		84913C781DB661700044B02B /* FeedVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84913C771DB661700044B02B /* FeedVC.swift */; };
 		84913C7A1DB661B20044B02B /* FeedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84913C791DB661B20044B02B /* FeedCell.swift */; };
 		84913C7C1DB666230044B02B /* FeedVCLayouts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84913C7B1DB666230044B02B /* FeedVCLayouts.swift */; };
@@ -43,7 +45,6 @@
 		84D3ACEF1D9AE5C400EE54CF /* IntroViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3ACEE1D9AE5C400EE54CF /* IntroViewController.swift */; };
 		84D3ACF11D9AE99400EE54CF /* MainTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3ACF01D9AE99400EE54CF /* MainTabBar.swift */; };
 		84D3ACF31D9AEA0F00EE54CF /* PostsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3ACF21D9AEA0F00EE54CF /* PostsVC.swift */; };
-		84D3AF1A1D9AF04200EE54CF /* FinishRegisterController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3AF181D9AF04200EE54CF /* FinishRegisterController.swift */; };
 		84D3AF1C1D9AF23500EE54CF /* RoomsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3AF1B1D9AF23500EE54CF /* RoomsViewController.swift */; };
 		84D3AF1F1D9AF3E800EE54CF /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3AF1D1D9AF3E800EE54CF /* ProfileViewController.swift */; };
 		84D3AF221D9AFCB400EE54CF /* GetLocation1.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D3AF211D9AFCB400EE54CF /* GetLocation1.swift */; };
@@ -63,6 +64,8 @@
 /* Begin PBXFileReference section */
 		528C9B2D1B4A074D383E8622 /* Pods-ChatHook8.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ChatHook8.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ChatHook8/Pods-ChatHook8.debug.xcconfig"; sourceTree = "<group>"; };
 		843F94411DB2E898001E9D2B /* PostsVCLayouts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PostsVCLayouts.swift; sourceTree = "<group>"; };
+		847866ED1DC0E1A500E9FA69 /* ProfileVCLayouts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileVCLayouts.swift; sourceTree = "<group>"; };
+		847866EF1DC0E59500E9FA69 /* IntroVCLayouts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IntroVCLayouts.swift; sourceTree = "<group>"; };
 		84913C771DB661700044B02B /* FeedVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedVC.swift; sourceTree = "<group>"; };
 		84913C791DB661B20044B02B /* FeedCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedCell.swift; sourceTree = "<group>"; };
 		84913C7B1DB666230044B02B /* FeedVCLayouts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedVCLayouts.swift; sourceTree = "<group>"; };
@@ -101,7 +104,6 @@
 		84D3ACEE1D9AE5C400EE54CF /* IntroViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IntroViewController.swift; sourceTree = "<group>"; };
 		84D3ACF01D9AE99400EE54CF /* MainTabBar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainTabBar.swift; sourceTree = "<group>"; };
 		84D3ACF21D9AEA0F00EE54CF /* PostsVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PostsVC.swift; sourceTree = "<group>"; };
-		84D3AF181D9AF04200EE54CF /* FinishRegisterController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FinishRegisterController.swift; sourceTree = "<group>"; };
 		84D3AF1B1D9AF23500EE54CF /* RoomsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoomsViewController.swift; sourceTree = "<group>"; };
 		84D3AF1D1D9AF3E800EE54CF /* ProfileViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		84D3AF211D9AFCB400EE54CF /* GetLocation1.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetLocation1.swift; sourceTree = "<group>"; };
@@ -151,6 +153,8 @@
 			children = (
 				843F94411DB2E898001E9D2B /* PostsVCLayouts.swift */,
 				84913C7B1DB666230044B02B /* FeedVCLayouts.swift */,
+				847866ED1DC0E1A500E9FA69 /* ProfileVCLayouts.swift */,
+				847866EF1DC0E59500E9FA69 /* IntroVCLayouts.swift */,
 			);
 			name = Layouts;
 			sourceTree = "<group>";
@@ -203,7 +207,6 @@
 				84D3AF211D9AFCB400EE54CF /* GetLocation1.swift */,
 				84D3AF1D1D9AF3E800EE54CF /* ProfileViewController.swift */,
 				84D3AF1B1D9AF23500EE54CF /* RoomsViewController.swift */,
-				84D3AF181D9AF04200EE54CF /* FinishRegisterController.swift */,
 				84D3ACF21D9AEA0F00EE54CF /* PostsVC.swift */,
 				84D3ACF01D9AE99400EE54CF /* MainTabBar.swift */,
 				84D3ACEE1D9AE5C400EE54CF /* IntroViewController.swift */,
@@ -428,7 +431,6 @@
 				84D3ACE91D9AE08D00EE54CF /* MaterialView.swift in Sources */,
 				84D3ACD81D9ADFC800EE54CF /* UserPost.swift in Sources */,
 				84D3ACEC1D9AE08D00EE54CF /* testPostCell.swift in Sources */,
-				84D3AF1A1D9AF04200EE54CF /* FinishRegisterController.swift in Sources */,
 				84913C7C1DB666230044B02B /* FeedVCLayouts.swift in Sources */,
 				84FB04761DA2D5D30061D5C2 /* Comment.swift in Sources */,
 				84D3ACD21D9ADFC800EE54CF /* GalleryImage.swift in Sources */,
@@ -442,6 +444,7 @@
 				84D3ACF11D9AE99400EE54CF /* MainTabBar.swift in Sources */,
 				84D3ACD41D9ADFC800EE54CF /* Message.swift in Sources */,
 				84D3ACD71D9ADFC800EE54CF /* UserLocation.swift in Sources */,
+				847866EE1DC0E1A500E9FA69 /* ProfileVCLayouts.swift in Sources */,
 				84D3ACE81D9AE08D00EE54CF /* MaterialTextField.swift in Sources */,
 				84FB04741DA2D3F70061D5C2 /* CommentViewController.swift in Sources */,
 				84D3ACD31D9ADFC800EE54CF /* GroupedUsers.swift in Sources */,
@@ -449,6 +452,7 @@
 				84D3ACF31D9AEA0F00EE54CF /* PostsVC.swift in Sources */,
 				84D3AF221D9AFCB400EE54CF /* GetLocation1.swift in Sources */,
 				84FB047A1DA2F35E0061D5C2 /* CommentPostView.swift in Sources */,
+				847866F01DC0E59500E9FA69 /* IntroVCLayouts.swift in Sources */,
 				84FB047C1DA53FCA0061D5C2 /* CommentViewCell.swift in Sources */,
 				84D3ACD61D9ADFC800EE54CF /* User.swift in Sources */,
 				84D3AF281D9B01F600EE54CF /* ChatViewController.swift in Sources */,

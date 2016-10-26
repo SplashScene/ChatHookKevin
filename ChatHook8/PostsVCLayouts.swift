@@ -21,11 +21,11 @@ extension PostsVC{
         titleView.addSubview(containerView)
         
         let profileImageView = UIImageView()
-        profileImageView.translatesAutoresizingMaskIntoConstraints = false
-        profileImageView.contentMode = .scaleAspectFill
-        profileImageView.layer.cornerRadius = 15
-        profileImageView.clipsToBounds = true
-        profileImageView.image = messageImage
+            profileImageView.translatesAutoresizingMaskIntoConstraints = false
+            profileImageView.contentMode = .scaleAspectFill
+            profileImageView.layer.cornerRadius = 15
+            profileImageView.clipsToBounds = true
+            profileImageView.image = messageImage
         
         containerView.addSubview(profileImageView)
         
@@ -35,8 +35,8 @@ extension PostsVC{
         profileImageView.heightAnchor.constraint(equalToConstant: 30).isActive = true
         
         let nameLabel = UILabel()
-        nameLabel.translatesAutoresizingMaskIntoConstraints = false
-        nameLabel.font = UIFont(name: "Avenir-Medium", size: 14.0)
+            nameLabel.translatesAutoresizingMaskIntoConstraints = false
+            nameLabel.font = UIFont(name: FONT_AVENIR_MEDIUM, size: 14.0)
         
         if let progressText = progress{
             nameLabel.text = "Upload: \(progressText)"

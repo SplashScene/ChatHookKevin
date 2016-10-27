@@ -18,6 +18,8 @@ class GetLocation1: UIViewController {
     let regionRadius:CLLocationDistance = 5000
     var userLocation: CLLocation?
     var otherUsersLocations: [UserLocation] = []
+    
+    var zoneDistanceCheck: [[UserLocation]] = []
     var userOnline: Bool = false
     
     var userLatInt: Int!
@@ -25,7 +27,13 @@ class GetLocation1: UIViewController {
     
     let currentUserRef = DataService.ds.REF_USER_CURRENT
     var blockedUsers: [String] = []
+    var locationArray:[CLLocation] = []
     var timer: Timer!
+    var locationTimer: Timer!
+    var arrayCounter: Int = 0
+    var overlayAlpha: CGFloat?
+    var overlayColor: UIColor?
+    
     
     //MARK: - Objects
 
@@ -72,13 +80,16 @@ class GetLocation1: UIViewController {
         view.addSubview(mapView)
         
         locationManager = CLLocationManager()
+        locationManager?.allowsBackgroundLocationUpdates = true
         self.mapView.delegate = self
         self.locationManager?.delegate = self
         self.locationManager?.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
         checkAuthorizationStatus()
-        
+    
         setupUI()
-        mapView.addAnnotations(otherUsersLocations)
+        handleLocationTimer()
+        
+        //mapView.addAnnotations(otherUsersLocations)
     }
     
     override var preferredStatusBarStyle: UIStatusBarStyle{
@@ -142,7 +153,14 @@ class GetLocation1: UIViewController {
         
         centerMapOnLocation(location: CurrentUser._location!)
         self.mapView.showsUserLocation = true
-        //addRadiusCircle(location: CurrentUser._location!)
+    }
+    
+    func handleLocationTimer(){
+        if locationTimer != nil{
+            locationTimer.invalidate()
+        }
+        self.locationTimer = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(self.handleCheckLocation), userInfo: nil, repeats: true)
+
     }
 
     //MARK: - Observe Methods
@@ -177,7 +195,10 @@ class GetLocation1: UIViewController {
     }
     
     func observeOtherUsersLocations(){
+        zoneDistanceCheck = []
+        
         print("In observeOtherUsersLocations")
+        print("The count of zone distance check is: \(zoneDistanceCheck.count)")
         let otherUsersLocationsRef = DataService.ds.REF_USERSONLINE.child("\(userLatInt!)").child("\(userLngInt!)")
             otherUsersLocationsRef.observe(.childAdded, with: { (snapshot) in
                 if let dictionary = snapshot.value as? [String: AnyObject]{
@@ -193,11 +214,49 @@ class GetLocation1: UIViewController {
                             
                             let otherUserLocation = UserLocation(latitude: otherUserLat, longitude: otherUserLong, name: otherUserName, imageName: otherUserImageUrl)
                             self.otherUsersLocations.append(otherUserLocation)
+                           
+                            if self.zoneDistanceCheck.count == 0{
+                                var newArray = [UserLocation]()
+                                    newArray.append(otherUserLocation)
+                                self.zoneDistanceCheck.append(newArray)
+                                print("The count of zone distance check is: \(self.zoneDistanceCheck.count)")
+                            }
+                           else{
+                                let distance = self.calculateDistance(zoneLocation: self.zoneDistanceCheck[0].first!, otherLocation: otherUserLocation)
+                                if distance <= 0.5{
+                                    self.zoneDistanceCheck[0].append(otherUserLocation)
+                                    print("The count of zoneDistanceCheck[0] is: \(self.zoneDistanceCheck[0].count)")
+                                }else if self.zoneDistanceCheck.count > 1{
+                                    
+                                        for i in 1..<self.zoneDistanceCheck.count{
+                                            let distance = self.calculateDistance(zoneLocation: self.zoneDistanceCheck[i].first!, otherLocation: otherUserLocation)
+                                            if distance <= 0.5{
+                                                self.zoneDistanceCheck[i].append(otherUserLocation)
+                                                print("I just added a location to this array: \(i) and the count is: \(self.zoneDistanceCheck[i].count)")
+                                            }else{
+                                                var newArray:[UserLocation] = []
+                                                    newArray.append(otherUserLocation)
+                                                print("I just made a new array and the count is: \(newArray.count)")
+                                                self.zoneDistanceCheck.append(newArray)
+                                                print("The count of zoneDistanceCheck is: \(self.zoneDistanceCheck.count)")
+                                            }
+                                        }
+                                    
+                                } else {
+                                    var newArray:[UserLocation] = []
+                                        newArray.append(otherUserLocation)
+                                    print("I just made a new array and the count is: \(newArray.count)")
+                                    self.zoneDistanceCheck.append(newArray)
+                                    print("The count of zoneDistanceCheck is: \(self.zoneDistanceCheck.count)")
+                                }
+                            }
                             
-                            self.timer?.invalidate()
-                            self.timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.handleAnnotations), userInfo: nil, repeats: false)
+                            self.attemptHandleOverlays()
+                           
                         }
+                        
                     }, withCancel: nil)
+                    
                 }
             }, withCancel: nil)
     }
@@ -207,6 +266,31 @@ class GetLocation1: UIViewController {
     func handleCheckLocation(){
         print("Checking Location")
         locationManager?.requestLocation()
+    }
+    
+    func attemptHandleOverlays(){
+        self.timer?.invalidate()
+        self.timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.handleOverlays), userInfo: nil, repeats: false)
+    }
+    
+    func handleOverlays(){
+        print("Inside Handle Overlays")
+            for i in 0..<self.zoneDistanceCheck.count{
+                if self.zoneDistanceCheck[i].count > 1 && self.zoneDistanceCheck[i].count <= 4{
+                    let midPoint:Int = self.zoneDistanceCheck[i].count / 2
+                    let centerLocation = self.zoneDistanceCheck[i][midPoint]
+                    overlayColor = UIColor(r: 0, g: 191, b: 255)
+                    overlayAlpha = 0.3
+                    self.addRadiusCircle(location: centerLocation.location)
+                }
+                if self.zoneDistanceCheck[i].count > 5{
+                    let midPoint:Int = self.zoneDistanceCheck[i].count / 2
+                    let centerLocation = self.zoneDistanceCheck[i][midPoint]
+                    overlayColor = UIColor(r: 255, g: 0, b: 0)
+                    overlayAlpha = 0.6
+                    self.addRadiusCircle(location: centerLocation.location)
+                }
+            }
     }
     
     func handleAnnotations(){
@@ -230,6 +314,23 @@ class GetLocation1: UIViewController {
         }
         dismiss(animated: true, completion: nil)
         
+    }
+    
+    func calculateDistance(zoneLocation: UserLocation, otherLocation: UserLocation) -> Double {
+        print("INSIDE CALCULATE DISTANCE")
+        
+        let arrayLocation = zoneLocation.location
+        
+        let distanceInMeters = arrayLocation.distance(from: otherLocation.location)
+        let distanceInMiles = (distanceInMeters / 1000) * 0.62137
+        
+        return distanceInMiles
+    }
+    
+    func checkDistanceForMe(storedLocation: CLLocation, currentLocation: CLLocation) -> Bool{
+        let distanceInMeters = storedLocation.distance(from: currentLocation)
+        let distanceInMiles = (distanceInMeters / 1000) * 0.62137
+        return distanceInMiles > 0.25 ? true : false
     }
 }//end class
 
@@ -255,14 +356,36 @@ extension GetLocation1: CLLocationManagerDelegate{
                                 barTabItem.isEnabled = true
                             }
                         }
-                        if timer != nil{
-                            timer.invalidate()
-                        }
-                        self.timer = Timer.scheduledTimer(timeInterval: 900.0, target: self, selector: #selector(self.handleCheckLocation), userInfo: nil, repeats: true)
                     }else{
                         print("I got NO location")
                     }
                    centerMapOnLocation(location: userLocation!)
+                }else{
+                    print("In didUpdateLocation but user has location")
+                    if let newLocation = locations.first{
+                        let haveIMoved = checkDistanceForMe(storedLocation: CurrentUser._location, currentLocation: newLocation)
+                        if haveIMoved == true{
+                            CurrentUser._location = newLocation
+                            let newLocationLatInt = Int(newLocation.coordinate.latitude)
+                            let newLocationLngInt = Int(newLocation.coordinate.longitude)
+                            let usersOnlineRef = DataService.ds.REF_BASE.child("users_online").child("\(newLocationLatInt)").child("\(newLocationLngInt)").child(CurrentUser._postKey)
+                            
+                            usersOnlineRef.observe(.value, with: { (snapshot) in
+                                if let _ = snapshot.value as? NSNull{
+                                    let userLocal = ["userLatitude":newLocation.coordinate.latitude, "userLongitude": newLocation.coordinate.longitude]
+                                    usersOnlineRef.setValue(userLocal)
+                                }else{
+                                    usersOnlineRef.child("userLatitude").setValue(newLocation.coordinate.latitude)
+                                    usersOnlineRef.child("userLongitude").setValue(newLocation.coordinate.longitude)
+                                }
+                            }, withCancel: nil)
+                            
+                        }else{
+                            print("I haven't moved a muscle")
+                        }
+                        
+                    }
+                    
                 }
     }
     
@@ -290,7 +413,7 @@ extension GetLocation1: MKMapViewDelegate{
         let coordinateRegion = MKCoordinateRegionMakeWithDistance(location.coordinate, regionRadius * Double(radiusFactor), regionRadius * Double(radiusFactor))
         mapView.setRegion(coordinateRegion, animated: true)
     }
-    
+   
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
             if (annotation is MKUserLocation){ return nil }
         
@@ -305,41 +428,46 @@ extension GetLocation1: MKMapViewDelegate{
         
         return annotationView
     }
-    /*
-    func mapView(mapView: MKMapView, didUpdateUserLocation userLocation: MKUserLocation) {
+    
+    func mapView(_ mapView: MKMapView, didUpdate userLocation: MKUserLocation) {
         if let loc = userLocation.location{
             print("MAP VIEW LOCATION is: \(userLocation.coordinate.latitude) and \(userLocation.coordinate.longitude)")
-            centerMapOnLocation(loc)
-            addRadiusCircle(loc)
+            centerMapOnLocation(location: loc)
+            //addRadiusCircle(loc)
         }
     }
- 
-    func mapView(mapView: MKMapView, viewForAnnotation annotation: MKAnnotation) -> MKAnnotationView? {
-        if annotation.isEqual(mapView.userLocation) {
-            let annotationView = MKAnnotationView(annotation: annotation, reuseIdentifier: "userLocation")
-                annotationView.image = UIImage(named: "ProfileIcon25")
-            return annotationView
-        }else{
-            let annotationView = MKAnnotationView(annotation: annotation, reuseIdentifier: "userLocation")
-                annotationView.image = UIImage(named: "heart-full")
-            return annotationView
-        }
-    }
-    */
+    
+//    func mapView(mapView: MKMapView, viewForAnnotation annotation: MKAnnotation) -> MKAnnotationView? {
+//        if annotation.isEqual(mapView.userLocation) {
+//            let annotationView = MKAnnotationView(annotation: annotation, reuseIdentifier: "userLocation")
+//                annotationView.image = UIImage(named: "ProfileIcon25")
+//            return annotationView
+//        }else{
+//            let annotationView = MKAnnotationView(annotation: annotation, reuseIdentifier: "userLocation")
+//                annotationView.image = UIImage(named: "heart-full")
+//            return annotationView
+//        }
+//    }
+    
     //MARK: - Overlay Functions
     func addRadiusCircle(location: CLLocation){
-        self.mapView.delegate = self
-        let circle = MKCircle(center: location.coordinate, radius: 500 as CLLocationDistance)
-        self.mapView.add(circle)
+        print("Inside Radius Circle")
+            let circle = MKCircle(center: location.coordinate, radius: 750 as CLLocationDistance)
+            self.mapView.add(circle)
     }
     
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
+        print("Inside mapView overlay")
         let circle = MKCircleRenderer(overlay: overlay)
             circle.strokeColor = UIColor.red
-            circle.fillColor = UIColor(red: 255, green: 0, blue: 0, alpha: 0.1)
-            circle.lineWidth = 1
-        return circle
         
+        if let circleColor = overlayColor,
+            let circleAlpha = overlayAlpha{
+                circle.alpha = circleAlpha
+                circle.fillColor = circleColor
+        }
+            circle.lineWidth = 3.0
+        return circle
     }
     
 }//end extension

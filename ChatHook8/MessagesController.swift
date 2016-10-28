@@ -10,7 +10,6 @@ import UIKit
 import Firebase
 import CoreLocation
 
-
 class MessagesController: UITableViewController {
     
     var profileView = ProfileViewController()
@@ -21,7 +20,6 @@ class MessagesController: UITableViewController {
     var userLat: Double?
     var userLong: Double?
    
-    
     //MARK: - View Methods
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -30,24 +28,23 @@ class MessagesController: UITableViewController {
         setupNavBarWithUser()
         tableView.register(UserCell.self, forCellReuseIdentifier: "cellID")
         tableView.allowsMultipleSelectionDuringEditing = true
-    }
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        messagesArray.removeAll()
-        messagesDictionary.removeAll()
-        tableView.reloadData()
-        
         observeUserMessages()
     }
     
-    //MARK: - Setup UI
-    
-    func setupNavBarWithUser(){
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
 //        messagesArray.removeAll()
 //        messagesDictionary.removeAll()
+        handleReloadTable()
+    }
+    
+    //MARK: - Setup UI
+    func setupNavBarWithUser(){
+        messagesArray.removeAll()
+        messagesDictionary.removeAll()
 //        tableView.reloadData()
 //        
-//        observeUserMessages()
+
         
         let titleView = UIView()
             titleView.frame = CGRect(x: 0, y: 0, width: 100, height: 40)

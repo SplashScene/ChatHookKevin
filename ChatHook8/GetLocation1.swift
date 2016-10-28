@@ -159,7 +159,7 @@ class GetLocation1: UIViewController {
         if locationTimer != nil{
             locationTimer.invalidate()
         }
-        self.locationTimer = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(self.handleCheckLocation), userInfo: nil, repeats: true)
+        self.locationTimer = Timer.scheduledTimer(timeInterval: 180.0, target: self, selector: #selector(self.handleCheckLocation), userInfo: nil, repeats: true)
 
     }
 
@@ -231,18 +231,25 @@ class GetLocation1: UIViewController {
             let overlays = self.mapView.overlays
             self.mapView.removeOverlays(overlays)
             for i in 0..<self.zoneDistanceCheck.count{
-                if self.zoneDistanceCheck[i].count > 1 && self.zoneDistanceCheck[i].count <= 4{
+                if self.zoneDistanceCheck[i].count > 1 && self.zoneDistanceCheck[i].count <= 3{
                     let midPoint:Int = self.zoneDistanceCheck[i].count / 2
                     let centerLocation = self.zoneDistanceCheck[i][midPoint]
-                    overlayColor = UIColor(r: 0, g: 191, b: 255)
-                    overlayAlpha = 0.3
+                    overlayColor = UIColor(r: 255, g: 255, b: 255)
+                    overlayAlpha = 0.1
+                    self.addRadiusCircle(location: centerLocation.location)
+                }
+                if self.zoneDistanceCheck.count == 4 || zoneDistanceCheck.count == 5{
+                    let midPoint:Int = self.zoneDistanceCheck[i].count / 2
+                    let centerLocation = self.zoneDistanceCheck[i][midPoint]
+                    overlayColor = UIColor(r: 255, g: 165, b: 0)
+                    overlayAlpha = 0.1
                     self.addRadiusCircle(location: centerLocation.location)
                 }
                 if self.zoneDistanceCheck[i].count > 5{
                     let midPoint:Int = self.zoneDistanceCheck[i].count / 2
                     let centerLocation = self.zoneDistanceCheck[i][midPoint]
                     overlayColor = UIColor(r: 255, g: 0, b: 0)
-                    overlayAlpha = 0.6
+                    overlayAlpha = 0.1
                     self.addRadiusCircle(location: centerLocation.location)
                 }
             }

@@ -32,12 +32,13 @@ class NewMessagesController: UITableViewController {
         tableView.register(UserCell.self, forCellReuseIdentifier: "cellID")
         blockedUsersArray = []
         messagesController = MessagesController()
+        observeUsersOnline()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         print("Inside View Will Appear")
         super.viewWillAppear(animated)
-        observeUsersOnline()
+        handleReloadTable()
     }
     
     //MARK: - Observe Methods
@@ -97,7 +98,6 @@ class NewMessagesController: UITableViewController {
                                 }
                             }, withCancel: nil)
                     }
-                    
                 }, withCancel: nil)
                 }
                 }, withCancel: nil)
@@ -108,7 +108,7 @@ class NewMessagesController: UITableViewController {
     //MARK: - Load Handlers
     func loadDistanceArrays(distanceDouble: Double, user: User){
         switch distanceDouble{
-            case 0...0.099:
+            case 0...0.999:
                 self.usersArray1.append(user)
                 print("Added to UsersArray1")
                 self.usersArray1.sort(by: { (user1, user2) -> Bool in

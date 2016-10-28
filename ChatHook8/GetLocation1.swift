@@ -234,22 +234,22 @@ class GetLocation1: UIViewController {
                 if self.zoneDistanceCheck[i].count > 1 && self.zoneDistanceCheck[i].count <= 3{
                     let midPoint:Int = self.zoneDistanceCheck[i].count / 2
                     let centerLocation = self.zoneDistanceCheck[i][midPoint]
-                    overlayColor = UIColor(r: 255, g: 255, b: 255)
-                    overlayAlpha = 0.1
+                    overlayColor = UIColor(r: 255, g: 255, b: 0)
+                    overlayAlpha = 0.3
                     self.addRadiusCircle(location: centerLocation.location)
                 }
                 if self.zoneDistanceCheck.count == 4 || zoneDistanceCheck.count == 5{
                     let midPoint:Int = self.zoneDistanceCheck[i].count / 2
                     let centerLocation = self.zoneDistanceCheck[i][midPoint]
                     overlayColor = UIColor(r: 255, g: 165, b: 0)
-                    overlayAlpha = 0.1
+                    overlayAlpha = 0.3
                     self.addRadiusCircle(location: centerLocation.location)
                 }
                 if self.zoneDistanceCheck[i].count > 5{
                     let midPoint:Int = self.zoneDistanceCheck[i].count / 2
                     let centerLocation = self.zoneDistanceCheck[i][midPoint]
                     overlayColor = UIColor(r: 255, g: 0, b: 0)
-                    overlayAlpha = 0.1
+                    overlayAlpha = 0.3
                     self.addRadiusCircle(location: centerLocation.location)
                 }
             }

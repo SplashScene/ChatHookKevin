@@ -294,7 +294,7 @@ class IntroViewController: UIViewController {
                                 let parameters = ["fields": "email, first_name, last_name, name, picture.type(large)"]
                                 FBSDKGraphRequest(graphPath: "me", parameters: parameters).start(completionHandler: { (connection, result, error) in
                                     if error != nil{
-                                        print(error?.localizedDescription)
+                                        print(error as Any)
                                         return
                                     }
                                     let result1 = result as? NSDictionary
@@ -369,7 +369,7 @@ class IntroViewController: UIViewController {
             self.userProvider = "email"
             
             if error != nil{
-                print(error)
+                print(error!)
                 if error!._code == STATUS_NO_INTERNET{
                     self.showErrorAlert(title: "No Internet Connection", msg: "You currently have no internet connection. Please try again later.")
                 }
@@ -414,7 +414,7 @@ class IntroViewController: UIViewController {
         
         FIRAuth.auth()?.signIn(withEmail: email, password: password, completion: { (user, error) in
             if error != nil{
-                print(error)
+                print(error as Any)
                 if error!._code == STATUS_NO_INTERNET{
                     self.showErrorAlert(title: "No Internet Connection", msg: "You currently have no internet connection. Please try again later.")
                 }

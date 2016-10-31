@@ -133,7 +133,7 @@ class CommentViewController: UIViewController{
                      "cityAndState": postCityAndState! as AnyObject]
             
             commentRef.updateChildValues(commentItem) { (error, ref) in
-                if error != nil { print(error?.localizedDescription); return }
+                if error != nil { print(error?.localizedDescription as Any); return }
                 
                 let postCommentRef = DataService.ds.REF_BASE.child("post_comments").child(toPost)
                 let commentID = commentRef.key

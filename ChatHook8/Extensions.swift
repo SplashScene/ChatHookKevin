@@ -28,7 +28,7 @@ extension UIImageView{
         let url = NSURL(string: urlString)
         URLSession.shared.dataTask(with: url! as URL, completionHandler: { (data, response, error) in
             if error != nil {
-                print(error?.localizedDescription)
+                print(error?.localizedDescription as Any)
                 return
             }
             DispatchQueue.main.async(execute: {

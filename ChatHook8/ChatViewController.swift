@@ -226,7 +226,7 @@ class ChatViewController: JSQMessagesViewController {
         
             itemRef.updateChildValues(messageItem) { (error, ref) in
                 if error != nil {
-                    print(error?.localizedDescription)
+                    print(error?.localizedDescription as Any)
                     return
                 }
                 let userMessagesRef = DataService.ds.REF_BASE.child("user_messages").child(senderId).child(toId!)

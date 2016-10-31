@@ -88,7 +88,7 @@ extension ProfileViewController: UIImagePickerControllerDelegate, UINavigationCo
                     
                     galleryRef.updateChildValues(galleryItem, withCompletionBlock: { (error, ref) in
                         if error != nil {
-                            print(error?.localizedDescription)
+                            print(error?.localizedDescription as Any)
                             return
                         }
                         
@@ -291,7 +291,7 @@ extension ChatViewController: UIImagePickerControllerDelegate, UINavigationContr
         
         itemRef.updateChildValues(messageItem) { (error, ref) in
             if error != nil {
-                print(error?.localizedDescription)
+                print(error?.localizedDescription as Any)
                 return
             }
             
@@ -328,6 +328,7 @@ extension IntroViewController:UIImagePickerControllerDelegate, UINavigationContr
     func takePhotoWithCamera(){
         let imagePicker = UIImagePickerController()
             imagePicker.sourceType = .camera
+            imagePicker.cameraDevice = .front
             imagePicker.delegate = self
             imagePicker.allowsEditing = true
         present(imagePicker, animated: true, completion: nil)

@@ -19,15 +19,33 @@ class MessagesController: UITableViewController {
     var timer: Timer?
     var userLat: Double?
     var userLong: Double?
+    
+    lazy var noChatBackground: UIImageView = {
+        var noChatBkgd = UIImageView()
+            noChatBkgd.translatesAutoresizingMaskIntoConstraints = false
+            noChatBkgd.image = UIImage(named: "NoChatsBackground1")
+            noChatBkgd.contentMode = .scaleAspectFill
+            noChatBkgd.clipsToBounds = true
+            noChatBkgd.isUserInteractionEnabled = true
+            noChatBkgd.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(MessagesController.showPeopleNoChats)))
+        return noChatBkgd
+    }()
+    
    
     //MARK: - View Methods
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         //let newMessageImage = UIImage(named: "newmessage")
         //navigationItem.rightBarButtonItem = UIBarButtonItem(image: newMessageImage, style: .plain, target: self, action: #selector(handleNewMessage))
         setupNavBarWithUser()
         tableView.register(UserCell.self, forCellReuseIdentifier: "cellID")
         tableView.allowsMultipleSelectionDuringEditing = true
+        tableView.separatorStyle = .none
+        noChatBackground.frame = view.bounds
+        view.addSubview(noChatBackground)
+        setupNoChatBackground()
+        
         observeUserMessages()
     }
     
@@ -36,6 +54,13 @@ class MessagesController: UITableViewController {
 //        messagesArray.removeAll()
 //        messagesDictionary.removeAll()
         handleReloadTable()
+    }
+    
+    func setupNoChatBackground(){
+        noChatBackground.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        noChatBackground.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -16).isActive = true
+        noChatBackground.widthAnchor.constraint(equalToConstant: view.frame.size.width).isActive = true
+        noChatBackground.heightAnchor.constraint(equalToConstant: view.frame.size.height).isActive = true
     }
     
     //MARK: - Setup UI
@@ -116,7 +141,7 @@ class MessagesController: UITableViewController {
                         message.setValuesForKeys(dictionary)
                     
                     self.messagesArray.append(message)
-                    
+                    if self.messagesArray.count > 0 { self.noChatBackground.isHidden = true }
                     if let chatPartnerID = message.chatPartnerID(){
                         self.messagesDictionary[chatPartnerID] = message
                     }
@@ -133,12 +158,14 @@ class MessagesController: UITableViewController {
     }
     
     func handleReloadTable(){
+        
         self.messagesArray = Array(self.messagesDictionary.values)
         self.messagesArray.sort(by: { (message1, message2) -> Bool in
             return (message1.timestamp?.intValue)! > (message2.timestamp?.intValue)!
         })
         DispatchQueue.main.async{
             self.tableView.reloadData()
+            
         }
     }
     
@@ -193,6 +220,13 @@ class MessagesController: UITableViewController {
         present(navController, animated: true, completion: nil)
     }
     
+    func showPeopleNoChats(){
+        print("Inside showPeopleNoChats")
+        let newMessageVC = NewMessagesController()
+        
+        navigationController?.pushViewController(newMessageVC, animated: true)
+    }
+    
     //MARK: - TableView Methods
     
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
@@ -207,7 +241,7 @@ class MessagesController: UITableViewController {
         if let chatPartnerID = message.chatPartnerID(){
             DataService.ds.REF_USERMESSAGES.child(uid).child(chatPartnerID).removeValue(completionBlock: { (error, ref) in
                     if error != nil{
-                        print("Failed to remove message", error)
+                        print("Failed to remove message", error as Any)
                         return
                     }
                 self.messagesDictionary.removeValue(forKey: chatPartnerID)

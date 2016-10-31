@@ -723,7 +723,7 @@ extension FeedVC{
         itemRef.updateChildValues(messageItem) { (error, ref) in
             print("Inside updateChildValues")
             if error != nil {
-                print(error?.localizedDescription)
+                print(error?.localizedDescription as Any)
                 return
             }
             

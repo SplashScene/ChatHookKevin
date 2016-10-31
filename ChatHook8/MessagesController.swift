@@ -222,9 +222,7 @@ class MessagesController: UITableViewController {
     
     func showPeopleNoChats(){
         print("Inside showPeopleNoChats")
-        let newMessageVC = NewMessagesController()
-        
-        navigationController?.pushViewController(newMessageVC, animated: true)
+        self.tabBarController?.selectedIndex = 1
     }
     
     //MARK: - TableView Methods

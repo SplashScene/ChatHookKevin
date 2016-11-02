@@ -205,11 +205,13 @@ class ProfileViewController: UIViewController {
             let alertController = UIAlertController(title: "Edit/Add Photo", message: "Do you want to add to gallery or edit your profile picture", preferredStyle: .alert)
             let buttonOne = UIAlertAction(title: "Edit Profile Picture", style: .default) { (action) in
                 self.photoChoice = "Profile"
-                self.pickPhoto()
+                self.handleImageSelector()
+                //self.pickPhoto()
             }
             let buttonTwo = UIAlertAction(title: "Add to Profile Gallery", style: .default) { (action) in
                 self.photoChoice = "Gallery"
-                self.pickPhoto()
+                self.handleImageSelector()
+                //self.pickPhoto()
             }
             let buttonCancel = UIAlertAction(title: "Cancel", style: .cancel) { (action) in
                 print("Inside Cancel")
@@ -220,6 +222,34 @@ class ProfileViewController: UIViewController {
             alertController.addAction(buttonCancel)
             
             present(alertController, animated: true, completion: nil)
+    }
+    
+     func handleImageSelector(){
+         let sheet = UIAlertController(title: "Media Messages", message: "Please select a media", preferredStyle: .actionSheet)
+         let cancel = UIAlertAction(title: "Cancel", style: .cancel)
+             { (alert:UIAlertAction) in
+                sheet.dismiss(animated: true, completion: nil)
+             }
+             
+             let takePhoto = UIAlertAction(title: "Take Photo", style: .default) { (alert: UIAlertAction) in
+                self.takePhotoWithCamera()
+             }
+             
+             let photoLibary = UIAlertAction(title: "Photo Library", style: .default)
+             { (alert: UIAlertAction) in
+                self.getMediaFrom(type: kUTTypeImage)
+             }
+             
+             let videoLibrary = UIAlertAction(title: "Video Library", style: .default)
+             { (alert: UIAlertAction) in
+                self.getMediaFrom(type: kUTTypeMovie)
+             }
+         
+             sheet.addAction(takePhoto)
+             sheet.addAction(photoLibary)
+             sheet.addAction(videoLibrary)
+             sheet.addAction(cancel)
+         self.present(sheet, animated: true, completion: nil)
     }
     
     private func getMediaFrom(type: CFString){

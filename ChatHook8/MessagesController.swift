@@ -221,7 +221,6 @@ class MessagesController: UITableViewController {
     }
     
     func showPeopleNoChats(){
-        print("Inside showPeopleNoChats")
         self.tabBarController?.selectedIndex = 1
     }
     

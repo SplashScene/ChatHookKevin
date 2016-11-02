@@ -38,7 +38,7 @@ class MainTabBar: UITabBarController {
         peepsNavController.tabBarItem.image = UIImage(named: "peeps")
         peepsNavController.tabBarItem.isEnabled = false
         
-        postsViewController.title = "Posts"
+        postsViewController.title = "Rooms"
         postsViewController.tabBarItem.image = UIImage(named: "language_icon")
         postsViewController.tabBarItem.isEnabled = false
         

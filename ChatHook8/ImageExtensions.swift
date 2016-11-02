@@ -120,17 +120,17 @@ extension ProfileViewController: UIImagePickerControllerDelegate, UINavigationCo
     
     func takePhotoWithCamera(){
         let imagePicker = UIImagePickerController()
-        imagePicker.sourceType = .camera
-        imagePicker.delegate = self
-        imagePicker.allowsEditing = true
+            imagePicker.sourceType = .camera
+            imagePicker.delegate = self
+            imagePicker.allowsEditing = true
         present(imagePicker, animated: true, completion: nil)
     }
     
     func choosePhotoFromLibrary(){
         let imagePicker = UIImagePickerController()
-        imagePicker.sourceType = .photoLibrary
-        imagePicker.delegate = self
-        imagePicker.allowsEditing = true
+            imagePicker.sourceType = .photoLibrary
+            imagePicker.delegate = self
+            imagePicker.allowsEditing = true
         present(imagePicker, animated: true, completion: nil)
     }
     

@@ -64,7 +64,7 @@ class DataService {
         REF_USERS.child(uid).setValue(user)
     }
     
-    func putInFirebaseStorage(whichFolder: String, withOptImage image: UIImage?, withOptVideoNSURL video: NSURL?, withOptUser user: User?){
+    func putInFirebaseStorage(whichFolder: String, withOptImage image: UIImage?, withOptVideoNSURL video: NSURL?, withOptUser user: User?, withOptText text: String?, withOptRoom room: PublicRoom?, withOptCityAndState cityAndState: String?){
         let imageName = NSUUID().uuidString
         
         if let photo = image{
@@ -83,6 +83,13 @@ class DataService {
                             case GALLERY_IMAGES: self.createFirebaseGalleryEntry(galleryImageUrl: imageUrl, galleryVideoUrl: nil)
                             case PROFILE_IMAGES: self.updateProfilePic(profilePic: imageUrl)
                             case MESSAGE_IMAGES: if let toUser = user{ self.createFirebaseMessageEntry(thumbnailUrl: nil, fileUrl: imageUrl, user: toUser) }
+                            case POST_IMAGES: if let toRoom = room, let cityState = cityAndState{
+                                    if let postText = text{
+                                        self.createFirebasePostEntry(thumbnailUrl: nil, fileUrl: imageUrl, room: toRoom, cityAndState:cityState, postText: postText )
+                                    }else{
+                                       self.createFirebasePostEntry(thumbnailUrl: nil, fileUrl: imageUrl, room: toRoom, cityAndState:cityState, postText: nil )
+                                    }
+                                }
                             default: print("Unexpected Option")
                         }//end switch
                     }//end if let imageUrl
@@ -115,7 +122,14 @@ class DataService {
                                         switch whichFolder{
                                             case GALLERY_IMAGES: self.createFirebaseGalleryEntry(galleryImageUrl: thumbnailUrl, galleryVideoUrl: videoUrl)
                                             //case PROFILE_IMAGES: self.updateProfilePic(profilePic: imageUrl)
-                                            //case MESSAGE_IMAGES: if let toUser = user{ self.createFirebaseMessageEntry(thumbnailUrl: nil, fileUrl: imageUrl, user: toUser) }
+                                            case MESSAGE_IMAGES: if let toUser = user{ self.createFirebaseMessageEntry(thumbnailUrl: thumbnailUrl, fileUrl: videoUrl, user: toUser) }
+                                            case POST_IMAGES: if let toRoom = room, let cityState = cityAndState{
+                                                if let postText = text{
+                                                    self.createFirebasePostEntry(thumbnailUrl: thumbnailUrl, fileUrl: videoUrl, room: toRoom, cityAndState:cityState, postText: postText )
+                                                }else{
+                                                    self.createFirebasePostEntry(thumbnailUrl: thumbnailUrl, fileUrl: videoUrl, room: toRoom, cityAndState:cityState, postText: nil )
+                                                }
+                                            }
                                             default: print("Unexpected Option")
                                         }//end switch
                                     }
@@ -192,11 +206,94 @@ class DataService {
         }
     }
     
+    func createFirebasePostEntry(thumbnailUrl: String?, fileUrl: String?, room: PublicRoom, cityAndState: String, postText: String?){
+        
+        if let toRoom = room.postKey{
+            let itemRef = DataService.ds.REF_POSTS.childByAutoId()
+            let timestamp: Int = Int(NSDate().timeIntervalSince1970)
+            var messageItem: Dictionary<String,AnyObject>
+            
+            if let thumbUrl = thumbnailUrl{
+                messageItem = ["fromId": CurrentUser._postKey as AnyObject,
+                               "timestamp" : timestamp as AnyObject,
+                               "toRoom": toRoom as AnyObject,
+                               "mediaType": "VIDEO" as AnyObject,
+                               "thumbnailUrl": thumbUrl as AnyObject,
+                               "likes": 0 as AnyObject,
+                               "comments": 0 as AnyObject,
+                               "showcaseUrl": fileUrl as AnyObject,
+                               "authorName": CurrentUser._userName as AnyObject,
+                               "authorPic": CurrentUser._profileImageUrl as AnyObject,
+                               "cityAndState": cityAndState as AnyObject]
+            }else if fileUrl != nil && thumbnailUrl == nil{
+                messageItem = ["fromId": CurrentUser._postKey as AnyObject,
+                               "timestamp" : timestamp as AnyObject,
+                               "toRoom": toRoom as AnyObject,
+                               "mediaType": "PHOTO" as AnyObject,
+                               "likes": 0 as AnyObject,
+                               "comments": 0 as AnyObject,
+                               "showcaseUrl": fileUrl! as AnyObject,
+                               "authorName": CurrentUser._userName as AnyObject,
+                               "authorPic": CurrentUser._profileImageUrl as AnyObject,
+                               "cityAndState": cityAndState as AnyObject]
+            }else{
+                messageItem = ["fromId": CurrentUser._postKey as AnyObject,
+                               "timestamp" : timestamp as AnyObject,
+                               "toRoom": toRoom as AnyObject,
+                               "mediaType": "TEXT" as AnyObject,
+                               "likes": 0 as AnyObject,
+                               "comments": 0 as AnyObject,
+                               "authorName": CurrentUser._userName as AnyObject,
+                               "authorPic": CurrentUser._profileImageUrl as AnyObject,
+                               "cityAndState": cityAndState as AnyObject]
+            }
+            
+            if let unwrappedText = postText{
+                messageItem["postText"] = unwrappedText as AnyObject
+            }
+            
+            
+            itemRef.updateChildValues(messageItem) { (error, ref) in
+                if error != nil {
+                    print(error?.localizedDescription as Any)
+                    return
+                }
+                
+                let postRoomRef = self.REF_POSTSPERROOM.child(toRoom)
+                let postID = itemRef.key
+                postRoomRef.updateChildValues([postID: 1])
+            }
+        }
+    }
+    
     func updateProfilePic(profilePic: String){
         let userRef = REF_USER_CURRENT.child("ProfileImage")
             userRef.setValue(profilePic)
     }
     
+    func deletePostFromFirebase(postToDelete: UserPost){
+        let commentsPostRef = REF_POST_COMMENTS.child(postToDelete.postKey!)
+            commentsPostRef.observe(.value, with: {snapshot in
+                if let snapshots = snapshot.children.allObjects as? [FIRDataSnapshot]{
+                    for snap in snapshots{
+                        DataService.ds.REF_USERS_COMMENTS.child(snap.key).removeValue()
+                        commentsPostRef.child(snap.key).removeValue()
+                    }
+                }
+            }, withCancel: nil)
+        REF_POSTS.child(postToDelete.postKey!).removeValue()
+        REF_POSTSPERROOM.child(postToDelete.toRoom!).child(postToDelete.postKey!).removeValue()
+        
+        let publicRoomRef = REF_CHATROOMS.child(postToDelete.toRoom!)
+        publicRoomRef.observeSingleEvent(of: .value, with: { (snapshot) in
+            if let dictionary = snapshot.value as? [String: AnyObject]{
+                let numOfPosts = dictionary["posts"] as! Int - 1
+                let adjustedPosts = NSNumber(value: Int32(numOfPosts))
+                publicRoomRef.child("posts").setValue(adjustedPosts)
+            }
+        }, withCancel: nil)
+    }
+
     private func thumbnailImageForVideoUrl(videoUrl: NSURL) -> UIImage?{
         let asset = AVAsset(url: videoUrl as URL)
         let imageGenerator = AVAssetImageGenerator(asset: asset)

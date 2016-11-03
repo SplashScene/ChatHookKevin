@@ -24,17 +24,15 @@ extension ProfileViewController: UIImagePickerControllerDelegate, UINavigationCo
         
         if let selectedImage = selectedImageFromPicker{
             if photoChoice == "Profile"{
-                DataService.ds.putInFirebaseStorage(whichFolder: PROFILE_IMAGES, withOptImage: selectedImage, withOptVideoNSURL: nil, withOptUser: nil)
+                DataService.ds.putInFirebaseStorage(whichFolder: PROFILE_IMAGES, withOptImage: selectedImage, withOptVideoNSURL: nil, withOptUser: nil, withOptText: nil, withOptRoom: nil, withOptCityAndState: nil)
                 self.profileImageView.image = selectedImage
-                //uploadToFirebaseStorageUpdateProfilePic(selectedImage: selectedImage)
             }else{
-                DataService.ds.putInFirebaseStorage(whichFolder: GALLERY_IMAGES, withOptImage: selectedImage, withOptVideoNSURL: nil, withOptUser: nil)
-                //uploadToFirebaseStorageAddToGallery(selectedImage: selectedImage)
+                DataService.ds.putInFirebaseStorage(whichFolder: GALLERY_IMAGES, withOptImage: selectedImage, withOptVideoNSURL: nil, withOptUser: nil, withOptText: nil, withOptRoom: nil, withOptCityAndState: nil)
             }
         }
         
         if let video = info["UIImagePickerControllerMediaURL"] as? NSURL{
-            DataService.ds.putInFirebaseStorage(whichFolder: GALLERY_IMAGES, withOptImage: nil, withOptVideoNSURL: video, withOptUser: nil)
+            DataService.ds.putInFirebaseStorage(whichFolder: GALLERY_IMAGES, withOptImage: nil, withOptVideoNSURL: video, withOptUser: nil, withOptText: nil, withOptRoom: nil, withOptCityAndState: nil)
         }
         
         dismiss(animated: true, completion: nil)
@@ -47,6 +45,7 @@ extension ProfileViewController: UIImagePickerControllerDelegate, UINavigationCo
     func takePhotoWithCamera(){
         let imagePicker = UIImagePickerController()
             imagePicker.sourceType = .camera
+            imagePicker.cameraDevice = .front
             imagePicker.delegate = self
             imagePicker.allowsEditing = true
         present(imagePicker, animated: true, completion: nil)
@@ -110,139 +109,16 @@ extension ChatViewController: UIImagePickerControllerDelegate, UINavigationContr
         }
         
         if let selectedImage = selectedImageFromPicker{
-            uploadToFirebaseStorageUsingSelectedMedia(image: selectedImage, video: nil, completion: { (imageUrl) in
-                self.enterIntoMessagesAndUserMessagesDatabaseWithImageUrl(metadata: "image/jpg", thumbnailURL: nil, fileURL:imageUrl)
-            })
+            DataService.ds.putInFirebaseStorage(whichFolder: MESSAGE_IMAGES, withOptImage: selectedImage, withOptVideoNSURL: nil, withOptUser: user, withOptText: nil, withOptRoom: nil, withOptCityAndState: nil)
         }
         
         if let video = info["UIImagePickerControllerMediaURL"] as? NSURL{
-            uploadToFirebaseStorageUsingSelectedMedia(image: nil, video: video, completion: { (imageUrl) in
-                self.enterIntoMessagesAndUserMessagesDatabaseWithImageUrl(metadata: "video/mp4",thumbnailURL: nil, fileURL:imageUrl)
-            })
+            DataService.ds.putInFirebaseStorage(whichFolder: MESSAGE_IMAGES, withOptImage: nil, withOptVideoNSURL: video, withOptUser: user, withOptText: nil, withOptRoom: nil, withOptCityAndState: nil)
         }
         
         self.finishSendingMessage()
         dismiss(animated: true, completion: nil)
 
-    }
-    
-    private func uploadToFirebaseStorageUsingSelectedMedia(image: UIImage?, video: NSURL?, completion: @escaping (_ imageUrl: String) -> ()){
-        let imageName = NSUUID().uuidString
-        
-        if let picture = image{
-            let ref = FIRStorage.storage().reference().child("message_images").child(senderId).child("photos").child(imageName)
-            if let uploadData = UIImageJPEGRepresentation(picture, 0.2){
-                let metadata = FIRStorageMetadata()
-                    metadata.contentType = "image/jpg"
-                let uploadTask = ref.put(uploadData, metadata: metadata, completion: { (metadata, error) in
-                    if error != nil{
-                        print(error.debugDescription)
-                        return
-                    }
-                    
-                    if let imageUrl = metadata?.downloadURL()?.absoluteString{
-                        completion(imageUrl)
-                    }
-                })
-                uploadTask.observe(.progress) { (snapshot) in
-                    if let completedUnitCount = snapshot.progress?.completedUnitCount{
-                        self.setupNavBarWithUserOrProgress(progress: String(completedUnitCount))
-                    }
-                }                
-                uploadTask.observe(.success) { (snapshot) in
-                    self.setupNavBarWithUserOrProgress(progress: nil)
-                }
-            }
-            
-        } else if let movie = video {
-            print("INSIDE MOVIE SECTION OF THE UPLOAD")
-            let ref = FIRStorage.storage().reference().child("message_images").child(senderId).child("videos").child(imageName)
-            if let uploadData = NSData(contentsOf: movie as URL){
-                let metadata = FIRStorageMetadata()
-                    metadata.contentType = "video/mp4"
-                let uploadTask = ref.put(uploadData as Data, metadata: metadata, completion: { (metadata, error) in
-                    if error != nil{
-                        print(error.debugDescription)
-                        return
-                    }
-                    
-                    if let videoUrl = metadata?.downloadURL()?.absoluteString{
-                        
-                        if let thumbnailImage = self.thumbnailImageForVideoUrl(videoUrl: movie){
-                            self.uploadToFirebaseStorageUsingSelectedMedia(image: thumbnailImage, video: nil, completion: { (imageUrl) in
-                                imageCache.setObject(thumbnailImage, forKey: videoUrl as NSString)
-                                self.enterIntoMessagesAndUserMessagesDatabaseWithImageUrl(metadata: metadata!.contentType!, thumbnailURL: imageUrl, fileURL: videoUrl)
-                                
-                            })
-                        }
-                    }
-                })
-                
-                uploadTask.observe(.progress) { (snapshot) in
-                    if let completedUnitCount = snapshot.progress?.completedUnitCount{
-                        self.setupNavBarWithUserOrProgress(progress: String(completedUnitCount))
-                    }
-                }
-                
-                uploadTask.observe(.success) { (snapshot) in
-                    self.setupNavBarWithUserOrProgress(progress: nil)
-                }
-            }
-        }
-    }
-    
-    private func enterIntoMessagesAndUserMessagesDatabaseWithImageUrl(metadata: String, thumbnailURL: String?, fileURL: String){
-        let toId = user?.postKey
-        let itemRef = DataService.ds.REF_MESSAGES.childByAutoId()
-        let timestamp: Int = Int(NSDate().timeIntervalSince1970)
-        let messageItem: Dictionary<String,AnyObject>
-        
-        if metadata == "video/mp4"{
-            print("I am HERE!!!!")
-            messageItem = ["fromId": senderId as AnyObject,
-                           "imageUrl": fileURL as AnyObject,
-                           "timestamp" : timestamp as AnyObject,
-                           "toId": toId! as AnyObject,
-                           "mediaType": "VIDEO" as AnyObject,
-                           "thumbnailUrl": thumbnailURL! as AnyObject]
-        }else{
-            messageItem = ["fromId": senderId as AnyObject,
-                           "imageUrl": fileURL as AnyObject,
-                           "timestamp" : timestamp as AnyObject,
-                           "toId": toId! as AnyObject,
-                           "mediaType": "PHOTO" as AnyObject
-            ]
-        }
-        
-        
-        itemRef.updateChildValues(messageItem) { (error, ref) in
-            if error != nil {
-                print(error?.localizedDescription as Any)
-                return
-            }
-            
-            let userMessagesRef = DataService.ds.REF_BASE.child("user_messages").child(self.senderId).child(toId!)
-            let messageID = itemRef.key
-            userMessagesRef.updateChildValues([messageID: 1])
-            
-            let recipientUserMessagesRef = DataService.ds.REF_BASE.child("user_messages").child(toId!).child(self.senderId)
-            recipientUserMessagesRef.updateChildValues([messageID: 1])
-        }
-    }
-    
-    private func thumbnailImageForVideoUrl(videoUrl: NSURL) -> UIImage?{
-        print(videoUrl)
-        let asset = AVAsset(url: videoUrl as URL)
-        let imageGenerator = AVAssetImageGenerator(asset: asset)
-        
-        do{
-            let thumbnailCGImage = try imageGenerator.copyCGImage(at: CMTimeMake(1, 60), actualTime: nil)
-            
-            return UIImage(cgImage: thumbnailCGImage)
-        }catch let err{
-            print(err)
-        }
-        return nil
     }
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
@@ -356,43 +232,4 @@ extension PostsVC:UIImagePickerControllerDelegate, UINavigationControllerDelegat
     
 }//end extension
 
-extension FeedVC:UIImagePickerControllerDelegate, UINavigationControllerDelegate{
-    func takePhotoWithCamera(){
-        let imagePicker = UIImagePickerController()
-        imagePicker.sourceType = .camera
-        imagePicker.delegate = self
-        imagePicker.allowsEditing = true
-        present(imagePicker, animated: true, completion: nil)
-    }
-    
-    
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
-        var selectedImageFromPicker: UIImage?
-        
-        if let editedImage = info["UIImagePickerControllerEditedImage"] as? UIImage{
-            selectedImageFromPicker = editedImage
-        } else if let originalImage = info["UIImagePickerControllerOriginalImage"] as? UIImage{
-            selectedImageFromPicker = originalImage
-        }
-        
-        if let selectedImage = selectedImageFromPicker{
-            postedImage = selectedImage
-            imageSelectorView.image = postedImage
-        }
-        
-        if let video = info["UIImagePickerControllerMediaURL"] as? NSURL{
-            postedVideo = video
-            imageSelectorView.image = UIImage(named: "movieIcon")
-        }
-        self.postButton.isUserInteractionEnabled = true
-        self.postButton.alpha = 1.0
-        dismiss(animated: true, completion: nil)
-        
-    }
-    
-    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        dismiss(animated: true, completion: nil)
-    }
-    
-}//end extension
 

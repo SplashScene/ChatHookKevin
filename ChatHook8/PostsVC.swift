@@ -153,19 +153,24 @@ class PostsVC: UIViewController{
         postedText = postTextField.text
         
         if let unwrappedImage = postedImage{
-            uploadToFirebaseStorageUsingSelectedMedia(image: unwrappedImage, video: nil, completion: { (imageUrl) in
-                self.enterIntoPostsAndPostsPerRoomDatabaseWithImageUrl(metadata: "image/jpg", postText: self.postedText, thumbnailURL: nil, fileURL: imageUrl)
-                //self.enterIntoPostsAndPostsPerRoomDatabaseWithImageUrl("image/jpg", thumbnailURL: nil, fileURL:imageUrl)
-            })
-            
+            DataService.ds.putInFirebaseStorage(whichFolder: POST_IMAGES, withOptImage: unwrappedImage, withOptVideoNSURL: nil, withOptUser: nil, withOptText: postedText, withOptRoom: parentRoom!, withOptCityAndState: postCityAndState!)
         }else if let unwrappedVideo = postedVideo{
-            uploadToFirebaseStorageUsingSelectedMedia(image: nil, video: unwrappedVideo, completion: { (imageUrl) in
-                //                self.enterIntoPostsAndPostsPerRoomDatabaseWithImageUrl("video/mp4", postText: self.postedText, thumbnailURL: nil, fileURL: imageUrl)
-                //self.enterIntoPostsAndPostsPerRoomDatabaseWithImageUrl("video/mp4",thumbnailURL: nil, fileURL:imageUrl)
-            })
+            DataService.ds.putInFirebaseStorage(whichFolder: POST_IMAGES, withOptImage: nil, withOptVideoNSURL: unwrappedVideo, withOptUser: nil, withOptText: postedText, withOptRoom: parentRoom!, withOptCityAndState: postCityAndState!)
         }else{
-            self.enterIntoPostsAndPostsPerRoomDatabaseWithImageUrl(metadata: "text", postText: postedText, thumbnailURL: nil, fileURL: nil)
+            DataService.ds.createFirebasePostEntry(thumbnailUrl: nil, fileUrl: nil, room: parentRoom!, cityAndState: postCityAndState!, postText: postedText!)
+            //self.enterIntoPostsAndPostsPerRoomDatabaseWithImageUrl(metadata: "text", postText: postedText, thumbnailURL: nil, fileURL: nil)
         }
+        
+        self.postTextField.text = ""
+        self.postTextField.endEditing(true)
+        self.imageSelectorView.image = UIImage(named: "camera_icon_snap")
+        self.postedImage = nil
+        self.postedVideo = nil
+        self.postedText = nil
+        self.postButton.isUserInteractionEnabled = false
+        self.postButton.alpha = 0.5
+        adjustPostsNumberOfParentRoom()
+
     }
     
     private func attemptReloadOfTable(){
@@ -181,33 +186,14 @@ class PostsVC: UIViewController{
     
     func handleDeletePost(sender: UIButton){
         let alert = UIAlertController(title: "Delete Post", message: "Are you sure that you want to DELETE this post?", preferredStyle: .alert)
+        
         let okAction = UIAlertAction(title: "OK", style: .default, handler: {(alert: UIAlertAction) in
             let sharePosition = sender.convert(CGPoint(x: 0, y: 0), to: self.postTableView)
             let indexPath = self.postTableView.indexPathForRow(at: sharePosition)
             if let indPath = indexPath{
                 let post = self.postsArray[indPath.row]
-                    if let postID = post.postKey{
-                        let commentsPostRef = DataService.ds.REF_POST_COMMENTS.child(postID)
-                            commentsPostRef.observe(.value, with: {snapshot in
-                                    if let snapshots = snapshot.children.allObjects as? [FIRDataSnapshot]{
-                                        for snap in snapshots{
-                                            DataService.ds.REF_USERS_COMMENTS.child(snap.key).removeValue()
-                                            commentsPostRef.child(snap.key).removeValue()
-                                        }
-                                    }
-                                }, withCancel: nil)
-                        DataService.ds.REF_POSTS.child(postID).removeValue()
-                        DataService.ds.REF_POSTSPERROOM.child(post.toRoom!).child(postID).removeValue()
-                        
-                        let publicRoomRef = DataService.ds.REF_CHATROOMS.child(post.toRoom!)
-                            publicRoomRef.observeSingleEvent(of: .value, with: { (snapshot) in
-                                    if let dictionary = snapshot.value as? [String: AnyObject]{
-                                        let numOfPosts = dictionary["posts"] as! Int - 1
-                                        let adjustedPosts = NSNumber(value: Int32(numOfPosts))
-                                        publicRoomRef.child("posts").setValue(adjustedPosts)
-                                    }
-                                }, withCancel: nil)
-                     }
+                    DataService.ds.deletePostFromFirebase(postToDelete: post)
+                
                 self.postsArray.remove(at: indPath.row)
                 self.postTableView.deleteRows(at: [indPath], with: .automatic)
             }
@@ -463,47 +449,19 @@ class PostsVC: UIViewController{
         }
     }
     
-    //MARK: - Video Player Methods
-    /*
-    func handlePlayPostVideo(sender: UIButton){
-        print("Inside post video play - CONTROLLER")
-        let buttonPosition = sender.convert(CGPoint(x: 0, y: 0), to: self.postTableView)
-        let indexPath = self.postTableView.indexPathForRow(at: buttonPosition)
-        let cell = self.postTableView.cellForRow(at: indexPath!) as? testPostCell
-        let post = postsArray[indexPath!.row]
-        
-        self.playButton = sender
-             playButton!.isHidden = true
-       self.activityIndicator = cell?.showcaseImageView.subviews[0] as? UIActivityIndicatorView
-        self.activityIndicator?.isHidden = false
-        self.activityIndicator!.startAnimating()
-        
-        let url = NSURL(string: post.showcaseUrl!)
-        player = AVPlayer(url: url! as URL)
-        playerLayer = AVPlayerLayer(player: player)
-        let playerController = AVPlayerViewController()
-            playerController.player = player
-        present(playerController, animated: true){
-            playerController.player!.play()
-        }
-        playerLayer!.videoGravity = AVLayerVideoGravityResizeAspectFill
-        playerLayer!.masksToBounds = true
- 
-        cell!.showcaseImageView.layer.addSublayer(playerLayer!)
-        playerLayer!.frame = cell!.showcaseImageView.bounds
-        //player!.play()
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(playerDidFinishPlaying), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: player!.currentItem)
+    func adjustPostsNumberOfParentRoom(){
+        let intComments = Int((parentRoom?.posts)!) + 1
+        let adjustedComments = NSNumber(value: Int32(intComments))
+        parentRoom!.posts = adjustedComments
+        parentRoom!.roomRef.child("posts").setValue(adjustedComments)
     }
- */
+
+    //MARK: - Video Player Methods
     
     func playerDidFinishPlaying(note: NSNotification){
         DispatchQueue.main.async {
             self.player!.pause()
-            //self.playerLayer!.removeFromSuperlayer()
         }
-//        self.playButton!.isHidden = false
-//        self.activityIndicator!.isHidden = true
     }
 
 }//end class
@@ -598,13 +556,6 @@ extension PostsVC:UITableViewDelegate, UITableViewDataSource{
             present(playerController, animated: true){
                 playerController.player!.play()
             }
-//            playerLayer!.videoGravity = AVLayerVideoGravityResize
-//            playerLayer!.masksToBounds = true
-//            
-//            
-//            cell!.showcaseImageView.layer.addSublayer(playerLayer!)
-//            playerLayer!.frame = cell!.showcaseImageView.bounds
-//            player!.play()
             
             NotificationCenter.default.addObserver(self, selector: #selector(playerDidFinishPlaying), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: player!.currentItem)
         }
@@ -614,173 +565,6 @@ extension PostsVC:UITableViewDelegate, UITableViewDataSource{
         }
     }
 }//end extension
-
-extension PostsVC{
-    func uploadToFirebaseStorageUsingSelectedMedia(image: UIImage?, video: NSURL?, completion: @escaping (_ imageUrl: String) -> ()){
-        guard let uid = FIRAuth.auth()?.currentUser?.uid else { return }
-        let imageName = NSUUID().uuidString
-        
-        if let picture = image{
-            let ref = FIRStorage.storage().reference().child("post_images").child(uid).child("photos").child(imageName)
-            if let uploadData = UIImageJPEGRepresentation(picture, 0.2){
-                let metadata = FIRStorageMetadata()
-                    metadata.contentType = "image/jpg"
-                let uploadTask = ref.put(uploadData, metadata: metadata, completion: { (metadata, error) in
-                    if error != nil{
-                        print(error.debugDescription)
-                        return
-                    }
-                    
-                    if let imageUrl = metadata?.downloadURL()?.absoluteString{
-                        completion(imageUrl)
-                    }
-                })
-                uploadTask.observe(.progress) { (snapshot) in
-                    if let completedUnitCount = snapshot.progress?.completedUnitCount{
-                        self.setupNavBarWithUserOrProgress(progress: String(completedUnitCount))
-                    }
-                }
-                
-                uploadTask.observe(.success) { (snapshot) in
-                    self.setupNavBarWithUserOrProgress(progress: nil)
-                    
-                    //self.handleReloadPosts()
-                }
-            }
-            
-        } else if let movie = video {
-            
-            let ref = FIRStorage.storage().reference().child("post_images").child(uid).child("videos").child(imageName)
-            if let uploadData = NSData(contentsOf: movie as URL){
-                let metadata = FIRStorageMetadata()
-                    metadata.contentType = "video/mp4"
-                let uploadTask = ref.put(uploadData as Data, metadata: metadata, completion: { (metadata, error) in
-                    if error != nil{
-                        print(error.debugDescription)
-                        return
-                    }
-                    
-                    if let videoUrl = metadata?.downloadURL()?.absoluteString{
-                        if let thumbnailImage = self.thumbnailImageForVideoUrl(videoUrl: movie){
-                            self.uploadToFirebaseStorageUsingSelectedMedia(image: thumbnailImage, video: nil, completion: { (imageUrl) in
-                                imageCache.setObject(thumbnailImage, forKey: videoUrl as NSString)
-                                self.enterIntoPostsAndPostsPerRoomDatabaseWithImageUrl(metadata: metadata!.contentType!, postText: self.postedText, thumbnailURL: imageUrl, fileURL: videoUrl)
-                                
-                            })
-                        }
-                    }
-                })
-                
-                uploadTask.observe(.progress) { (snapshot) in
-                    if let completedUnitCount = snapshot.progress?.completedUnitCount{
-                        self.setupNavBarWithUserOrProgress(progress: String(completedUnitCount))
-                    }
-                }
-                
-                uploadTask.observe(.success) { (snapshot) in
-                    self.setupNavBarWithUserOrProgress(progress: nil)
-                    
-                    //self.handleReloadPosts()
-                }
-            }
-        }
-    }
-    
-    func enterIntoPostsAndPostsPerRoomDatabaseWithImageUrl(metadata: String, postText: String?, thumbnailURL: String?, fileURL: String?){
-        guard let uid = FIRAuth.auth()?.currentUser!.uid else { return }
-        let toRoom = parentRoom?.postKey
-        let itemRef = DataService.ds.REF_POSTS.childByAutoId()
-        let timestamp: Int = Int(NSDate().timeIntervalSince1970)
-        var messageItem: Dictionary<String,AnyObject>
-        
-        if metadata == "video/mp4"{
-            messageItem = ["fromId": uid as AnyObject,
-                           "timestamp" : timestamp as AnyObject,
-                           "toRoom": toRoom! as AnyObject,
-                           "mediaType": "VIDEO" as AnyObject,
-                           "thumbnailUrl": thumbnailURL! as AnyObject,
-                           "likes": 0 as AnyObject,
-                           "comments": 0 as AnyObject,
-                           "showcaseUrl": fileURL! as AnyObject,
-                           "authorName": CurrentUser._userName as AnyObject,
-                           "authorPic": CurrentUser._profileImageUrl as AnyObject,
-                           "cityAndState": postCityAndState! as AnyObject]
-        }else if metadata == "image/jpg"{
-            messageItem = ["fromId": uid as AnyObject,
-                           "timestamp" : timestamp as AnyObject,
-                           "toRoom": toRoom! as AnyObject,
-                           "mediaType": "PHOTO" as AnyObject,
-                           "likes": 0 as AnyObject,
-                           "comments": 0 as AnyObject,
-                           "showcaseUrl": fileURL! as AnyObject,
-                           "authorName": CurrentUser._userName as AnyObject,
-                           "authorPic": CurrentUser._profileImageUrl as AnyObject,
-                           "cityAndState": postCityAndState! as AnyObject]
-        }else{
-            messageItem = ["fromId": uid as AnyObject,
-                           "timestamp" : timestamp as AnyObject,
-                           "toRoom": toRoom! as AnyObject,
-                           "mediaType": "TEXT" as AnyObject,
-                           "likes": 0 as AnyObject,
-                           "comments": 0 as AnyObject,
-                           "authorName": CurrentUser._userName as AnyObject,
-                           "authorPic": CurrentUser._profileImageUrl as AnyObject,
-                           "cityAndState": postCityAndState! as AnyObject]
-        }
-        
-        if let unwrappedText = postText{
-            messageItem["postText"] = unwrappedText as AnyObject
-        }
-        
-        
-        itemRef.updateChildValues(messageItem) { (error, ref) in
-            if error != nil {
-                print(error?.localizedDescription as Any)
-                return
-            }
-            
-            let postRoomRef = DataService.ds.REF_BASE.child("posts_per_room").child(self.parentRoom!.postKey!)
-            
-            let postID = itemRef.key
-                postRoomRef.updateChildValues([postID: 1])
-        }
-        
-        self.postTextField.text = ""
-        self.postTextField.endEditing(true)
-        self.imageSelectorView.image = UIImage(named: "camera_icon_snap")
-        self.postedImage = nil
-        self.postedVideo = nil
-        self.postedText = nil
-        self.postButton.isUserInteractionEnabled = false
-        self.postButton.alpha = 0.5
-        adjustPostsNumberOfParentRoom()
-        //handleReloadPosts()
-        
-    }
-    
-    func adjustPostsNumberOfParentRoom(){
-        let intComments = Int((parentRoom?.posts)!) + 1
-        let adjustedComments = NSNumber(value: Int32(intComments))
-        parentRoom!.posts = adjustedComments
-        parentRoom!.roomRef.child("posts").setValue(adjustedComments)
-    }
-    
-    private func thumbnailImageForVideoUrl(videoUrl: NSURL) -> UIImage?{
-        print(videoUrl)
-        let asset = AVAsset(url: videoUrl as URL)
-        let imageGenerator = AVAssetImageGenerator(asset: asset)
-        
-            do{
-                let thumbnailCGImage = try imageGenerator.copyCGImage(at: CMTimeMake(1, 60), actualTime: nil)
-                return UIImage(cgImage: thumbnailCGImage)
-            }catch let err{
-                print(err)
-            }
-        
-        return nil
-    }
-    
- }//end extension
 
 extension PostsVC: UITextFieldDelegate{
 

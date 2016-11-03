@@ -10,6 +10,8 @@ import UIKit
 import MobileCoreServices
 import Firebase
 import FirebaseStorage
+import AVFoundation
+import AVKit
 
 class ProfileViewController: UIViewController {
     var collectionView: UICollectionView!
@@ -24,6 +26,8 @@ class ProfileViewController: UIViewController {
     var startingFrame: CGRect?
     var blackBackgroundView: UIView?
     var startingView: UIView?
+    var player: AVPlayer?
+    var playerLayer: AVPlayerLayer?
     
     //MARK: - Properties
     let backgroundImageView: UIImageView = {
@@ -205,8 +209,8 @@ class ProfileViewController: UIViewController {
             let alertController = UIAlertController(title: "Edit/Add Photo", message: "Do you want to add to gallery or edit your profile picture", preferredStyle: .alert)
             let buttonOne = UIAlertAction(title: "Edit Profile Picture", style: .default) { (action) in
                 self.photoChoice = "Profile"
-                self.handleImageSelector()
-                //self.pickPhoto()
+                //self.handleImageSelector()
+                self.pickPhoto()
             }
             let buttonTwo = UIAlertAction(title: "Add to Profile Gallery", style: .default) { (action) in
                 self.photoChoice = "Gallery"
@@ -399,9 +403,11 @@ class ProfileViewController: UIViewController {
                 zoomOutImageView.frame = self.startingFrame!
                 self.blackBackgroundView?.alpha = 0
                 
+                
                 }, completion: { (completed) in
                     zoomOutImageView.removeFromSuperview()
                     self.startingView?.isHidden = false
+                    self.blackBackgroundView?.removeFromSuperview()
             })
         }
     }
@@ -434,11 +440,28 @@ extension ProfileViewController: UICollectionViewDelegateFlowLayout, UICollectio
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if !isEditing{
-            if let cell = collectionView.cellForItem(at: indexPath as IndexPath),
-                let cellImageView = cell.contentView.subviews[0] as? UIImageView{
-                performZoomInForStartingImageView(startingView: cell.contentView, photoImage: cellImageView)
-                navigationItem.rightBarButtonItem = nil
+            let galleryImage = galleryArray[indexPath.row]
+            if galleryImage.mediaType == "PHOTO"{
+                if let cell = collectionView.cellForItem(at: indexPath as IndexPath),
+                    let cellImageView = cell.contentView.subviews[0] as? UIImageView{
+                    performZoomInForStartingImageView(startingView: cell.contentView, photoImage: cellImageView)
+                    navigationItem.rightBarButtonItem = nil
+                }
+            }else{
+                if let galleryVidUrl = URL(string: galleryImage.galleryVideoUrl!){
+                    player = AVPlayer(url: galleryVidUrl)
+                    let playerController = AVPlayerViewController()
+                    playerController.player = player
+                    present(playerController, animated: true){
+                        playerController.player!.play()
+                    }
+                }
+                
+                
+                NotificationCenter.default.addObserver(self, selector: #selector(playerDidFinishPlaying), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: player!.currentItem)
+
             }
+            
         }else{
             navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Delete", style: .plain, target: self, action: #selector(handleDelete))
         }
@@ -450,6 +473,15 @@ extension ProfileViewController: UICollectionViewDelegateFlowLayout, UICollectio
                 navigationItem.rightBarButtonItem = nil
             }
         }
+    }
+    
+    
+    func playerDidFinishPlaying(note: NSNotification){
+        DispatchQueue.main.async {
+            self.player!.pause()
+            
+        }
+        
     }
 }//end extension
 

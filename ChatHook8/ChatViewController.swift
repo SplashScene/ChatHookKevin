@@ -425,25 +425,13 @@ extension ChatViewController: JSQMessagesCollectionViewCellDelegate{
         if message.isMediaMessage{
             if let mediaItem = message.media as? JSQVideoMediaItem{
                 
-//                    pButton = cell!.mediaView.subviews[1] as? UIButton
-//                    pButton?.isHidden = true
-//                    cellAIV = cell!.mediaView.subviews[2] as? UIActivityIndicatorView
-//                    cellAIV?.startAnimating()
+
                     player = AVPlayer(url: mediaItem.fileURL)
                     let playerController = AVPlayerViewController()
                     playerController.player = player
                     present(playerController, animated: true){
                         playerController.player!.play()
                     }
-//                    playerLayer = AVPlayerLayer(player: player)
-//                    playerLayer!.videoGravity = AVLayerVideoGravityResize
-//                    playerLayer!.masksToBounds = true
-//                
-//                
-//                cell!.mediaView.layer.addSublayer(playerLayer!)
-//                playerLayer!.frame = cell!.mediaView.bounds
-//                player!.play()
-                
                 NotificationCenter.default.addObserver(self, selector: #selector(playerDidFinishPlaying), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: player!.currentItem)
 
             }else if let photoImage = message.media as? JSQPhotoMediaItem{
@@ -484,10 +472,9 @@ extension ChatViewController: JSQMessagesCollectionViewCellDelegate{
     func playerDidFinishPlaying(note: NSNotification){
         DispatchQueue.main.async {
             self.player!.pause()
-            //self.playerLayer!.removeFromSuperlayer()
+           
         }
-//        self.pButton!.isHidden = false
-//        self.cellAIV!.isHidden = true
+
     }
     
     func messagesCollectionViewCellDidTapAvatar(_ cell: JSQMessagesCollectionViewCell!) {

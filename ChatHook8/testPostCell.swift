@@ -83,7 +83,6 @@ class testPostCell: UITableViewCell {
                                     case "PHOTO":
                                         guard let picImage = dictionary["showcaseUrl"] as? String else { return }
                                         self.showcaseImageView.loadImageUsingCacheWithUrlString(urlString: picImage)
-                                        //self.showcaseImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(self.handleZoom)))
                                             if self.showcaseImageView.subviews.count == 0{
                                                 for view in (self.showcaseImageView.subviews){
                                                     view.removeFromSuperview()
@@ -188,7 +187,7 @@ class testPostCell: UITableViewCell {
         return imageView
     }()
     
-    lazy var playButton: UIButton = {
+    let playButton: UIButton = {
         let image = UIImage(named: "playButton")
         let button = UIButton()
             button.translatesAutoresizingMaskIntoConstraints = false
